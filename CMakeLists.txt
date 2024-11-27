@@ -17,7 +17,14 @@ file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
 set(CONDA_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/env")
 link_directories("${CONDA_PREFIX}/lib")
 
-set(includes "${includes}" "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/include/graphIO" "${CONDA_PREFIX}/include")
+set(
+  includes
+  "${includes}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/graphIO"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/ttmath"
+  "${CONDA_PREFIX}/include"
+  )
 include_directories(${includes})
 
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
