@@ -12,12 +12,18 @@ endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
-set(includes include include/graphIO)
+file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
+
+set(CONDA_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/env")
+link_directories("${CONDA_PREFIX}/lib")
+
+set(includes "${includes}" "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/include/graphIO" "${CONDA_PREFIX}/include")
 include_directories(${includes})
 
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
+target_link_libraries(${PROJECT_NAME} networkit)
 
 # REPORT
 message( STATUS "")
