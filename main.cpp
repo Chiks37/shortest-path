@@ -81,7 +81,8 @@ int main(int argc, char* argv[]) {
     {
         for (int tempNeighbourVertices = graph.Xadj[tempVertice]; tempNeighbourVertices < graph.Xadj[tempVertice + 1]; tempNeighbourVertices++)
         {
-            networkitGraph.addEdge(tempVertice, tempNeighbourVertices);
+            int k = graph.Adjncy[tempNeighbourVertice];
+            networkitGraph.addEdge(tempVertice, k);
         }
     }
     std::cout << "Graph created with " << networkitGraph.numberOfNodes() << " nodes and " << networkitGraph.numberOfEdges() << " edges.\n";
