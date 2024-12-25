@@ -3,6 +3,9 @@
 #include <queue>
 #include <limits>
 #include <functional>
+#include <networkit/graph/Graph.hpp>
+#include <networkit/io/MTXGraphReader.hpp>
+#include <networkit/distance/Dijkstra.hpp>
 
 using namespace std;
 
@@ -55,7 +58,6 @@ int main(int argc, char* argv[]) {
     crsGraph graph;
     init_graph(&graph);
     read_mtx_to_crs(&graph, filename);
-
     cout << "\tA graph with " << graph.V << " vertices and " << graph.nz / 2 << " edges is loaded\n\n";
 
     int sourceVertice = 0;
@@ -72,6 +74,29 @@ int main(int argc, char* argv[]) {
     cout << "Shortest distances from vertex " << sourceVertice << ":\n";
     for (int i = 0; i < graph.V; ++i) {
         cout << "Vertex " << i + 1 << " : " << distances[i] << "\n";
+    }
+
+    // Networkit graph
+    NetworKit::MTXGraphReader networkitReader;
+    NetworKit::Graph networkitGraph = networkitReader.read("../graphs/test_graph.mtx");
+    // for (int tempVertice = 0; tempVertice < graph.V; tempVertice++)
+    // {
+    //     for (int tempVerticeNeighbourAdjincyIndex = graph.Xadj[tempVertice]; tempVerticeNeighbourAdjincyIndex < graph.Xadj[tempVertice + 1]; tempVerticeNeighbourAdjincyIndex++)
+    //     {
+    //         int tempVerticeNeighbour = graph.Adjncy[tempVerticeNeighbourAdjincyIndex];
+    //         networkitGraph.addEdge(tempVertice, tempVerticeNeighbour);
+    //     }
+    // }
+    std::cout << "Graph created with " << networkitGraph.numberOfNodes() << " nodes and " << networkitGraph.numberOfEdges() << " edges.\n";
+    
+    NetworKit::Dijkstra networkitDijkstra(networkitGraph, 0);
+    networkitDijkstra.run();
+
+    vector<double> networkitDistances = networkitDijkstra.getDistances();
+
+    std::cout << "Distances from node 0:\n";
+    for (size_t i = 0; i < distances.size(); ++i) {
+        std::cout << "Distance to node " << i << ": " << distances[i] << "\n";
     }
 
     return 0;

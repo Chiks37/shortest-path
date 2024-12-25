@@ -13,12 +13,14 @@ def add_random_number(filename):
     # Обрабатываем первый ряд (он содержит информацию, не числа)
     f.write(lines[0])
 
+    firstLineFlag = True
+
     # Обрабатываем остальные ряды, добавляя случайное число
     for i in range(1, len(lines)):
       parts = lines[i].split()
-      if all(part.isdigit() for part in parts):  # Проверяем, есть ли в строке только числа
+      if all(part.isdigit() for part in parts) and not firstLineFlag:  # Проверяем, есть ли в строке только числа
         random_number = random.randint(1, 100)
-        f.write(' '.join(parts) + ' ' + str(random_number) + '\n')
+        f.write(' '.join([parts[0], parts[1], str(random_number)]) + '\n')
       else:
         f.write(lines[i])
 

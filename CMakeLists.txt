@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 message( STATUS "x${CMAKE_CXX_COMPILER_ID}")
+
+set(CMAKE_CXX_STANDARD 20) 
 
 set(PROJECT_NAME shortest_path)
 project(${PROJECT_NAME})
@@ -14,16 +16,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
 
-set(CONDA_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/env")
-link_directories("${CONDA_PREFIX}/lib")
-
-set(includes "${includes}" "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/include/graphIO" "${CONDA_PREFIX}/include")
+set(
+  includes
+  "${includes}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  "${CMAKE_CURRENT_SOURCE_DIR}/include/graphIO"
+  )
 include_directories(${includes})
 
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
 
+add_subdirectory(3rdparty/networkit)
+
 add_executable(${PROJECT_NAME} ${SOURCES} main.cpp)
-target_link_libraries(${PROJECT_NAME} networkit)
+target_link_libraries(${PROJECT_NAME} PRIVATE networkit)
 
 # REPORT
 message( STATUS "")
