@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 file(GLOB_RECURSE SOURCES "src/*.c" "src/*.cpp")
 
 set(CONDA_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/env")
-link_directories("${CONDA_PREFIX}/lib")
+link_directories("${CONDA_PREFIX}/lib/python3.12/site-packages")
 
 set(
   includes
