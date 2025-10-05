@@ -17,8 +17,8 @@ namespace SP
         std::ifstream file(data.graphFileName);
         if (!file.is_open())
         {
-            std::cout << "Failed to open graph file (no such file?)" << std::endl;
-            return ReturnCode::ERROR;
+            std::cout << "Failed to open graph file" << std::endl;
+            return ReturnCode::BAD_ARGUMENTS;
         }
 
         // Read the graph from the file
@@ -26,6 +26,11 @@ namespace SP
         std::cout << "A graph with " << graph.V << " vertexes and " << graph.nz / 2 << " edges is loaded\n";
 
         file.close();
+
+        if (data.source < 0 || data.source >= graph.V || data.destination < 0 || data.destination >= graph.V)
+        {
+            return ReturnCode::BAD_ARGUMENTS;
+        }
 
         return ReturnCode::OK;
     }

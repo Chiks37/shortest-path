@@ -16,7 +16,8 @@ namespace SP {
 enum ReturnCode : int
 {
     OK = 0,
-    ERROR = 1
+    ERROR = 1,
+    BAD_ARGUMENTS = 2
 };
 
 class BaseAlgo {
@@ -27,7 +28,7 @@ class BaseAlgo {
     std::string graphFileName;
     int source;
     int destination;
-    int& shortestDistance;
+    double& shortestDistance;
     std::vector<int>& shortestPath;
     };
 
