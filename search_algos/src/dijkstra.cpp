@@ -12,19 +12,21 @@ namespace SP
     ReturnCode DijkstraAlgo::preProcess()
     {
         ReturnCode rc = BaseAlgo::preProcess();
-
-        if (ReturnCode::OK == rc)
+        if (ReturnCode::OK != rc)
         {
-            // All vertex weights but source weight are endless untill they relaxed 
-            distances.assign(graph.V, std::numeric_limits<double>::infinity());
-            distances[data.source] = 0;
-
-            // Parents are unknown for now
-            parents.assign(graph.V, -1);
-
-            // Source vertex is first to consider
-            pq.push({data.source, 0.0});
+            return rc;
         }
+
+        // All vertex weights but source weight are endless untill they relaxed 
+        distances.assign(graph.V, std::numeric_limits<double>::infinity());
+        distances[data.source] = 0.0;
+
+        // Parents are unknown for now
+        parents.assign(graph.V, -1);
+
+        // Source vertex is first to consider
+        double sourceEstimatedCost = estimateCost(data.source);
+        pq.push({data.source, sourceEstimatedCost});
 
         return rc;
     }
@@ -34,13 +36,20 @@ namespace SP
         while (!pq.empty())
         {
 
-            // Getting current vertex info 
+            // Getting current vertex info from priority queue
             int currentVertex = pq.top().vertex;
-            double currentVertexDistance = pq.top().val;
+            double curVerPoppedEstCost = pq.top().val;
             pq.pop();
 
-            // Skip if not the shortest path to currentVertex
-            if (currentVertexDistance > distances[currentVertex]) continue;
+            // Skip if there is already shorter path to current vertex than we trying to calculate
+            double curVerStoredEstCost = estimateCost(currentVertex);
+            if (curVerPoppedEstCost > curVerStoredEstCost) continue;
+
+            // Early exit condition: we already reached destination vertex
+            if (currentVertex == data.destination)
+            {
+                break;
+            }
 
             // Researching neighbors
             for (int i = graph.Xadj[currentVertex]; i < graph.Xadj[currentVertex + 1]; i++) {
@@ -48,10 +57,12 @@ namespace SP
                 double neighborVertexWeight = graph.Eweights[i];
 
                 // Updating values
-                if (distances[neighborVertex] > distances[currentVertex] + neighborVertexWeight) {
-                    distances[neighborVertex] = distances[currentVertex] + neighborVertexWeight;
+                double neighbVerNewDistance = distances[currentVertex] + neighborVertexWeight; 
+                if (distances[neighborVertex] > neighbVerNewDistance) {
+                    distances[neighborVertex] = neighbVerNewDistance;
                     parents[neighborVertex] = currentVertex;
-                    pq.push({neighborVertex, distances[neighborVertex]});
+                    double neigbourEstimatedCost = estimateCost(neighborVertex);
+                    pq.push({neighborVertex, neigbourEstimatedCost});
                 }
             }
         }
@@ -61,11 +72,17 @@ namespace SP
 
     ReturnCode DijkstraAlgo::postProcess()
     {
+        ReturnCode rc = ReturnCode::OK;
 
         data.shortestDistance = distances[data.destination];
+        if (std::numeric_limits<double>::infinity() == data.shortestDistance)
+        {
+            return rc;
+        }
 
         int currentVertex = data.destination;
         auto& path = data.shortestPath;
+        path.clear();
         path.push_back(currentVertex);
 
         // Collecting optimal path
@@ -77,11 +94,15 @@ namespace SP
         }
 
         // Reversing path to get correct order
-        reverse(path.begin(), path.end());
+        std::reverse(path.begin(), path.end());
 
-        BaseAlgo::postProcess();
+        rc = BaseAlgo::postProcess();
 
-        return ReturnCode::OK;
+        return rc;
     }
 
+    double DijkstraAlgo::estimateCost(int vertex)
+    {
+        return distances[vertex];
+    }
 } // namespace SP

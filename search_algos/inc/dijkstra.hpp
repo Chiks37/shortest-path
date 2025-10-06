@@ -21,6 +21,7 @@ class DijkstraAlgo : public BaseAlgo {
    virtual ReturnCode preProcess() override;
    virtual ReturnCode process() override;
    virtual ReturnCode postProcess() override;
+   virtual double estimateCost(int vertex);
 
    // Shortest distances for each vertex
    std::vector<double> distances;
