@@ -48,7 +48,7 @@ ReturnCode DijkstraAlgo::process()
             continue;
 
         // Early exit condition: we already reached destination vertex
-        if (currentVertex == data.destination)
+        if (completeCondition(currentVertex))
         {
             break;
         }
@@ -80,15 +80,27 @@ ReturnCode DijkstraAlgo::postProcess()
 {
     ReturnCode rc = ReturnCode::OK;
 
-    data.shortestDistance = distances[data.destination];
+    data.shortestDistance = getDistance(data.destination);
     if (std::numeric_limits<double>::infinity() == data.shortestDistance)
     {
         return rc;
     }
 
-    int currentVertex = data.destination;
-    auto &path = data.shortestPath;
-    path.clear();
+    data.shortestPath = reconstructPath(data.destination);
+
+    rc = BaseAlgo::postProcess();
+
+    return rc;
+}
+
+double DijkstraAlgo::estimateCost(int vertex) { return distances[vertex]; }
+
+double DijkstraAlgo::getDistance(int vertex) { return distances[vertex]; }
+
+std::vector<int> DijkstraAlgo::reconstructPath(int destination)
+{
+    int currentVertex = destination;
+    std::vector<int> path;
     path.push_back(currentVertex);
 
     // Collecting optimal path
@@ -102,10 +114,12 @@ ReturnCode DijkstraAlgo::postProcess()
     // Reversing path to get correct order
     std::reverse(path.begin(), path.end());
 
-    rc = BaseAlgo::postProcess();
-
-    return rc;
+    return path;
 }
 
-double DijkstraAlgo::estimateCost(int vertex) { return distances[vertex]; }
+bool DijkstraAlgo::completeCondition(int currentVertex)
+{
+    return currentVertex == data.destination;
+}
+
 } // namespace SP
