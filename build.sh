@@ -6,7 +6,13 @@ function build() {
 }
 
 function clang-format() {
-    clang-format -i "$(find ./search_algos/ -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp")"
+    find ./search_algos/ -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
+    # for file in $(find ./search_algos/ -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp")
+    # do
+    #     echo "$file"
+    #     break
+    #     clang-format -i "$file"
+    # done
 }
 
 function cmake-format() {

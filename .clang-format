@@ -3,4 +3,5 @@
 Language: Cpp
 #BasedOnStyle: Google
 BreakBeforeBraces: Allman
+IndentWidth: 4
 #ColumnLimit: 120

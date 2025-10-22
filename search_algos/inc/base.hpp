@@ -5,13 +5,15 @@
  */
 #pragma once
 
-extern "C" {
-    #include "graphio.h"
+extern "C"
+{
+#include "graphio.h"
 }
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace SP {
+namespace SP
+{
 
 enum ReturnCode : int
 {
@@ -20,16 +22,16 @@ enum ReturnCode : int
     BAD_ARGUMENTS = 2
 };
 
-class BaseAlgo {
- public:
-
+class BaseAlgo
+{
+  public:
     struct AlgoInData
     {
-    std::string graphFileName;
-    int source;
-    int destination;
-    double& shortestDistance;
-    std::vector<int>& shortestPath;
+        std::string graphFileName;
+        int source;
+        int destination;
+        double &shortestDistance;
+        std::vector<int> &shortestPath;
     };
 
     BaseAlgo(AlgoInData inData) : data(inData) {}
@@ -37,7 +39,7 @@ class BaseAlgo {
 
     virtual void execute();
 
- protected:
+  protected:
     virtual ReturnCode preProcess();
     virtual ReturnCode process() = 0;
     virtual ReturnCode postProcess();
