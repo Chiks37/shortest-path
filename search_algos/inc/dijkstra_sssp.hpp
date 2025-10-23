@@ -1,0 +1,23 @@
+/**
+ * @file dijkstra_sssp.hpp
+ * @author tarakanov.2004@mail.ru
+ * @brief SSSP Dijkstra algorithm class header file
+ */
+#pragma once
+
+#include "dijkstra.hpp"
+
+namespace SP
+{
+class DijkstraSsspAlgo : public DijkstraAlgo
+{
+  public:
+    DijkstraSsspAlgo(AlgoInData inData) : DijkstraAlgo(inData) {}
+
+    using DijkstraAlgo::getDistance;
+    using DijkstraAlgo::reconstructPath;
+  protected:
+    virtual ReturnCode postProcess() override { return BaseAlgo::postProcess(); }
+    virtual bool completeCondition(int currentVertex) { return false; }
+};
+} // namespace SP
