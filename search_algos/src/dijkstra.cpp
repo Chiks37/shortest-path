@@ -5,8 +5,8 @@
  */
 
 #include "dijkstra.hpp"
-#include <limits>
 #include <algorithm>
+#include <limits>
 
 namespace SP
 {

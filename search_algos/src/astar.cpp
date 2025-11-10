@@ -4,13 +4,13 @@
  * @brief Dijkstra algorithm class source file
  */
 
- #include "astar.hpp"
+#include "astar.hpp"
 
 namespace SP
 {
 double AStarAlgo::estimateCost(int vertex)
 {
-    return distances[vertex] +  heuristic(vertex);
+    return distances[vertex] + heuristic(vertex);
 }
 double AStarAlgo::heuristic(int vertex)
 {

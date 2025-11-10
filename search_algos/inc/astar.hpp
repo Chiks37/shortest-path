@@ -7,7 +7,6 @@
 
 #include "dijkstra.hpp"
 
-
 namespace SP
 {
 class AStarAlgo : public DijkstraAlgo

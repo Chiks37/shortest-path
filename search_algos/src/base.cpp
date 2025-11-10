@@ -23,7 +23,8 @@ ReturnCode BaseAlgo::setVertex(int &vertex, int value)
         return ReturnCode::BAD_ARGUMENTS;
     }
 
-    currentState = State::READY; // If it was computed this say that the out data is not actual
+    currentState = State::READY; // If it was computed this say that the out
+                                 // data is not actual
 
     return ReturnCode::OK;
 }

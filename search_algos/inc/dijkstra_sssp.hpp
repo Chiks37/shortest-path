@@ -14,8 +14,8 @@ class DijkstraSsspAlgo : public DijkstraAlgo
   public:
     DijkstraSsspAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
 
-    using DijkstraAlgo::getDistance;
-    using DijkstraAlgo::reconstructPath;
+    std::vector<double> getDistances() const { return distances; }
+
   protected:
     virtual ReturnCode buildResult() override { return ReturnCode::OK; }
     virtual bool completeCondition(int currentVertex) { return false; }

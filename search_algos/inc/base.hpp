@@ -26,22 +26,24 @@ enum class ReturnCode : int
 
 struct OutData
 {
-  double shortestDistance;
-  std::vector<int> shortestPath;
+    double shortestDistance;
+    std::vector<int> shortestPath;
 };
 
-enum class State {
+enum class State
+{
     UNCONFIGURED, // Not preprocessed
     READY,        // Preprocessed and ready to compute
     COMPUTED,     // Computations are done
-    ERROR         // ERROR OCCURED
+    ERROR         // ERROR occured
 };
 
 class BaseAlgo
 {
   public:
-
-    BaseAlgo(std::string graphFileName) : currentState(State::UNCONFIGURED), graphFileName(graphFileName), source(0), destination(0) {};
+    BaseAlgo(std::string graphFileName)
+        : currentState(State::UNCONFIGURED), graphFileName(graphFileName),
+          source(0), destination(0){};
     virtual ~BaseAlgo() = default;
 
     ReturnCode preProcess();
@@ -52,26 +54,23 @@ class BaseAlgo
     ReturnCode compute();
     virtual ReturnCode computeImpl() = 0;
 
-    const OutData& getResult() const { return outData; }
+    const OutData &getResult() const { return outData; }
     int getCurrentSource() const { return source; }
     int getCurrentDestination() const { return destination; }
     State getState() const { return currentState; }
 
   protected:
-
     crsGraph graph;
     int source;
     int destination;
     OutData outData;
     State currentState;
-  
-  private:
+    std::string graphFileName;
 
-    ReturnCode setVertex(int& vertex, int value);
+  private:
+    ReturnCode setVertex(int &vertex, int value);
     bool sourceDestValidation();
     ReturnCode loadGraph();
-
-    std::string graphFileName;
 };
 
 } // namespace SP
