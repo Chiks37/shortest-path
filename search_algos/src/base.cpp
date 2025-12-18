@@ -1,5 +1,5 @@
 /**
- * @file algo.cpp
+ * @file base.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Base algorithms class source file
  */
@@ -10,26 +10,68 @@
 
 namespace SP
 {
-ReturnCode BaseAlgo::preProcess()
+ReturnCode BaseAlgo::getGraphLink(const crsGraph & graph)
 {
-    init_graph(&graph);
+    if (State::UNCONFIGURED == currentState)
+    {
+        return ReturnCode::NOT_CONFIGURED;
+    }
 
-    std::ifstream file(data.graphFileName);
+    return ReturnCode::OK;
+}
+
+ReturnCode BaseAlgo::setVertex(int &vertex, int value)
+{
+    if (State::READY != currentState && State::COMPUTED != currentState)
+    {
+        return ReturnCode::NOT_READY;
+    }
+
+    vertex = value;
+    if (true != sourceDestValidation())
+    {
+        return ReturnCode::BAD_ARGUMENTS;
+    }
+
+    currentState = State::READY; // If it was computed this say that the out data is not actual
+
+    return ReturnCode::OK;
+}
+
+bool BaseAlgo::sourceDestValidation()
+{
+    bool rc = true;
+    if (source < 0 || source >= graph.V || destination < 0 ||
+        destination >= graph.V)
+    {
+        rc = false;
+    }
+
+    return rc;
+}
+
+ReturnCode BaseAlgo::loadGraph()
+{
+    if (0 != init_graph(&graph))
+    {
+        return ReturnCode::ERROR;
+    }
+
+    std::ifstream file(graphFileName);
     if (!file.is_open())
     {
-        std::cout << "Failed to open graph file" << std::endl;
         return ReturnCode::BAD_ARGUMENTS;
     }
 
     // Read the graph from the file
-    read_mtx_to_crs(&graph, data.graphFileName.c_str());
-    std::cout << "A graph with " << graph.V << " vertexes and " << graph.nz / 2
-              << " edges is loaded\n";
+    if (0 != read_mtx_to_crs(&graph, graphFileName.c_str()))
+    {
+        return ReturnCode::ERROR;
+    }
 
     file.close();
 
-    if (data.source < 0 || data.source >= graph.V || data.destination < 0 ||
-        data.destination >= graph.V)
+    if (true != sourceDestValidation())
     {
         return ReturnCode::BAD_ARGUMENTS;
     }
@@ -37,21 +79,43 @@ ReturnCode BaseAlgo::preProcess()
     return ReturnCode::OK;
 }
 
-ReturnCode BaseAlgo::postProcess()
+ReturnCode BaseAlgo::preProcess()
 {
-    std::cout << "Algorithm execution completed\n";
-    return ReturnCode::OK;
+    auto rc = preProcessImpl();
+    currentState = ReturnCode::OK == rc ? State::READY : State::ERROR;
+    return rc;
 }
 
-void BaseAlgo::execute()
+ReturnCode BaseAlgo::preProcessImpl()
 {
-    ReturnCode rc = preProcess();
-    rc = (ReturnCode::OK != rc) ? rc : process();
-    rc = (ReturnCode::OK != rc) ? rc : postProcess();
-
-    if (rc != ReturnCode::OK)
+    if (State::UNCONFIGURED != currentState) // Graph is already loaded
     {
-        std::cout << "FAILED" << std::endl;
+        return ReturnCode::OK;
     }
+    return loadGraph();
 }
+
+ReturnCode BaseAlgo::setSource(int source)
+{
+    return setVertex(this->source, source);
+}
+
+ReturnCode BaseAlgo::setDestination(int destination)
+{
+    return setVertex(this->destination, destination);
+}
+
+ReturnCode BaseAlgo::compute()
+{
+    if (currentState != State::READY)
+    {
+        return ReturnCode::NOT_READY;
+    }
+
+    auto rc = computeImpl();
+
+    currentState = ReturnCode::OK == rc ? State::COMPUTED : State::ERROR;
+    return rc;
+}
+
 } // namespace SP

@@ -31,6 +31,9 @@ int main(int argc, char *argv[])
                                   .shortestDistance = shortestDistance,
                                   .shortestPath = shortestPath};
     SP::DijkstraAlgo dijkstra(data);
+    
+    // std::cout << "A graph with " << graph.V << " vertexes and " << graph.nz / 2
+    //           << " edges is loaded\n";
 
     dijkstra.execute();
 

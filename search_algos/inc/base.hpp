@@ -1,5 +1,5 @@
 /**
- * @file algo.hpp
+ * @file base.hpp
  * @author tarakanov.2004@mail.ru
  * @brief Base algorithms class header file
  */
@@ -15,37 +15,64 @@ extern "C"
 namespace SP
 {
 
-enum ReturnCode : int
+enum class ReturnCode : int
 {
     OK = 0,
     ERROR = 1,
-    BAD_ARGUMENTS = 2
+    BAD_ARGUMENTS = 2,
+    NOT_CONFIGURED = 3,
+    NOT_READY = 4
+};
+
+struct OutData
+{
+  double shortestDistance;
+  std::vector<int> shortestPath;
+};
+
+enum class State {
+    UNCONFIGURED, // Not preprocessed
+    READY,        // Preprocessed and ready to compute
+    COMPUTED,     // Computations are done
+    ERROR         // ERROR OCCURED
 };
 
 class BaseAlgo
 {
   public:
-    struct AlgoInData
-    {
-        std::string graphFileName;
-        int source;
-        int destination;
-        double &shortestDistance;
-        std::vector<int> &shortestPath;
-    };
 
-    BaseAlgo(AlgoInData inData) : data(inData) {}
-    virtual ~BaseAlgo() {}
+    BaseAlgo(std::string graphFileName) : currentState(State::UNCONFIGURED), graphFileName(graphFileName), source(0), destination(0) {};
+    virtual ~BaseAlgo() = default;
 
-    virtual void execute();
+    ReturnCode preProcess();
+    virtual ReturnCode preProcessImpl();
+    ReturnCode setSource(int source);
+    ReturnCode setDestination(int destination);
+
+    ReturnCode compute();
+    virtual ReturnCode computeImpl() = 0;
+
+    const OutData& getResult() const { return outData; }
+    int getCurrentSource() const { return source; }
+    int getCurrentDestination() const { return destination; }
+    State getState() const { return currentState; }
+    ReturnCode getGraphLink (const crsGraph & graph);
 
   protected:
-    virtual ReturnCode preProcess();
-    virtual ReturnCode process() = 0;
-    virtual ReturnCode postProcess();
 
     crsGraph graph;
-    AlgoInData data;
+    int source;
+    int destination;
+    OutData outData;
+    State currentState;
+  
+  private:
+
+    ReturnCode setVertex(int& vertex, int value);
+    bool sourceDestValidation();
+    ReturnCode loadGraph();
+
+    std::string graphFileName;
 };
 
 } // namespace SP
