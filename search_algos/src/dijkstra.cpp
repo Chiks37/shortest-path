@@ -6,32 +6,60 @@
 
 #include "dijkstra.hpp"
 #include <limits>
+#include <algorithm>
 
 namespace SP
 {
-ReturnCode DijkstraAlgo::preProcess()
+ReturnCode DijkstraAlgo::preProcessImpl()
 {
-    ReturnCode rc = BaseAlgo::preProcess();
+    ReturnCode rc = BaseAlgo::preProcessImpl();
     if (ReturnCode::OK != rc)
     {
         return rc;
     }
 
-    // All vertex weights but source weight are endless untill they relaxed
-    distances.assign(graph.V, std::numeric_limits<double>::infinity());
-    distances[data.source] = 0.0;
+    distances.resize(graph.V);
+    parents.resize(graph.V);
 
-    // Parents are unknown for now
-    parents.assign(graph.V, -1);
-
-    // Source vertex is first to consider
-    double sourceEstimatedCost = estimateCost(data.source);
-    pq.push({data.source, sourceEstimatedCost});
+    resetInternalData();
 
     return rc;
 }
 
-ReturnCode DijkstraAlgo::process()
+ReturnCode DijkstraAlgo::computeImpl()
+{
+    runSearch();
+    return buildResult();
+}
+
+ReturnCode DijkstraAlgo::setSource(int source)
+{
+    ReturnCode rc = BaseAlgo::setSource(source);
+    if (rc != ReturnCode::OK)
+    {
+        return rc;
+    }
+
+    resetInternalData();
+
+    return ReturnCode::OK;
+}
+
+void DijkstraAlgo::resetInternalData()
+{
+    distances.assign(graph.V, std::numeric_limits<double>::infinity());
+    distances[this->source] = 0.0;
+
+    parents.assign(graph.V, -1);
+
+    // Clear the pq
+    pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
+
+    double sourceEstimatedCost = estimateCost(this->source);
+    pq.push({this->source, sourceEstimatedCost});
+}
+
+ReturnCode DijkstraAlgo::runSearch()
 {
     while (!pq.empty())
     {
@@ -76,19 +104,17 @@ ReturnCode DijkstraAlgo::process()
     return ReturnCode::OK;
 }
 
-ReturnCode DijkstraAlgo::postProcess()
+ReturnCode DijkstraAlgo::buildResult()
 {
     ReturnCode rc = ReturnCode::OK;
 
-    data.shortestDistance = getDistance(data.destination);
-    if (std::numeric_limits<double>::infinity() == data.shortestDistance)
+    outData.shortestDistance = getDistance(this->destination);
+    if (std::numeric_limits<double>::infinity() == outData.shortestDistance)
     {
         return rc;
     }
 
-    data.shortestPath = reconstructPath(data.destination);
-
-    rc = BaseAlgo::postProcess();
+    outData.shortestPath = reconstructPath(this->destination);
 
     return rc;
 }
@@ -104,7 +130,7 @@ std::vector<int> DijkstraAlgo::reconstructPath(int destination)
     path.push_back(currentVertex);
 
     // Collecting optimal path
-    while (currentVertex != data.source)
+    while (currentVertex != this->source)
     {
         int parrentVertex = parents[currentVertex];
         path.push_back(parrentVertex);
@@ -119,7 +145,7 @@ std::vector<int> DijkstraAlgo::reconstructPath(int destination)
 
 bool DijkstraAlgo::completeCondition(int currentVertex)
 {
-    return currentVertex == data.destination;
+    return currentVertex == this->destination;
 }
 
 } // namespace SP

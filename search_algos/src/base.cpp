@@ -10,16 +10,6 @@
 
 namespace SP
 {
-ReturnCode BaseAlgo::getGraphLink(const crsGraph & graph)
-{
-    if (State::UNCONFIGURED == currentState)
-    {
-        return ReturnCode::NOT_CONFIGURED;
-    }
-
-    return ReturnCode::OK;
-}
-
 ReturnCode BaseAlgo::setVertex(int &vertex, int value)
 {
     if (State::READY != currentState && State::COMPUTED != currentState)

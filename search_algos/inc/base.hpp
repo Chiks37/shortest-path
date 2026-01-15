@@ -46,7 +46,7 @@ class BaseAlgo
 
     ReturnCode preProcess();
     virtual ReturnCode preProcessImpl();
-    ReturnCode setSource(int source);
+    virtual ReturnCode setSource(int source);
     ReturnCode setDestination(int destination);
 
     ReturnCode compute();
@@ -56,7 +56,6 @@ class BaseAlgo
     int getCurrentSource() const { return source; }
     int getCurrentDestination() const { return destination; }
     State getState() const { return currentState; }
-    ReturnCode getGraphLink (const crsGraph & graph);
 
   protected:
 

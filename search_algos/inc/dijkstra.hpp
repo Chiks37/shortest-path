@@ -14,14 +14,18 @@ namespace SP
 class DijkstraAlgo : public BaseAlgo
 {
   public:
-    DijkstraAlgo(AlgoInData inData) : BaseAlgo(inData) {}
+    DijkstraAlgo(std::string graphFileName) : BaseAlgo(graphFileName) {}
     virtual ~DijkstraAlgo() {}
+    virtual ReturnCode setSource(int source) override;
 
   protected:
-    virtual ReturnCode preProcess() override;
-    virtual ReturnCode process() override;
-    virtual ReturnCode postProcess() override;
+    virtual ReturnCode preProcessImpl() override;
+    virtual ReturnCode computeImpl() override;
 
+    void resetInternalData();
+
+    virtual ReturnCode runSearch();
+    virtual ReturnCode buildResult();
     virtual double estimateCost(int vertex);
     virtual double getDistance(int vertex);
     virtual std::vector<int> reconstructPath(int destination);
