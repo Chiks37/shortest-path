@@ -12,12 +12,12 @@ namespace SP
 class DijkstraSsspAlgo : public DijkstraAlgo
 {
   public:
-    DijkstraSsspAlgo(AlgoInData inData) : DijkstraAlgo(inData) {}
+    DijkstraSsspAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
 
     using DijkstraAlgo::getDistance;
     using DijkstraAlgo::reconstructPath;
   protected:
-    virtual ReturnCode postProcess() override { return BaseAlgo::postProcess(); }
+    virtual ReturnCode buildResult() override { return ReturnCode::OK; }
     virtual bool completeCondition(int currentVertex) { return false; }
 };
 } // namespace SP
