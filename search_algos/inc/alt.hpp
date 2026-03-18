@@ -18,10 +18,11 @@ class ALTAlgo : public AStarAlgo
   protected:
     virtual ReturnCode preProcessImpl() override;
     virtual double heuristic(int vertex) override;
+    ReturnCode runDijkstraSssp (DijkstraSsspAlgo& dijkstra, int source, std::vector<double>& distances);
 
-    void initLandmarks();
+    ReturnCode initLandmarks();
 
-    std::vector<std::vector<double>> distToLandmarks;
+    std::vector<std::vector<double>> distToLandmarks; // @TODO For WIP version we think thath grap is not oriented, so distToLandmarks is the same as distFromLandmarks
     std::vector<std::vector<double>> distFromLandmarks;
     std::vector<int> landmarks;
     static constexpr int landmarksCount = 16; 

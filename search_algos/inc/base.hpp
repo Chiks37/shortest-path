@@ -64,14 +64,13 @@ class BaseAlgo
     int destination;
     OutData outData;
     State currentState;
+    std::string graphFileName;
   
   private:
 
     ReturnCode setVertex(int& vertex, int value);
     bool sourceDestValidation();
     ReturnCode loadGraph();
-
-    std::string graphFileName;
 };
 
 } // namespace SP
