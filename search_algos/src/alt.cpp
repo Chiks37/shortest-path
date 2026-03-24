@@ -13,15 +13,29 @@ namespace SP
 {
 ReturnCode ALTAlgo::preProcessImpl()
 {
-    DijkstraAlgo::preProcessImpl();
+    ReturnCode rc = DijkstraAlgo::preProcessImpl();
 
-    initLandmarks();
+    rc = rc != ReturnCode::OK ? rc : initLandmarks();
+    distToLandmarks = distFromLandmarks;
 
-    // Continue here to estimate distances betwen landmarks and vetexes
+    return rc;
+}
 
-    // @TODO Dist from landmark is the same as to landmark because for beginning
-    // we think that graph is not oriented
-    return ReturnCode();
+double ALTAlgo::heuristic(int vertex)
+{
+    double maxH = 0.0;
+
+    for (int i = 0; i < landmarksCount; ++i)
+    {
+        double h_to =
+            distToLandmarks[i][vertex] - distToLandmarks[i][this->destination];
+        double h_from = distFromLandmarks[i][this->destination] -
+                        distFromLandmarks[i][vertex];
+
+        maxH = std::max({maxH, h_to, h_from});
+    }
+
+    return maxH;
 }
 
 ReturnCode ALTAlgo::runDijkstraSssp(DijkstraSsspAlgo &dijkstra, int source,
@@ -37,9 +51,8 @@ ReturnCode ALTAlgo::runDijkstraSssp(DijkstraSsspAlgo &dijkstra, int source,
 ReturnCode ALTAlgo::initLandmarks()
 {
     /**
-     *
-     * dist - distance
-     * L    - landmark
+     * dist - "distance"
+     * Ls   - "landmarks"
      */
 
     if (graph.V == 0)
