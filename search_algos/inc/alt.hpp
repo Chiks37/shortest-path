@@ -6,6 +6,7 @@
 #pragma once
 
 #include "astar.hpp"
+#include "dijkstra_sssp.hpp"
 
 namespace SP
 {
