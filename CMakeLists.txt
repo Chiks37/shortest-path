@@ -36,7 +36,9 @@ endforeach()
 
 # Provide headers and sources
 include_directories(${HEADERS_FOLDERS})
+add_subdirectory(3rdparty/networkit)
 add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} PRIVATE NetworKit)
 
 # General project config output
 message(STATUS "")
