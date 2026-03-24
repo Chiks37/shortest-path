@@ -1,5 +1,8 @@
 #!/bin/bash
 
+BUILD_DIR="./build"
+KEEP_DIR="$BUILD_DIR/3rdparty/networkit"
+
 function build() {
     mkdir -p build
     cd build && cmake .. && cmake --build .
@@ -7,12 +10,6 @@ function build() {
 
 function clang-format() {
     find ./search_algos/ -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
-    # for file in $(find ./search_algos/ -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp")
-    # do
-    #     echo "$file"
-    #     break
-    #     clang-format -i "$file"
-    # done
 }
 
 function cmake-format() {
@@ -34,7 +31,13 @@ function help() {
 }
 
 function clean() {
-    rm -rf build
+    if [ -d "$BUILD_DIR" ]; then
+        find "$BUILD_DIR" -mindepth 1 \
+            -not -path "$KEEP_DIR/*" \
+            -not -path "$KEEP_DIR" \
+            -delete
+    fi
+
     rm -rf bin
 }
 

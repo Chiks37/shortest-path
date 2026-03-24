@@ -1,4 +1,4 @@
-%%MatrixMarket matrix coordinate pattern symmetric
+%%MatrixMarket matrix coordinate integer symmetric
 %-------------------------------------------------------------------------------
 % UF Sparse Matrix Collection, Tim Davis
 % http://www.cise.ufl.edu/research/sparse/matrices/DIMACS10/italy_osm

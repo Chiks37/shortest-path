@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+set(CMAKE_CXX_STANDARD 20)
 set(PROJECT_NAME shortest_path)
 project(${PROJECT_NAME})
 
@@ -34,11 +35,17 @@ foreach(folder ${CODE_FOLDERS})
 endforeach()
 # --
 
+# Включаем сборку самой C++ библиотеки
+set(NETWORKIT_BUILD_CORE ON CACHE BOOL "" FORCE)
+# Выключаем тесты и прочий хлам, чтобы не ждать вечность
+set(NETWORKIT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(NETWORKIT_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
+
 # Provide headers and sources
 include_directories(${HEADERS_FOLDERS})
 add_subdirectory(3rdparty/networkit)
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE NetworKit)
+target_link_libraries(${PROJECT_NAME} PRIVATE networkit)
 
 # General project config output
 message(STATUS "")
