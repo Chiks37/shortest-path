@@ -44,6 +44,14 @@ set(NETWORKIT_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
 # Provide headers and sources
 include_directories(${HEADERS_FOLDERS})
 add_subdirectory(3rdparty/networkit)
+
+if(GDB_BUILD)
+  add_compile_options(-O0 -g3 -ggdb)
+  set(GDB_MESSAGE "enabled")
+else()
+  set(GDB_MESSAGE "disabled")
+endif()
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} PRIVATE networkit)
 
@@ -54,5 +62,6 @@ message(STATUS "General configuration for ${PROJECT_NAME} project:")
 message(STATUS "")
 message(STATUS "   Configuration: ${CMAKE_BUILD_TYPE}")
 message(STATUS "   Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "   GDB build: ${GDB_MESSAGE}")
 message(STATUS "")
 message(STATUS "======================================")

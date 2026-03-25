@@ -13,7 +13,9 @@ namespace SP
 {
 ReturnCode ALTAlgo::preProcessImpl()
 {
-    ReturnCode rc = DijkstraAlgo::preProcessImpl();
+    ReturnCode rc = AStarAlgo::preProcessImpl();
+    landmarks.reserve(landmarksCount);
+    distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
 
     rc = rc != ReturnCode::OK ? rc : initLandmarks();
     distToLandmarks = distFromLandmarks;
@@ -59,8 +61,6 @@ ReturnCode ALTAlgo::initLandmarks()
     {
         return ReturnCode::BAD_ARGUMENTS;
     }
-    landmarks.reserve(landmarksCount);
-    distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
 
     DijkstraSsspAlgo dijkstra(graphFileName);
     dijkstra.preProcess();

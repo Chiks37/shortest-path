@@ -54,13 +54,13 @@ void DijkstraAlgo::resetInternalData()
 
     // Clear the pq
     pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
-
-    double sourceEstimatedCost = estimateCost(this->source);
-    pq.push({this->source, sourceEstimatedCost});
 }
 
 ReturnCode DijkstraAlgo::runSearch()
 {
+    double sourceEstimatedCost = estimateCost(this->source);
+    pq.push({this->source, sourceEstimatedCost});
+
     while (!pq.empty())
     {
 

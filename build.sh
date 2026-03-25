@@ -2,10 +2,16 @@
 
 BUILD_DIR="./build"
 KEEP_DIR="$BUILD_DIR/3rdparty/networkit"
+GDB_BUILD=""
 
 function build() {
+    if [[ "$2" == "-gdb" ]]; then
+        GDB_BUILD=true
+    fi
     mkdir -p build
-    cd build && cmake .. && cmake --build .
+    cd build \
+    && cmake -DGDB_BUILD=$GDB_BUILD .. \
+    && cmake --build .
 }
 
 function clang-format() {
@@ -20,7 +26,7 @@ function help() {
     echo "Usage: $0 <-c|-b|-cb|-clf|-cmf|-h>"
     echo "Keys:"
     echo "  -c, --clean          Remove build/ and bin/ directories"
-    echo "  -b, --build          Build the project"
+    echo "  -b, --build          Build the project with [-gdb] optional flag for including debug data to bin"
     echo "  -cb, --clean-build   Execute -c and then -b"
     echo "  -clf, --clang-format Format C/C++ files using clang-format"
     echo "  -cmf, --cmake-format Format CMakeLists.txt using cmake-format"
@@ -35,6 +41,7 @@ function clean() {
         find "$BUILD_DIR" -mindepth 1 \
             -not -path "$KEEP_DIR/*" \
             -not -path "$KEEP_DIR" \
+            -not -path "${KEEP_DIR%/*}" \
             -delete
     fi
 
@@ -46,11 +53,11 @@ case $1 in
         clean
         ;;
     -b|--build)
-        build
+        build "$@"
         ;;
     -cb|--clean-build)
         clean
-        build
+        build "$@"
         ;;
     -clf|--clang-format)
         clang-format
