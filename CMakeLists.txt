@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 set(CMAKE_CXX_STANDARD 20)
 set(PROJECT_NAME shortest_path)
 project(${PROJECT_NAME})
@@ -15,22 +15,31 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 # -- Collecting all headers folders and source files
 set(THIRD_PARTY_FOLDER "3rdparty") # Name of folder, containing third-party
                                    # libraries
-set(LIBS_NAMES "graphio") # List here libs names (names of libs folder in 3rd
+set(THIRD_PARTY_NAMES "graphio") # List here libs names (names of libs folder in 3rd
                           # party folder)
-foreach(LIB_NAME ${LIBS_NAMES})
-  set(LIBS_CODE_FOLDERS "${LIBS_CODE_FOLDERS}"
+foreach(LIB_NAME ${THIRD_PARTY_NAMES})
+  set(THIRD_PARTY_CODE_FOLDERS "${THIRD_PARTY_CODE_FOLDERS}"
                         "${THIRD_PARTY_FOLDER}/${LIB_NAME}")
+endforeach()
+
+set(LIB_FOLDER "lib") # Name of folder, containing third-party
+                                   # libraries
+set(LIB_NAMES "launcher") # List here libs names (names of libs folder in 3rd
+                          # party folder)
+foreach(LIB_NAME ${LIB_NAMES})
+  set(LIBS_CODE_FOLDERS "${LIBS_CODE_FOLDERS}"
+                        "${LIB_FOLDER}/${LIB_NAME}")
 endforeach()
 
 set(PROJECT_CODE_FOLDER "search_algos")
 
-set(CODE_FOLDERS ${LIBS_CODE_FOLDERS} ${PROJECT_CODE_FOLDER})
+set(CODE_FOLDERS ${THIRD_PARTY_CODE_FOLDERS} ${LIBS_CODE_FOLDERS} ${PROJECT_CODE_FOLDER})
 
-foreach(folder ${CODE_FOLDERS})
-  set(HEADERS_FOLDERS ${HEADERS_FOLDERS} "${folder}/inc/")
+foreach(FOLDER ${CODE_FOLDERS})
+  set(HEADERS_FOLDERS ${HEADERS_FOLDERS} "${FOLDER}/inc/")
 
-  file(GLOB_RECURSE SOURCES_TEMP "${folder}/*.c" "${folder}/*.cpp"
-       "${folder}/**/*.c" "${folder}/**/*.cpp")
+  file(GLOB_RECURSE SOURCES_TEMP CONFIGURE_DEPENDS "${FOLDER}/*.c" "${FOLDER}/*.cpp"
+       "${FOLDER}/**/*.c" "${FOLDER}/**/*.cpp")
   set(SOURCES ${SOURCES} ${SOURCES_TEMP})
 endforeach()
 # --

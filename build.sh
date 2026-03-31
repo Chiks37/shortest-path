@@ -15,7 +15,7 @@ function build() {
 }
 
 function clang-format() {
-    find ./search_algos/ -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
+    find ./search_algos/ ./lib/ -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
 }
 
 function cmake-format() {
