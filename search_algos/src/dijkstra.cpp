@@ -28,8 +28,9 @@ ReturnCode DijkstraAlgo::preProcessImpl()
 
 ReturnCode DijkstraAlgo::computeImpl()
 {
-    runSearch();
-    return buildResult();
+    ReturnCode rc = runSearch();
+    rc = rc != ReturnCode::OK ? rc : buildResult();
+    return rc;
 }
 
 ReturnCode DijkstraAlgo::setSource(int source)
@@ -118,10 +119,6 @@ ReturnCode DijkstraAlgo::buildResult()
 
     return rc;
 }
-
-double DijkstraAlgo::estimateCost(int vertex) { return distances[vertex]; }
-
-double DijkstraAlgo::getDistance(int vertex) { return distances[vertex]; }
 
 std::vector<int> DijkstraAlgo::reconstructPath(int destination)
 {

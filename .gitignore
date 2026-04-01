@@ -3,3 +3,5 @@
 /graphs/italy_osm.mtx
 /.vscode/
 /env/
+/venv/
+/cache/

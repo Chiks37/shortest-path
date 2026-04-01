@@ -26,8 +26,8 @@ class DijkstraAlgo : public BaseAlgo
 
     virtual ReturnCode runSearch();
     virtual ReturnCode buildResult();
-    virtual double estimateCost(int vertex);
-    virtual double getDistance(int vertex);
+    virtual double estimateCost(int vertex) { return getDistance(vertex); }
+    virtual double getDistance(int vertex) { return distances[vertex]; }
     virtual std::vector<int> reconstructPath(int destination);
     virtual bool completeCondition(int currentVertex);
 

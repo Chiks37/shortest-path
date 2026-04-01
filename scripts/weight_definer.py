@@ -26,4 +26,4 @@ def add_random_number(filename):
       else:
         f.write(lines[i])
 
-add_random_number('graphs/test_graph.mtx')
+add_random_number('../graphs/roadNet-CA-weighted.mtx')
