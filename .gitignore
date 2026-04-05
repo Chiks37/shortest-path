@@ -5,3 +5,5 @@
 /env/
 /venv/
 /cache/
+scripts/__pycache__/
+graphs/
