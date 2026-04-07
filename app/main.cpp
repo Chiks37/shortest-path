@@ -33,11 +33,14 @@ int main(int argc, char *argv[])
     destination--;
 
     std::string graphFilename(argv[1]);
-    std::string nodesMappingFilename = graphFilename.substr(0, graphFilename.find_last_of('.')) + "_nodes_mapping.txt";
+    std::string nodesMappingFilename =
+        graphFilename.substr(0, graphFilename.find_last_of('.')) +
+        "_nodes_mapping.txt";
 
     for (auto algoId : SP::algoIds)
     {
-        SP::CustomLauncher customLauncher(algoId, graphFilename, nodesMappingFilename);
+        SP::CustomLauncher customLauncher(algoId, graphFilename,
+                                          nodesMappingFilename);
         customLauncher.execute(source, destination);
         customLauncher.printReport();
     }

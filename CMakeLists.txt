@@ -13,27 +13,21 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
 # -- Collecting all headers folders and source files
-set(THIRD_PARTY_FOLDER "3rdparty") # Name of folder, containing third-party
-                                   # libraries
-set(THIRD_PARTY_NAMES "graphio") # List here libs names (names of libs folder in 3rd
-                          # party folder)
+set(THIRD_PARTY_FOLDER "3rdparty")
+set(THIRD_PARTY_NAMES "graphio")
 foreach(LIB_NAME ${THIRD_PARTY_NAMES})
   set(THIRD_PARTY_CODE_FOLDERS "${THIRD_PARTY_CODE_FOLDERS}"
                         "${THIRD_PARTY_FOLDER}/${LIB_NAME}")
 endforeach()
 
-set(LIB_FOLDER "lib") # Name of folder, containing third-party
-                                   # libraries
-set(LIB_NAMES "launcher") # List here libs names (names of libs folder in 3rd
-                          # party folder)
+set(LIB_FOLDER "lib")
+set(LIB_NAMES "search_algos" "launcher")
 foreach(LIB_NAME ${LIB_NAMES})
   set(LIBS_CODE_FOLDERS "${LIBS_CODE_FOLDERS}"
                         "${LIB_FOLDER}/${LIB_NAME}")
 endforeach()
 
-set(PROJECT_CODE_FOLDER "search_algos")
-
-set(CODE_FOLDERS ${THIRD_PARTY_CODE_FOLDERS} ${LIBS_CODE_FOLDERS} ${PROJECT_CODE_FOLDER})
+set(CODE_FOLDERS ${THIRD_PARTY_CODE_FOLDERS} ${LIBS_CODE_FOLDERS})
 
 foreach(FOLDER ${CODE_FOLDERS})
   set(HEADERS_FOLDERS ${HEADERS_FOLDERS} "${FOLDER}/inc/")
@@ -42,6 +36,8 @@ foreach(FOLDER ${CODE_FOLDERS})
        "${FOLDER}/**/*.c" "${FOLDER}/**/*.cpp")
   set(SOURCES ${SOURCES} ${SOURCES_TEMP})
 endforeach()
+set(MAIN_FILE "app/main.cpp")
+set(SOURCES ${SOURCES} ${MAIN_FILE})
 # --
 
 # Включаем сборку самой C++ библиотеки

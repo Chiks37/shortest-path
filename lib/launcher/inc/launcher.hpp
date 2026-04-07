@@ -46,7 +46,9 @@ class Launcher
 
   public:
     explicit Launcher(const std::string &graphFileName, AlgoId algoId)
-        : graphFileName(graphFileName), lastResult{}, algoId(algoId){}
+        : graphFileName(graphFileName), lastResult{}, algoId(algoId)
+    {
+    }
     virtual ~Launcher() = default;
     virtual void execute(int source, int destination) = 0;
     const LauncherResult &getResult() const { return lastResult; }

@@ -1,6 +1,6 @@
 #include "astar.hpp"
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace SP
 {
@@ -8,7 +8,10 @@ namespace SP
 class AStarGAlgo : public AStarAlgo
 {
   public:
-    AStarGAlgo(std::string graphFileName, std::string nodesMappingFileName) : AStarAlgo(graphFileName), nodesMappingFileName(nodesMappingFileName) {}
+    AStarGAlgo(std::string graphFileName, std::string nodesMappingFileName)
+        : AStarAlgo(graphFileName), nodesMappingFileName(nodesMappingFileName)
+    {
+    }
 
   protected:
     std::string nodesMappingFileName;

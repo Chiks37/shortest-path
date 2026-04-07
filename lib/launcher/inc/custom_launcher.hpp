@@ -26,8 +26,10 @@ class CustomLauncher : public Launcher
   public:
     void execute(int source, int destination) override;
 
-    CustomLauncher(AlgoId algoId, const std::string &graphFileName, const std::string &nodesMappingFileName = "")
-        : Launcher(graphFileName, algoId), nodesMappingFileName(nodesMappingFileName)
+    CustomLauncher(AlgoId algoId, const std::string &graphFileName,
+                   const std::string &nodesMappingFileName = "")
+        : Launcher(graphFileName, algoId),
+          nodesMappingFileName(nodesMappingFileName)
     {
     }
 };

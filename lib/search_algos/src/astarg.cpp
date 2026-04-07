@@ -19,8 +19,10 @@ ReturnCode AStarGAlgo::preProcessImpl()
 
 double AStarGAlgo::heuristic(int vertex)
 {
-    double dx = vertexCoordinates[vertex].first - vertexCoordinates[destination].first;
-    double dy = vertexCoordinates[vertex].second - vertexCoordinates[destination].second;
+    double dx =
+        vertexCoordinates[vertex].first - vertexCoordinates[destination].first;
+    double dy = vertexCoordinates[vertex].second -
+                vertexCoordinates[destination].second;
     return std::hypot(dx, dy);
 }
 
@@ -40,7 +42,7 @@ ReturnCode AStarGAlgo::loadNodeMapping()
         double x, y;
         if (iss >> filler >> filler >> filler >> filler >> x >> y)
         {
-            vertexCoordinates.emplace_back({x, y});
+            vertexCoordinates.emplace_back(x, y);
         }
     }
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BUILD_DIR="./build"
-KEEP_DIR="$BUILD_DIR/3rdparty/networkit"
+DONT_CLEAR_DIR="$BUILD_DIR/3rdparty/networkit"
 GDB_BUILD=""
 
 function build() {
@@ -15,7 +15,7 @@ function build() {
 }
 
 function clang-format() {
-    find ./search_algos/ ./lib/ -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
+    find ./app/ ./lib/ -type f \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \) -exec clang-format -i {} +
 }
 
 function cmake-format() {
@@ -39,9 +39,9 @@ function help() {
 function clean() {
     if [ -d "$BUILD_DIR" ]; then
         find "$BUILD_DIR" -mindepth 1 \
-            -not -path "$KEEP_DIR/*" \
-            -not -path "$KEEP_DIR" \
-            -not -path "${KEEP_DIR%/*}" \
+            -not -path "$DONT_CLEAR_DIR/*" \
+            -not -path "$DONT_CLEAR_DIR" \
+            -not -path "${DONT_CLEAR_DIR%/*}" \
             -delete
     fi
 
