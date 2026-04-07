@@ -6,7 +6,7 @@
 #pragma once
 
 #include "alt.hpp"
-#include "astar.hpp"
+#include "astarg.hpp"
 #include "dijkstra.hpp"
 #include "launcher.hpp"
 
@@ -21,12 +21,13 @@ class CustomLauncher : public Launcher
 {
   private:
     std::shared_ptr<SP::BaseAlgo> createAlgoObject();
+    std::string nodesMappingFileName;
 
   public:
     void execute(int source, int destination) override;
 
-    CustomLauncher(const std::string &graphFileName, AlgoId algoId)
-        : Launcher(graphFileName, algoId)
+    CustomLauncher(AlgoId algoId, const std::string &graphFileName, const std::string &nodesMappingFileName = "")
+        : Launcher(graphFileName, algoId), nodesMappingFileName(nodesMappingFileName)
     {
     }
 };

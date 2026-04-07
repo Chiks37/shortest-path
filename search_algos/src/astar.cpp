@@ -8,13 +8,4 @@
 
 namespace SP
 {
-double AStarAlgo::estimateCost(int vertex)
-{
-    return distances[vertex] + heuristic(vertex);
-}
-double AStarAlgo::heuristic(int vertex)
-{
-    return 0; // @FIXIT
-}
-
 } // namespace SP

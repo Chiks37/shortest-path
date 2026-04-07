@@ -12,10 +12,19 @@ def download_graph(place_name):
     print(f"Скачиваем граф для {place_name}...")
     G = ox.graph_from_place(place_name, network_type='drive')
     
+    # Сохраняем оригинальные координаты перед проецированием,
+    # так как ox.project_graph перезапишет x и y на метрические
+    for node, data in G.nodes(data=True):
+        data['lon'] = data['x']
+        data['lat'] = data['y']
+    
+    # Сразу проецируем граф (он переведет x/y в метры и сохранит оригинальные в lon/lat)
+    G_projected = ox.project_graph(G)
+
     # OSMnx возвращает мульти-ориентированный граф (MultiDiGraph), 
     # так как между двумя перекрестками может быть несколько дорог.
     # Для классических алгоритмов (Дейкстра) его часто упрощают до обычного DiGraph:
-    G_simple = ox.convert.to_digraph(G, weight="length")
+    G_simple = ox.convert.to_digraph(G_projected, weight="length")
     
     print(f"Граф загружен: Узлов: {len(G_simple.nodes)}, Ребер: {len(G_simple.edges)}")
     return G_simple
@@ -42,8 +51,10 @@ def save_graph_data(G_simple, graph_folder, graph_name):
     for i, (node_id, data) in enumerate(nodes_list):
         node_mapping[i] = {
             "osm_id": node_id,
-            "y": data['y'],  # Широта (Latitude)
-            "x": data['x']   # Долгота (Longitude)
+            "lat": data['lat'],  # Оригинальная широта (сохраняется при проекции)
+            "lon": data['lon'],  # Оригинальная долгота (сохраняется при проекции)
+            "x": data['x'],      # Метрическая координата X (в метрах)
+            "y": data['y']       # Метрическая координата Y (в метрах)
         }
 
     json_path = os.path.join(graph_folder, f"{graph_name}_nodes_mapping.json")
@@ -54,7 +65,7 @@ def save_graph_data(G_simple, graph_folder, graph_name):
     txt_path = os.path.join(graph_folder, f"{graph_name}_nodes_mapping.txt")
     with open(txt_path, "w") as f:
         for idx, data in node_mapping.items():
-            f.write(f"{idx} {data['osm_id']} {data['y']} {data['x']}\n")
+            f.write(f"{idx} {data['osm_id']} {data['lat']} {data['lon']} {data['x']} {data['y']}\n")
     print(f"Координаты узлов сохранены в {txt_path}")
 
 if __name__ == "__main__":

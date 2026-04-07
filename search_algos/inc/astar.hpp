@@ -16,7 +16,7 @@ class AStarAlgo : public DijkstraAlgo
     virtual ~AStarAlgo() {}
 
   protected:
-    virtual double estimateCost(int vertex) override;
-    virtual double heuristic(int vertex);
+    virtual double estimateCost(int vertex) override { return distances[vertex] + heuristic(vertex); }
+    virtual double heuristic(int vertex) = 0;
 };
 } // namespace SP
