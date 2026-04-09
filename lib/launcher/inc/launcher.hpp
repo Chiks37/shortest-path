@@ -18,15 +18,15 @@ namespace SP
 enum class AlgoId
 {
     DIJKSTRA,
-    ASTAR,
+    ASTARG,
     ALT,
     COUNT
 };
 inline constexpr std::array<AlgoId, static_cast<size_t>(AlgoId::COUNT)>
-    algoIds = {AlgoId::DIJKSTRA, AlgoId::ASTAR, AlgoId::ALT};
+    algoIds = {AlgoId::DIJKSTRA, AlgoId::ASTARG, AlgoId::ALT};
 inline const std::unordered_map<AlgoId, std::string> algoNames = {
     {AlgoId::DIJKSTRA, "dijkstra"},
-    {AlgoId::ASTAR, "astar"},
+    {AlgoId::ASTARG, "astar"},
     {AlgoId::ALT, "alt"}};
 
 struct LauncherResult

@@ -50,6 +50,8 @@ set(NETWORKIT_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
 include_directories(${HEADERS_FOLDERS})
 add_subdirectory(3rdparty/networkit)
 
+find_package(OpenMP REQUIRED)
+
 if(GDB_BUILD)
   add_compile_options(-O0 -g3 -ggdb)
   set(GDB_MESSAGE "enabled")
@@ -58,7 +60,7 @@ else()
 endif()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE networkit)
+target_link_libraries(${PROJECT_NAME} PRIVATE networkit OpenMP::OpenMP_CXX)
 
 # General project config output
 message(STATUS "")

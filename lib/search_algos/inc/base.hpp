@@ -43,13 +43,13 @@ class BaseAlgo
   public:
     BaseAlgo(std::string graphFileName)
         : currentState(State::UNCONFIGURED), graphFileName(graphFileName),
-          source(0), destination(0){};
+          source(-1), destination(-1){};
     virtual ~BaseAlgo() = default;
 
     ReturnCode preProcess();
     virtual ReturnCode preProcessImpl();
     virtual ReturnCode setSource(int source);
-    ReturnCode setDestination(int destination);
+    virtual ReturnCode setDestination(int destination);
 
     ReturnCode compute();
     virtual ReturnCode computeImpl() = 0;

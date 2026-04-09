@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <omp.h>
 
 void setWeightsToOne(crsGraph &graph)
 {
@@ -20,6 +21,16 @@ int main(int argc, char *argv[])
     {
         std::cerr << "Usage: " << argv[0] << " <.mtx file>" << std::endl;
         return 1;
+    }
+
+#pragma omp parallel
+    {
+        int id = omp_get_thread_num();
+
+#pragma omp critical
+        {
+            std::cout << "Thread " << id << std::endl;
+        }
     }
 
     int source = 0;
@@ -55,7 +66,7 @@ int main(int argc, char *argv[])
                                             SP::AlgoId::DIJKSTRA);
     networkitLauncher.execute(source, destination);
     networkitLauncher.printReport();
-    networkitLauncher = SP::NetworkitLauncher(graphFilename, SP::AlgoId::ASTAR);
+    networkitLauncher = SP::NetworkitLauncher(graphFilename, SP::AlgoId::ASTARG);
     networkitLauncher.execute(source, destination);
     networkitLauncher.printReport();
 

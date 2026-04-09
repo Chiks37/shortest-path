@@ -21,7 +21,7 @@ ReturnCode DijkstraAlgo::preProcessImpl()
     distances.resize(graph.V);
     parents.resize(graph.V);
 
-    resetInternalData();
+    initInternalData();
 
     return rc;
 }
@@ -46,7 +46,7 @@ ReturnCode DijkstraAlgo::setSource(int source)
     return ReturnCode::OK;
 }
 
-void DijkstraAlgo::resetInternalData()
+void DijkstraAlgo::initInternalData()
 {
     distances.assign(graph.V, std::numeric_limits<double>::infinity());
     distances[this->source] = 0.0;
@@ -57,11 +57,16 @@ void DijkstraAlgo::resetInternalData()
     pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
 }
 
-ReturnCode DijkstraAlgo::runSearch()
+void DijkstraAlgo::resetInternalData()
 {
+    initInternalData();
+
     double sourceEstimatedCost = estimateCost(this->source);
     pq.push({this->source, sourceEstimatedCost});
+}
 
+ReturnCode DijkstraAlgo::runSearch()
+{
     while (!pq.empty())
     {
 
@@ -118,6 +123,15 @@ ReturnCode DijkstraAlgo::buildResult()
     outData.shortestPath = reconstructPath(this->destination);
 
     return rc;
+}
+
+double DijkstraAlgo::getDistance(int vertex)
+{
+    if (vertex < 0 || vertex >= graph.V)
+    {
+        return -1.0;
+    }
+    return distances[vertex];
 }
 
 std::vector<int> DijkstraAlgo::reconstructPath(int destination)

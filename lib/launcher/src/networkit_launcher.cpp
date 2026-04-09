@@ -14,7 +14,7 @@ NetworkitLauncher::createAlgoObject(const NetworKit::Graph &graph, int source,
     case AlgoId::DIJKSTRA:
         return std::make_shared<NetworKit::Dijkstra>(graph, source, true, false,
                                                      destination);
-    case AlgoId::ASTAR:
+    case AlgoId::ASTARG:
     {
         astarHeuristics.assign(graph.upperNodeIdBound(), 0.0);
         return std::make_shared<NetworKit::AStar>(graph, astarHeuristics,
@@ -59,7 +59,7 @@ void NetworkitLauncher::execute(int source, int destination)
                 ->getDistances()[destination]);
         break;
     }
-    case AlgoId::ASTAR:
+    case AlgoId::ASTARG:
     {
         auto p = std::static_pointer_cast<NetworKit::AStar>(algo)->getPath();
         path.assign(p.begin(), p.end());

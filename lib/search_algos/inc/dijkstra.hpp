@@ -22,12 +22,13 @@ class DijkstraAlgo : public BaseAlgo
     virtual ReturnCode preProcessImpl() override;
     virtual ReturnCode computeImpl() override;
 
-    void resetInternalData();
+    virtual void initInternalData();
+    virtual void resetInternalData();
 
     virtual ReturnCode runSearch();
     virtual ReturnCode buildResult();
     virtual double estimateCost(int vertex) { return getDistance(vertex); }
-    virtual double getDistance(int vertex) { return distances[vertex]; }
+    virtual double getDistance(int vertex);
     virtual std::vector<int> reconstructPath(int destination);
     virtual bool completeCondition(int currentVertex);
 
