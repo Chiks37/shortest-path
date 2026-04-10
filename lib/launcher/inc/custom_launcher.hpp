@@ -8,6 +8,7 @@
 #include "alt.hpp"
 #include "astarg.hpp"
 #include "dijkstra.hpp"
+#include "dijkstra_bidir.hpp"
 #include "launcher.hpp"
 
 #include <iostream>

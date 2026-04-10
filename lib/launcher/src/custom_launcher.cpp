@@ -10,6 +10,8 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
     {
     case AlgoId::DIJKSTRA:
         return std::make_shared<SP::DijkstraAlgo>(graphFileName);
+    case AlgoId::DIJKSTRA_BIDIR:
+        return std::make_shared<SP::dijkstraBiDirAlgo>(graphFileName);
     case AlgoId::ASTARG:
         return std::make_shared<SP::AStarGAlgo>(graphFileName,
                                                 nodesMappingFileName);
