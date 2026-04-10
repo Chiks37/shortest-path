@@ -3,19 +3,6 @@
 
 namespace SP
 {
-ReturnCode dijkstraBiDirAlgo::setDestination(int destination)
-{
-    ReturnCode rc = BaseAlgo::setDestination(destination);
-    if (rc != ReturnCode::OK)
-    {
-        return rc;
-    }
-
-    resetInternalData();
-
-    return ReturnCode::OK;
-}
-
 void dijkstraBiDirAlgo::initInternalData()
 {
     DijkstraAlgo::initInternalData();
@@ -48,8 +35,6 @@ ReturnCode dijkstraBiDirAlgo::preProcessImpl()
 
     distancesBackward.resize(graph.V);
     parentsBackward.resize(graph.V);
-
-    resetInternalData();
 
     return rc;
 }

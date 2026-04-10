@@ -48,8 +48,7 @@ class BaseAlgo
 
     ReturnCode preProcess();
     virtual ReturnCode preProcessImpl();
-    virtual ReturnCode setSource(int source);
-    virtual ReturnCode setDestination(int destination);
+    virtual ReturnCode setSrcDest(int source, int destination);
 
     ReturnCode compute();
     virtual ReturnCode computeImpl() = 0;
@@ -71,6 +70,8 @@ class BaseAlgo
     ReturnCode setVertex(int &vertex, int value);
     bool sourceDestValidation();
     ReturnCode loadGraph();
+    ReturnCode setSource(int source);
+    ReturnCode setDestination(int destination);
 };
 
 } // namespace SP

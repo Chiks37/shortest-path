@@ -26,8 +26,7 @@ void CustomLauncher::execute(int source, int destination)
 
     auto preStart = std::chrono::high_resolution_clock::now();
     algo->preProcess();
-    algo->setSource(source);
-    algo->setDestination(destination);
+    algo->setSrcDest(source, destination);
     auto preEnd = std::chrono::high_resolution_clock::now();
     lastResult.preProccessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();

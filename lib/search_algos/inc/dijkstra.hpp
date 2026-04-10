@@ -16,7 +16,7 @@ class DijkstraAlgo : public BaseAlgo
   public:
     DijkstraAlgo(std::string graphFileName) : BaseAlgo(graphFileName) {}
     virtual ~DijkstraAlgo() {}
-    virtual ReturnCode setSource(int source) override;
+    virtual ReturnCode setSrcDest(int source, int destination) override;
 
   protected:
     virtual ReturnCode preProcessImpl() override;

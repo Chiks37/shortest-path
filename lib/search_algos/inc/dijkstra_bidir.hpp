@@ -21,7 +21,6 @@ class dijkstraBiDirAlgo : public DijkstraAlgo
     int meetingVertex;
     double shortestPathLength;
 
-    virtual ReturnCode setDestination(int destination) override;
     virtual void initInternalData() override;
     virtual void resetInternalData() override;
     virtual ReturnCode preProcessImpl() override;

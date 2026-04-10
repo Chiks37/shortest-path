@@ -10,6 +10,19 @@
 
 namespace SP
 {
+ReturnCode DijkstraAlgo::setSrcDest(int source, int destination)
+{
+    ReturnCode rc = BaseAlgo::setSrcDest(source, destination);
+    if (rc != ReturnCode::OK)
+    {
+        return rc;
+    }
+
+    resetInternalData();
+
+    return rc;
+}
+
 ReturnCode DijkstraAlgo::preProcessImpl()
 {
     ReturnCode rc = BaseAlgo::preProcessImpl();
@@ -21,8 +34,6 @@ ReturnCode DijkstraAlgo::preProcessImpl()
     distances.resize(graph.V);
     parents.resize(graph.V);
 
-    initInternalData();
-
     return rc;
 }
 
@@ -31,19 +42,6 @@ ReturnCode DijkstraAlgo::computeImpl()
     ReturnCode rc = runSearch();
     rc = rc != ReturnCode::OK ? rc : buildResult();
     return rc;
-}
-
-ReturnCode DijkstraAlgo::setSource(int source)
-{
-    ReturnCode rc = BaseAlgo::setSource(source);
-    if (rc != ReturnCode::OK)
-    {
-        return rc;
-    }
-
-    resetInternalData();
-
-    return ReturnCode::OK;
 }
 
 void DijkstraAlgo::initInternalData()

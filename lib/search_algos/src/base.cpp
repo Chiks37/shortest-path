@@ -17,11 +17,12 @@ ReturnCode BaseAlgo::setVertex(int &vertex, int value)
         return ReturnCode::NOT_READY;
     }
 
-    vertex = value;
-    if (true != sourceDestValidation())
+    if (value < 0 || value >= graph.V)
     {
         return ReturnCode::BAD_ARGUMENTS;
     }
+
+    vertex = value;
 
     currentState = State::READY; // If it was computed this say that the out
                                  // data is not actual
@@ -62,11 +63,6 @@ ReturnCode BaseAlgo::loadGraph()
 
     file.close();
 
-    if (true != sourceDestValidation())
-    {
-        return ReturnCode::BAD_ARGUMENTS;
-    }
-
     return ReturnCode::OK;
 }
 
@@ -84,6 +80,13 @@ ReturnCode BaseAlgo::preProcessImpl()
         return ReturnCode::OK;
     }
     return loadGraph();
+}
+
+ReturnCode BaseAlgo::setSrcDest(int source, int destination)
+{
+    ReturnCode rc = setSource(source);
+    rc = rc != ReturnCode::OK ? rc : setDestination(destination);
+    return rc;
 }
 
 ReturnCode BaseAlgo::setSource(int source)

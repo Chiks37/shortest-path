@@ -15,6 +15,7 @@ class DijkstraSsspAlgo : public DijkstraAlgo
     DijkstraSsspAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
 
     std::vector<double> getDistances() const { return std::move(distances); }
+    ReturnCode setSource(int source) { return BaseAlgo::setSrcDest(source, source); }
 
   protected:
     virtual ReturnCode buildResult() override { return ReturnCode::OK; }
