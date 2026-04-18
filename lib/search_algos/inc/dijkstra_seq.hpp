@@ -12,7 +12,8 @@ namespace SP
 class DijkstraSeqAlgo : public DijkstraAlgo
 {
   public:
-    DijkstraSeqAlgo(std::string graphfilename) : DijkstraAlgo(graphFileName) {}
+    DijkstraSeqAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
+
   protected:
     virtual ReturnCode runSearch();
 

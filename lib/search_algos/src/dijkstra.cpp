@@ -52,10 +52,7 @@ void DijkstraAlgo::initInternalData()
     parents.assign(graph.V, -1);
 }
 
-void DijkstraAlgo::resetInternalData()
-{
-    initInternalData();
-}
+void DijkstraAlgo::resetInternalData() { initInternalData(); }
 
 ReturnCode DijkstraAlgo::buildResult()
 {

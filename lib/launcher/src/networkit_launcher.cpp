@@ -16,7 +16,7 @@ NetworkitLauncher::createAlgoObject(const NetworKit::Graph &graph, int source,
     // Set reconstruct path = true, sort vertices = false
     switch (algoId)
     {
-    case AlgoId::DIJKSTRA:
+    case AlgoId::DIJKSTRA_SEQ:
         return std::make_shared<NetworKit::Dijkstra>(graph, source, true, false,
                                                      destination);
     case AlgoId::ASTARG:
@@ -54,7 +54,7 @@ void NetworkitLauncher::execute(int source, int destination)
     double distance;
     switch (algoId)
     {
-    case AlgoId::DIJKSTRA:
+    case AlgoId::DIJKSTRA_SEQ:
     {
         auto p = std::static_pointer_cast<NetworKit::Dijkstra>(algo)->getPath(
             destination);

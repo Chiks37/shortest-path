@@ -8,7 +8,7 @@
 
 namespace SP
 {
-void dijkstraBiDirAlgo::initInternalData()
+void DijkstraBiDirAlgo::initInternalData()
 {
     DijkstraSeqAlgo::initInternalData();
 
@@ -24,13 +24,14 @@ void dijkstraBiDirAlgo::initInternalData()
     shortestPathLength = std::numeric_limits<double>::infinity();
 }
 
-void dijkstraBiDirAlgo::resetInternalData(){
+void DijkstraBiDirAlgo::resetInternalData()
+{
     DijkstraSeqAlgo::resetInternalData();
 
     double destEstimatedCost = estimateCostBackward(this->destination);
     pqBackward.push({this->destination, destEstimatedCost});
 }
-ReturnCode dijkstraBiDirAlgo::preProcessImpl()
+ReturnCode DijkstraBiDirAlgo::preProcessImpl()
 {
     ReturnCode rc = DijkstraSeqAlgo::preProcessImpl();
     if (ReturnCode::OK != rc)
@@ -44,7 +45,7 @@ ReturnCode dijkstraBiDirAlgo::preProcessImpl()
     return rc;
 }
 
-ReturnCode dijkstraBiDirAlgo::computeImpl()
+ReturnCode DijkstraBiDirAlgo::computeImpl()
 {
 #pragma omp parallel
     {
@@ -52,14 +53,16 @@ ReturnCode dijkstraBiDirAlgo::computeImpl()
         {
 #pragma omp task shared(pq, distances, parents, distancesBackward)
             {
-                runHalfSearch(pq, distances, parents, distancesBackward, &dijkstraBiDirAlgo::estimateCost);
+                runHalfSearch(pq, distances, parents, distancesBackward,
+                              &DijkstraBiDirAlgo::estimateCost);
             }
 
 #pragma omp task shared(pqBackward, distancesBackward, parentsBackward,        \
                         distances)
             {
                 runHalfSearch(pqBackward, distancesBackward, parentsBackward,
-                              distances, &dijkstraBiDirAlgo::estimateCostBackward);
+                              distances,
+                              &DijkstraBiDirAlgo::estimateCostBackward);
             }
 
 #pragma omp taskwait
@@ -72,8 +75,8 @@ ReturnCode dijkstraBiDirAlgo::computeImpl()
                 }
 #pragma omp task shared(shortestPathBackward)
                 {
-                    shortestPathBackward =
-                        reconstructPath(destination, meetingVertex, parentsBackward);
+                    shortestPathBackward = reconstructPath(
+                        destination, meetingVertex, parentsBackward);
                 }
 #pragma omp taskwait
             }
@@ -85,7 +88,7 @@ ReturnCode dijkstraBiDirAlgo::computeImpl()
     return ReturnCode::OK;
 }
 
-ReturnCode dijkstraBiDirAlgo::buildResult()
+ReturnCode DijkstraBiDirAlgo::buildResult()
 {
     if (meetingVertex != -1)
     {
@@ -103,11 +106,11 @@ ReturnCode dijkstraBiDirAlgo::buildResult()
     return ReturnCode::OK;
 }
 
-ReturnCode dijkstraBiDirAlgo::runHalfSearch(
+ReturnCode DijkstraBiDirAlgo::runHalfSearch(
     std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
     std::vector<double> &myDistances, std::vector<int> &myParents,
     const std::vector<double> &otherDistances,
-    dijkstraBiDirAlgo::CostEstimator costEstimator)
+    DijkstraBiDirAlgo::CostEstimator costEstimator)
 {
     while (!myPq.empty())
     {
@@ -116,7 +119,7 @@ ReturnCode dijkstraBiDirAlgo::runHalfSearch(
         int currentVertex = myPq.top().vertex;
         double curVerPoppedEstCost = myPq.top().val;
         myPq.pop();
-        
+
         // Skip if there is already shorter path to current vertex than we
         // trying to calculate
         double curVerStoredEstCost = (this->*costEstimator)(currentVertex);
@@ -143,13 +146,17 @@ ReturnCode dijkstraBiDirAlgo::runHalfSearch(
             {
                 myDistances[neighborVertex] = neighbVerNewDistance;
                 myParents[neighborVertex] = currentVertex;
-                double neigbourEstimatedCost = (this->*costEstimator)(neighborVertex);
+                double neigbourEstimatedCost =
+                    (this->*costEstimator)(neighborVertex);
                 myPq.push({neighborVertex, neigbourEstimatedCost});
 
-                // Cross-check: check if the other search has reached this vertex
-                if (otherDistances[neighborVertex] != std::numeric_limits<double>::infinity())
+                // Cross-check: check if the other search has reached this
+                // vertex
+                if (otherDistances[neighborVertex] !=
+                    std::numeric_limits<double>::infinity())
                 {
-                    double potentialPath = myDistances[neighborVertex] + otherDistances[neighborVertex];
+                    double potentialPath = myDistances[neighborVertex] +
+                                           otherDistances[neighborVertex];
 #pragma omp critical
                     {
                         if (potentialPath < shortestPathLength)
@@ -166,8 +173,9 @@ ReturnCode dijkstraBiDirAlgo::runHalfSearch(
     return ReturnCode::OK;
 }
 
-std::vector<int> dijkstraBiDirAlgo::reconstructPath(int source,
-                                                        int destination, const std::vector<int> &myParents)
+std::vector<int>
+DijkstraBiDirAlgo::reconstructPath(int source, int destination,
+                                   const std::vector<int> &myParents)
 {
     int currentVertex = destination;
     std::vector<int> path;
@@ -183,4 +191,4 @@ std::vector<int> dijkstraBiDirAlgo::reconstructPath(int source,
 
     return path;
 }
-}
+} // namespace SP

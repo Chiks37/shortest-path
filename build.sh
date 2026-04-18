@@ -1,7 +1,8 @@
 #!/bin/bash
 
 BUILD_DIR="./build"
-DONT_CLEAR_DIR="$BUILD_DIR/3rdparty/networkit"
+NETWORKIT_DIR="$BUILD_DIR/3rdparty/networkit"
+TBB_DIR="$BUILD_DIR/3rdparty/oneTBB"
 GDB_BUILD=""
 
 function build() {
@@ -39,9 +40,11 @@ function help() {
 function clean() {
     if [ -d "$BUILD_DIR" ]; then
         find "$BUILD_DIR" -mindepth 1 \
-            -not -path "$DONT_CLEAR_DIR/*" \
-            -not -path "$DONT_CLEAR_DIR" \
-            -not -path "${DONT_CLEAR_DIR%/*}" \
+            -not -path "$NETWORKIT_DIR/*" \
+            -not -path "$NETWORKIT_DIR" \
+            -not -path "$TBB_DIR/*" \
+            -not -path "$TBB_DIR" \
+            -not -path "${NETWORKIT_DIR%/*}" \
             -delete
     fi
 

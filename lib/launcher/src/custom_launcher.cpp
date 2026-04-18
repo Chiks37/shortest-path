@@ -14,10 +14,12 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
 {
     switch (algoId)
     {
-    case AlgoId::DIJKSTRA:
+    case AlgoId::DIJKSTRA_SEQ:
         return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
     case AlgoId::DIJKSTRA_BIDIR:
-        return std::make_shared<SP::dijkstraBiDirAlgo>(graphFileName);
+        return std::make_shared<SP::DijkstraBiDirAlgo>(graphFileName);
+    case AlgoId::DIJKSTRA_PAR_EXPANSION:
+        return std::make_shared<SP::DijkstraParExpansionAlgo>(graphFileName);
     case AlgoId::ASTARG:
         return std::make_shared<SP::AStarGAlgo>(graphFileName,
                                                 nodesMappingFileName);

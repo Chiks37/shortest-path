@@ -12,10 +12,15 @@ namespace SP
 class DijkstraSsspAlgo : public DijkstraSeqAlgo
 {
   public:
-    DijkstraSsspAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName) {}
+    DijkstraSsspAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName)
+    {
+    }
 
     std::vector<double> getDistances() const { return std::move(distances); }
-    ReturnCode setSource(int source) { return BaseAlgo::setSrcDest(source, source); }
+    ReturnCode setSource(int source)
+    {
+        return BaseAlgo::setSrcDest(source, source);
+    }
 
   protected:
     virtual ReturnCode buildResult() override { return ReturnCode::OK; }

@@ -12,7 +12,11 @@ namespace SP
 class DijkstraParExpansionAlgo : public DijkstraAlgo
 {
   public:
-    DijkstraParExpansionAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
+    DijkstraParExpansionAlgo(std::string graphFileName)
+        : DijkstraAlgo(graphFileName)
+    {
+    }
+
   protected:
     virtual ReturnCode runSearch() override;
 
@@ -20,5 +24,7 @@ class DijkstraParExpansionAlgo : public DijkstraAlgo
     virtual void resetInternalData() override;
 
     TrackedPriorityQueue trackedPQ;
+    std::atomic<double> bestDestDistance;
+    std::vector<std::atomic_flag> vertexLocks;
 };
 } // namespace SP

@@ -9,17 +9,17 @@
 
 namespace SP
 {
-class dijkstraBiDirAlgo : public DijkstraSeqAlgo
+class DijkstraBiDirAlgo : public DijkstraSeqAlgo
 {
   public:
-    dijkstraBiDirAlgo(std::string graphFileName)
+    DijkstraBiDirAlgo(std::string graphFileName)
         : DijkstraSeqAlgo(graphFileName), meetingVertex(-1),
           shortestPathLength(std::numeric_limits<double>::infinity())
     {
     }
 
   protected:
-    using CostEstimator = double (dijkstraBiDirAlgo::*)(int vertex);
+    using CostEstimator = double (DijkstraBiDirAlgo::*)(int vertex);
     std::vector<double> distancesBackward;
     std::vector<int> parentsBackward;
     std::vector<int> shortestPathBackward;
@@ -35,11 +35,13 @@ class dijkstraBiDirAlgo : public DijkstraSeqAlgo
     ReturnCode runHalfSearch(
         std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
         std::vector<double> &myDistances, std::vector<int> &myParents,
-        const std::vector<double> &otherDistances,
-        CostEstimator costEstimator);
+        const std::vector<double> &otherDistances, CostEstimator costEstimator);
     std::vector<int> reconstructPath(int source, int destination,
                                      const std::vector<int> &myParents);
     double getDistanceBackward(int vertex) { return distancesBackward[vertex]; }
-    double estimateCostBackward(int vertex) { return getDistanceBackward(vertex); } 
+    double estimateCostBackward(int vertex)
+    {
+        return getDistanceBackward(vertex);
+    }
 };
 } // namespace SP

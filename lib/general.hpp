@@ -9,12 +9,9 @@
 
 namespace SP
 {
-    // Edge comparator for setting priority queue
-    struct compareEdges
-    {
-        bool operator()(const edge &e1, const edge &e2)
-        {
-            return e1.val > e2.val;
-        }
-    };
+// Edge comparator for setting priority queue
+struct compareEdges
+{
+    bool operator()(const edge &e1, const edge &e2) { return e1.val > e2.val; }
+};
 } // namespace SP

@@ -4,4 +4,4 @@
  * @brief TBB concurrent priority queue class-wrapper header file
  */
 
- #include "priority_queue.hpp"
+#include "priority_queue.hpp"
