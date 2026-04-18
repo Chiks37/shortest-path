@@ -1,13 +1,19 @@
-#include "dijkstra.hpp"
+/**
+ * @file dijkstra_bidir.hpp
+ * @author tarakanov.2004@mail.ru
+ * @brief Dijkstra (bidirectional version) algorithm class header file
+ */
+
+#include "dijkstra_seq.hpp"
 #include <limits>
 
 namespace SP
 {
-class dijkstraBiDirAlgo : public DijkstraAlgo
+class dijkstraBiDirAlgo : public DijkstraSeqAlgo
 {
   public:
     dijkstraBiDirAlgo(std::string graphFileName)
-        : DijkstraAlgo(graphFileName), meetingVertex(-1),
+        : DijkstraSeqAlgo(graphFileName), meetingVertex(-1),
           shortestPathLength(std::numeric_limits<double>::infinity())
     {
     }

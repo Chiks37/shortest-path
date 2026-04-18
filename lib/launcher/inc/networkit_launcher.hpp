@@ -1,3 +1,8 @@
+/**
+ * @file networkit_launcher.hpp
+ * @author tarakanov.2004@mail.ru
+ * @brief Networkit algorithms launcher class header file
+ */
 #pragma once
 
 #include "launcher.hpp"

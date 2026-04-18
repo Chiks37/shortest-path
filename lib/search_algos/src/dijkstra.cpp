@@ -50,62 +50,11 @@ void DijkstraAlgo::initInternalData()
     distances[this->source] = 0.0;
 
     parents.assign(graph.V, -1);
-
-    // Clear the pq
-    pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
 }
 
 void DijkstraAlgo::resetInternalData()
 {
     initInternalData();
-
-    double sourceEstimatedCost = estimateCost(this->source);
-    pq.push({this->source, sourceEstimatedCost});
-}
-
-ReturnCode DijkstraAlgo::runSearch()
-{
-    while (!pq.empty())
-    {
-
-        // Getting current vertex info from priority queue
-        int currentVertex = pq.top().vertex;
-        double curVerPoppedEstCost = pq.top().val;
-        pq.pop();
-
-        // Skip if there is already shorter path to current vertex than we
-        // trying to calculate
-        double curVerStoredEstCost = estimateCost(currentVertex);
-        if (curVerPoppedEstCost > curVerStoredEstCost)
-            continue;
-
-        // Early exit condition: we already reached destination vertex
-        if (completeCondition(currentVertex))
-        {
-            break;
-        }
-
-        // Researching neighbors
-        for (int i = graph.Xadj[currentVertex];
-             i < graph.Xadj[currentVertex + 1]; i++)
-        {
-            int neighborVertex = graph.Adjncy[i];
-            double neighborVertexWeight = graph.Eweights[i];
-
-            // Updating values
-            double neighbVerNewDistance =
-                distances[currentVertex] + neighborVertexWeight;
-            if (distances[neighborVertex] > neighbVerNewDistance)
-            {
-                distances[neighborVertex] = neighbVerNewDistance;
-                parents[neighborVertex] = currentVertex;
-                double neigbourEstimatedCost = estimateCost(neighborVertex);
-                pq.push({neighborVertex, neigbourEstimatedCost});
-            }
-        }
-    }
-
-    return ReturnCode::OK;
 }
 
 ReturnCode DijkstraAlgo::buildResult()

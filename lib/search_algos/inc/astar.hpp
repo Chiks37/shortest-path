@@ -1,18 +1,18 @@
 /**
- * @file dijkstra.hpp
+ * @file astar.hpp
  * @author tarakanov.2004@mail.ru
- * @brief Dijkstra algorithm class header file
+ * @brief Astar algorithm class header file
  */
 #pragma once
 
-#include "dijkstra.hpp"
+#include "dijkstra_seq.hpp"
 
 namespace SP
 {
-class AStarAlgo : public DijkstraAlgo
+class AStarAlgo : public DijkstraSeqAlgo
 {
   public:
-    AStarAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
+    AStarAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName) {}
     virtual ~AStarAlgo() {}
 
   protected:

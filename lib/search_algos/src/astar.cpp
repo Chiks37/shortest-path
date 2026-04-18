@@ -1,7 +1,7 @@
 /**
- * @file dijkstra.cpp
+ * @file astar.cpp
  * @author tarakanov.2004@mail.ru
- * @brief Dijkstra algorithm class source file
+ * @brief Astar algorithm class source file
  */
 
 #include "astar.hpp"

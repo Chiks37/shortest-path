@@ -21,7 +21,7 @@ foreach(LIB_NAME ${THIRD_PARTY_NAMES})
 endforeach()
 
 set(LIB_FOLDER "lib")
-set(LIB_NAMES "search_algos" "launcher")
+set(LIB_NAMES "search_algos" "launcher" "priority_queue")
 foreach(LIB_NAME ${LIB_NAMES})
   set(LIBS_CODE_FOLDERS "${LIBS_CODE_FOLDERS}"
                         "${LIB_FOLDER}/${LIB_NAME}")
@@ -38,6 +38,7 @@ foreach(FOLDER ${CODE_FOLDERS})
 endforeach()
 set(MAIN_FILE "app/main.cpp")
 set(SOURCES ${SOURCES} ${MAIN_FILE})
+set(HEADERS_FOLDERS ${HEADERS_FOLDERS} "${LIB_FOLDER}") #general.hpp
 # --
 
 # Включаем сборку самой C++ библиотеки
@@ -45,10 +46,13 @@ set(NETWORKIT_BUILD_CORE ON CACHE BOOL "" FORCE)
 # Выключаем тесты и прочий хлам, чтобы не ждать вечность
 set(NETWORKIT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(NETWORKIT_BUILD_PYTHON OFF CACHE BOOL "" FORCE)
+set(TBB_TEST OFF CACHE BOOL "" FORCE)
+set(TBB_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 # Provide headers and sources
 include_directories(${HEADERS_FOLDERS})
 add_subdirectory(3rdparty/networkit)
+add_subdirectory(3rdparty/oneTBB)
 
 find_package(OpenMP REQUIRED)
 
@@ -60,7 +64,7 @@ else()
 endif()
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE networkit OpenMP::OpenMP_CXX)
+target_link_libraries(${PROJECT_NAME} PRIVATE networkit OpenMP::OpenMP_CXX TBB::tbb)
 
 # General project config output
 message(STATUS "")

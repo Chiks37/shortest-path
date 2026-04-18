@@ -1,3 +1,8 @@
+/**
+ * @file launcher.hpp
+ * @author tarakanov.2004@mail.ru
+ * @brief Base launcher class header file
+ */
 #include "launcher.hpp"
 
 namespace SP

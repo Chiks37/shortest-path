@@ -1,3 +1,6 @@
 [submodule "3rdparty/networkit"]
 	path = 3rdparty/networkit
 	url = https://github.com/networkit/networkit.git
+[submodule "3rdparty/oneTBB"]
+	path = 3rdparty/oneTBB
+	url = git@github.com:uxlfoundation/oneTBB.git

@@ -1,13 +1,13 @@
 /**
  * @file custom_launcher.hpp
  * @author tarakanov.2004@mail.ru
- * @brief Custom launcher class header file
+ * @brief Custom algorithms launcher class header file
  */
 #pragma once
 
 #include "alt.hpp"
 #include "astarg.hpp"
-#include "dijkstra.hpp"
+#include "dijkstra_seq.hpp"
 #include "dijkstra_bidir.hpp"
 #include "launcher.hpp"
 

@@ -5,14 +5,14 @@
  */
 #pragma once
 
-#include "dijkstra.hpp"
+#include "dijkstra_seq.hpp"
 
 namespace SP
 {
-class DijkstraSsspAlgo : public DijkstraAlgo
+class DijkstraSsspAlgo : public DijkstraSeqAlgo
 {
   public:
-    DijkstraSsspAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
+    DijkstraSsspAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName) {}
 
     std::vector<double> getDistances() const { return std::move(distances); }
     ReturnCode setSource(int source) { return BaseAlgo::setSrcDest(source, source); }

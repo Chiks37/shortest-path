@@ -1,3 +1,8 @@
+/**
+ * @file astarg.hpp
+ * @author tarakanov.2004@mail.ru
+ * @brief Astar with geometical heuristic algorithm class header file
+ */
 #include "astar.hpp"
 #include <utility>
 #include <vector>

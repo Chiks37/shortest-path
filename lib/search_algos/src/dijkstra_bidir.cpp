@@ -1,3 +1,8 @@
+/**
+ * @file dijkstra_bidir.cpp
+ * @author tarakanov.2004@mail.ru
+ * @brief Dijkstra (bidirectional version) algorithm class source file
+ */
 #include "dijkstra_bidir.hpp"
 #include <omp.h>
 
@@ -5,7 +10,7 @@ namespace SP
 {
 void dijkstraBiDirAlgo::initInternalData()
 {
-    DijkstraAlgo::initInternalData();
+    DijkstraSeqAlgo::initInternalData();
 
     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
     distancesBackward[this->destination] = 0.0;
@@ -20,14 +25,14 @@ void dijkstraBiDirAlgo::initInternalData()
 }
 
 void dijkstraBiDirAlgo::resetInternalData(){
-    DijkstraAlgo::resetInternalData();
+    DijkstraSeqAlgo::resetInternalData();
 
     double destEstimatedCost = estimateCostBackward(this->destination);
     pqBackward.push({this->destination, destEstimatedCost});
 }
 ReturnCode dijkstraBiDirAlgo::preProcessImpl()
 {
-    ReturnCode rc = DijkstraAlgo::preProcessImpl();
+    ReturnCode rc = DijkstraSeqAlgo::preProcessImpl();
     if (ReturnCode::OK != rc)
     {
         return rc;

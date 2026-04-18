@@ -1,3 +1,9 @@
+/**
+ * @file custom_launcher.cpp
+ * @author tarakanov.2004@mail.ru
+ * @brief Custom algorithms launcher class source file
+ */
+
 #include "custom_launcher.hpp"
 #include <chrono>
 
@@ -9,7 +15,7 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
     switch (algoId)
     {
     case AlgoId::DIJKSTRA:
-        return std::make_shared<SP::DijkstraAlgo>(graphFileName);
+        return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
     case AlgoId::DIJKSTRA_BIDIR:
         return std::make_shared<SP::dijkstraBiDirAlgo>(graphFileName);
     case AlgoId::ASTARG:
@@ -18,7 +24,7 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
     case AlgoId::ALT:
         return std::make_shared<SP::ALTAlgo>(graphFileName);
     default:
-        return std::make_shared<SP::DijkstraAlgo>(graphFileName);
+        return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
     }
 }
 

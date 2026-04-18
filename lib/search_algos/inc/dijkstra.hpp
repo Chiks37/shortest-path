@@ -6,6 +6,7 @@
 #pragma once
 
 #include "base.hpp"
+#include "general.hpp"
 #include <functional>
 #include <queue>
 
@@ -25,7 +26,7 @@ class DijkstraAlgo : public BaseAlgo
     virtual void initInternalData();
     virtual void resetInternalData();
 
-    virtual ReturnCode runSearch();
+    virtual ReturnCode runSearch() = 0;
     virtual ReturnCode buildResult();
     virtual double estimateCost(int vertex) { return getDistance(vertex); }
     virtual double getDistance(int vertex);
@@ -36,17 +37,5 @@ class DijkstraAlgo : public BaseAlgo
     std::vector<double> distances;
     // Parents for each vertex
     std::vector<int> parents;
-
-    // Edge comparator for setting priority queue
-    struct compareEdges
-    {
-        bool operator()(const edge &e1, const edge &e2)
-        {
-            return e1.val > e2.val;
-        }
-    };
-
-    // Priority queue for storing of next vertexes to be considered
-    std::priority_queue<edge, std::vector<edge>, compareEdges> pq;
 };
 } // namespace SP
