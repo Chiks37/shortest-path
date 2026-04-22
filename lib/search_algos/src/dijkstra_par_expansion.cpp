@@ -12,16 +12,12 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
 {
 #pragma omp parallel
     {
-        // Каждый поток крутится, пока алгоритм не завершен
         while (!trackedPQ.is_drained())
         {
             edge currentEdge;
-
-            // Пытаемся взять задачу. Если пусто, но алгоритм не завершен - ждем
             if (!trackedPQ.try_pop(currentEdge))
             {
-                std::this_thread::yield(); // Отдаем квант времени ОС, чтобы не
-                                           // греть процессор
+                std::this_thread::yield();
                 continue;
             }
 
@@ -35,17 +31,12 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
                 continue;
             }
 
-            // Отсечение устаревших путей (чтение без блокировки допустимо,
-            // так как если прочитаем старое значение, просто сделаем лишнюю
-            // проверку ниже)
             if (currentPoppedCost > estimateCost(currentVertex))
             {
-                trackedPQ.mark_as_done(); // Обязательно отмечаем задачу как
-                                          // выполненную!
+                trackedPQ.mark_as_done();
                 continue;
             }
 
-            // Обход соседей (Expansion)
             for (int i = graph.Xadj[currentVertex];
                  i < graph.Xadj[currentVertex + 1]; i++)
             {
@@ -71,8 +62,6 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
 
                 vertexLocks[neighborVertex].clear(std::memory_order_release);
 
-                // Если путь улучшен, добавляем соседа в очередь (вне
-                // критической секции!)
                 if (updated)
                 {
                     double neigbourEstimatedCost = estimateCost(neighborVertex);
@@ -80,7 +69,6 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
                 }
             }
 
-            // Вершина полностью обработана, уменьшаем счетчик активных задач
             trackedPQ.mark_as_done();
         }
     }

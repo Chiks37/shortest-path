@@ -9,7 +9,7 @@
 
 namespace SP
 {
-// Edge comparator for setting priority queue
+// Edge comparator for setting priority queues
 struct compareEdges
 {
     bool operator()(const edge &e1, const edge &e2) { return e1.val > e2.val; }

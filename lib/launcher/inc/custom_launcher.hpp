@@ -9,6 +9,7 @@
 #include "astarg.hpp"
 #include "dijkstra_bidir.hpp"
 #include "dijkstra_par_expansion.hpp"
+#include "dijkstra_par_relaxation.hpp"
 #include "dijkstra_seq.hpp"
 #include "launcher.hpp"
 

@@ -5,7 +5,7 @@
  */
 
 #include "dijkstra.hpp"
-#include "priority_queue.hpp"
+#include "tracked_pq.hpp"
 
 namespace SP
 {

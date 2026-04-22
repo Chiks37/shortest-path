@@ -20,17 +20,23 @@ enum class AlgoId
     DIJKSTRA_SEQ,
     DIJKSTRA_BIDIR,
     DIJKSTRA_PAR_EXPANSION,
+    DIJKSTRA_PAR_RELAXATION,
     ASTARG,
     ALT,
     COUNT
 };
 inline constexpr std::array<AlgoId, static_cast<size_t>(AlgoId::COUNT)>
-    algoIds = {AlgoId::DIJKSTRA_SEQ, AlgoId::DIJKSTRA_BIDIR,
-               AlgoId::DIJKSTRA_PAR_EXPANSION, AlgoId::ASTARG, AlgoId::ALT};
+    algoIds = {AlgoId::DIJKSTRA_SEQ,
+               AlgoId::DIJKSTRA_BIDIR,
+               AlgoId::DIJKSTRA_PAR_EXPANSION,
+               AlgoId::DIJKSTRA_PAR_RELAXATION,
+               AlgoId::ASTARG,
+               AlgoId::ALT};
 inline const std::unordered_map<AlgoId, std::string> algoNames = {
     {AlgoId::DIJKSTRA_SEQ, "dijkstra_seq"},
     {AlgoId::DIJKSTRA_BIDIR, "dijkstra_bidir"},
     {AlgoId::DIJKSTRA_PAR_EXPANSION, "dijkstra_par_expansion"},
+    {AlgoId::DIJKSTRA_PAR_RELAXATION, "dijkstra_par_relaxation"},
     {AlgoId::ASTARG, "astarg"},
     {AlgoId::ALT, "alt"}};
 

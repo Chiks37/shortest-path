@@ -21,7 +21,7 @@ foreach(LIB_NAME ${THIRD_PARTY_NAMES})
 endforeach()
 
 set(LIB_FOLDER "lib")
-set(LIB_NAMES "search_algos" "launcher" "priority_queue")
+set(LIB_NAMES "search_algos" "launcher" "tracked_pq")
 foreach(LIB_NAME ${LIB_NAMES})
   set(LIBS_CODE_FOLDERS "${LIBS_CODE_FOLDERS}"
                         "${LIB_FOLDER}/${LIB_NAME}")

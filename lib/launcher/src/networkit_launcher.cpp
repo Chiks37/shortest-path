@@ -25,8 +25,6 @@ NetworkitLauncher::createAlgoObject(const NetworKit::Graph &graph, int source,
         return std::make_shared<NetworKit::AStar>(graph, astarHeuristics,
                                                   source, destination, true);
     }
-    // case AlgoId::ALT:
-    //     return std::make_shared<SP::ALTAlgo>(graphFileName);
     default:
         return std::make_shared<NetworKit::Dijkstra>(graph, source, true, false,
                                                      destination);

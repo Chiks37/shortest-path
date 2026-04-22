@@ -1,5 +1,5 @@
 /**
- * @file priority_queue.hpp
+ * @file tracked_pq.hpp
  * @author tarakanov.2004@mail.ru
  * @brief TBB concurrent priority queue class-wrapper header file. Wrapper has
  * additional functionality for tracking of in-progress items in the queue.

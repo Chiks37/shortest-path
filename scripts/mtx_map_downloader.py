@@ -69,7 +69,7 @@ def save_graph_data(G_simple, graph_folder, graph_name):
     print(f"Координаты узлов сохранены в {txt_path}")
 
 if __name__ == "__main__":
-    place_name = "Кстово, Нижегородская область, Россия"
+    place_name = "Нижний Новгород, Нижегородская область, Россия"
     graph_name = "Nizhny_Novgorod"
     graph_folder = f"graphs/UNN/{graph_name}"
     

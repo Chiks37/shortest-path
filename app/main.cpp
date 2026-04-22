@@ -30,7 +30,7 @@ void testSearchingLongTimeProcessing(std::string graphFilename)
                                           nodesMappingFilename);
 
 #pragma omp for schedule(dynamic)
-        for (int destination = 1; destination < 1971280; destination++)
+        for (int destination = 40; destination < 100; destination++)
         {
             customLauncher.execute(source, destination);
             const auto result = customLauncher.getResult();
@@ -39,9 +39,9 @@ void testSearchingLongTimeProcessing(std::string graphFilename)
             {
 #pragma omp critical
                 {
-                    std::cout << "Route " << source << " -> " << destination
-                              << " time is " << result.executionTimeMs << " ms"
-                              << std::endl;
+                    std::cout << "Route " << source + 1 << " -> "
+                              << destination + 1 << " time is "
+                              << result.executionTimeMs << " ms" << std::endl;
                 }
             }
         }
@@ -107,5 +107,6 @@ int main(int argc, char *argv[])
         "_nodes_mapping.txt";
 
     testAllMethods(graphFilename, nodesMappingFilename);
+    // testSearchingLongTimeProcessing(graphFilename);
     return 0;
 }

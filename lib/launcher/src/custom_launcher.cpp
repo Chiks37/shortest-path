@@ -20,6 +20,8 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
         return std::make_shared<SP::DijkstraBiDirAlgo>(graphFileName);
     case AlgoId::DIJKSTRA_PAR_EXPANSION:
         return std::make_shared<SP::DijkstraParExpansionAlgo>(graphFileName);
+    case AlgoId::DIJKSTRA_PAR_RELAXATION:
+        return std::make_shared<SP::DijkstraParRelaxationAlgo>(graphFileName);
     case AlgoId::ASTARG:
         return std::make_shared<SP::AStarGAlgo>(graphFileName,
                                                 nodesMappingFileName);
