@@ -11,6 +11,7 @@
 #include "dijkstra_par_expansion.hpp"
 #include "dijkstra_par_relaxation.hpp"
 #include "dijkstra_seq.hpp"
+#include "delta_stepping.hpp"
 #include "launcher.hpp"
 
 #include <iostream>
