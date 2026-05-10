@@ -1,0 +1,64 @@
+# cmake-format configuration
+# https://cmake-format.readthedocs.io/en/latest/configuration.html
+
+with section("format"):
+    # How wide to allow formatted cmake files
+    line_width = 100
+
+    # Spaces per indent level
+    tab_size = 4
+    use_tabchars = False
+    fractional_tab_policy = "use-space"
+
+    # Commands: lowercase  (add_executable, target_link_libraries, …)
+    # Keywords:  UPPERCASE (PUBLIC, PRIVATE, CACHE, BOOL, FORCE, …)
+    command_case = "lower"
+    keyword_case = "upper"
+
+    max_subgroups_hwrap = 2
+    max_pargs_hwrap = 4
+    max_rows_cmdline = 2
+    min_prefix_chars = 4
+    max_prefix_chars = 32
+
+    # Closing paren stays on the last argument's line, not dangling alone
+    dangle_parens = False
+    dangle_align = "prefix"
+
+    separate_ctrl_name_with_space = False
+    separate_fn_name_with_space = False
+
+    # Do not auto-sort argument lists (order is intentional)
+    enable_sort = False
+    autosort = False
+
+    always_wrap = []
+
+
+with section("markup"):
+    enable_markup = True
+    bullet_char = "*"
+    enum_char = "."
+    first_comment_is_literal = False
+
+    # Preserve "# -- Section header --" lines verbatim; do not reflow them
+    literal_comment_pattern = r"# --.*"
+
+    fence_pattern = r"^\s*[`~]{3}"
+    ruler_pattern = r"^[=\-]{6,}$"
+    hashruler_min_length = 8
+    canonicalize_hashrulers = True
+
+
+with section("encode"):
+    emit_byteorder_mark = False
+    input_encoding = "utf-8"
+    output_encoding = "utf-8"
+
+
+with section("misc"):
+    # Keep option() and message() each on their own line
+    per_command = {
+        "option": {"flags": ["breakall"]},
+        "message": {"flags": ["breakall"]},
+    }

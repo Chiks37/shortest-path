@@ -10,8 +10,7 @@ namespace SP
 
 void Launcher::printReport() const
 {
-    std::cout << "=== Report for " << algoNames.at(algoId)
-              << " ===" << std::endl
+    std::cout << "=== Report for " << getAlgoName() << " ===" << std::endl
               << "Distance: " << lastResult.shortestDistance << std::endl
               << "Prepoccess time: " << lastResult.preProccessTimeMs << " ms\n"
               << "Execution time: " << lastResult.executionTimeMs << " ms\n"

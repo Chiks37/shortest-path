@@ -14,7 +14,9 @@ namespace SP
 class DeltaSteppingAlgo : public DijkstraAlgo
 {
   public:
-    DeltaSteppingAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
+    DeltaSteppingAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName)
+    {
+    }
 
   protected:
     virtual void initInternalData() override;
