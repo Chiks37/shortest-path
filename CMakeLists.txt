@@ -4,7 +4,8 @@ set(PROJECT_NAME shortest_path)
 project(${PROJECT_NAME})
 
 # -- Target selection (set by build.sh via -D flags)
-option(BUILD_CUSTOM_TEST "Build custom_test executable" OFF)
+option(BUILD_CUSTOM_TEST_NETWORKIT "Build custom_test_networkit executable (networkit reference)" OFF)
+option(BUILD_CUSTOM_TEST_GAPBS "Build custom_test_gapbs executable (GAPBS reference)" OFF)
 option(BUILD_LONGEST_PATH_SEARCH "Build longest_path_search executable" OFF)
 option(BUILD_GTEST "Build and run Google Tests" OFF)
 
@@ -43,6 +44,8 @@ foreach(FOLDER ${CODE_FOLDERS})
         "${FOLDER}/*.cpp"
         "${FOLDER}/**/*.c"
         "${FOLDER}/**/*.cpp")
+    # gapbs_launcher.cpp uses GAPBS headers; compiled separately via cmake/gapbs/
+    list(FILTER SOURCES_TEMP EXCLUDE REGEX ".*gapbs.*\\.cpp$")
     set(LIB_SOURCES ${LIB_SOURCES} ${SOURCES_TEMP})
 endforeach()
 set(HEADERS_FOLDERS ${HEADERS_FOLDERS} "${LIB_FOLDER}") # general.hpp
@@ -69,7 +72,7 @@ set(TBB_EXAMPLES
 set(DEPS_CACHE_DIR "${CMAKE_SOURCE_DIR}/cache/deps")
 
 add_subdirectory(3rdparty/networkit ${DEPS_CACHE_DIR}/networkit)
-add_subdirectory(3rdparty/oneTBB ${DEPS_CACHE_DIR}/tbb)
+add_subdirectory(3rdparty/oneTBB   ${DEPS_CACHE_DIR}/tbb)
 
 find_package(OpenMP REQUIRED)
 
@@ -86,9 +89,18 @@ target_include_directories(sp_lib PUBLIC ${HEADERS_FOLDERS})
 target_link_libraries(sp_lib PUBLIC networkit OpenMP::OpenMP_CXX TBB::tbb)
 
 # -- Executable targets
-if(BUILD_CUSTOM_TEST)
-    add_executable(custom_test app/custom_test/main.cpp)
-    target_link_libraries(custom_test PRIVATE sp_lib)
+if(BUILD_CUSTOM_TEST_NETWORKIT)
+    add_executable(custom_test_networkit app/custom_test_networkit/main.cpp)
+    target_link_libraries(custom_test_networkit PRIVATE sp_lib)
+endif()
+
+if(BUILD_CUSTOM_TEST_GAPBS)
+    # Mirrors how networkit/TBB are handled: compiled into cache/deps/gapbs/
+    # so the artifact survives ./build.sh -c.
+    add_subdirectory(cmake/gapbs ${DEPS_CACHE_DIR}/gapbs EXCLUDE_FROM_ALL)
+
+    add_executable(custom_test_gapbs app/custom_test_gapbs/main.cpp)
+    target_link_libraries(custom_test_gapbs PRIVATE sp_lib gapbs_launcher)
 endif()
 
 if(BUILD_LONGEST_PATH_SEARCH)
@@ -123,11 +135,12 @@ message(STATUS "")
 message(STATUS "======================================")
 message(STATUS "General configuration for ${PROJECT_NAME} project:")
 message(STATUS "")
-message(STATUS "   Configuration:           ${CMAKE_BUILD_TYPE}")
-message(STATUS "   Compiler ID:             ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "   GDB build:               ${GDB_MESSAGE}")
-message(STATUS "   custom_test:             ${BUILD_CUSTOM_TEST}")
-message(STATUS "   longest_path_search:     ${BUILD_LONGEST_PATH_SEARCH}")
-message(STATUS "   sp_tests (gtest):        ${BUILD_GTEST}")
+message(STATUS "   Configuration:              ${CMAKE_BUILD_TYPE}")
+message(STATUS "   Compiler ID:                ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "   GDB build:                  ${GDB_MESSAGE}")
+message(STATUS "   custom_test_networkit:      ${BUILD_CUSTOM_TEST_NETWORKIT}")
+message(STATUS "   custom_test_gapbs:          ${BUILD_CUSTOM_TEST_GAPBS}")
+message(STATUS "   longest_path_search:        ${BUILD_LONGEST_PATH_SEARCH}")
+message(STATUS "   sp_tests (gtest):           ${BUILD_GTEST}")
 message(STATUS "")
 message(STATUS "======================================")

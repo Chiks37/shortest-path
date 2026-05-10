@@ -4,3 +4,6 @@
 [submodule "3rdparty/oneTBB"]
 	path = 3rdparty/oneTBB
 	url = git@github.com:uxlfoundation/oneTBB.git
+[submodule "3rdparty/gapbs"]
+	path = 3rdparty/gapbs
+	url = git@github.com:sbeamer/gapbs.git
