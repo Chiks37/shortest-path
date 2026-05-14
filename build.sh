@@ -8,7 +8,8 @@ function do_build() {
     local custom_test_gapbs="$2"
     local longest="$3"
     local gtest="$4"
-    local gdb="$5"
+    local benchmark="$5"
+    local gdb="$6"
 
     mkdir -p build
     cd build \
@@ -18,6 +19,7 @@ function do_build() {
         -DBUILD_CUSTOM_TEST_GAPBS="$custom_test_gapbs" \
         -DBUILD_LONGEST_PATH_SEARCH="$longest" \
         -DBUILD_GTEST="$gtest" \
+        -DBUILD_BENCHMARK="$benchmark" \
         .. \
     && cmake --build .
 }
@@ -54,6 +56,7 @@ function help() {
     echo "  -tg, --custom-test-gapbs    Build GAPBS-based custom_test_gapbs only"
     echo "  -l,  --longest              Build longest_path_search only"
     echo "  -g,  --gtest                Build and run Google Tests only"
+    echo "  -b,  --benchmark            Build benchmark only"
     echo ""
     echo "Build modifiers:"
     echo "  -gdb                        Include full debug symbols (-O0 -g3 -ggdb)"
@@ -87,35 +90,38 @@ for arg in "$@"; do
     fi
 done
 
-#                              nk    gapbs longest gtest
+#                              nk    gapbs longest gtest bench
 case "$TARGET" in
     -m|--main|"")
-        do_build OFF ON  ON  ON  "$GDB_BUILD"
+        do_build OFF ON  ON  ON  OFF "$GDB_BUILD"
         ;;
     -a|--all)
-        do_build ON  ON  ON  ON  "$GDB_BUILD"
+        do_build ON  ON  ON  ON  ON  "$GDB_BUILD"
         ;;
     -A|--all-but-gtest)
-        do_build ON  ON  ON  OFF "$GDB_BUILD"
+        do_build ON  ON  ON  OFF ON  "$GDB_BUILD"
         ;;
     -tn|--custom-test-networkit)
-        do_build ON  OFF OFF OFF "$GDB_BUILD"
+        do_build ON  OFF OFF OFF OFF "$GDB_BUILD"
         ;;
     -tg|--custom-test-gapbs)
-        do_build OFF ON  OFF OFF "$GDB_BUILD"
+        do_build OFF ON  OFF OFF OFF "$GDB_BUILD"
         ;;
     -l|--longest)
-        do_build OFF OFF ON  OFF "$GDB_BUILD"
+        do_build OFF OFF ON  OFF OFF "$GDB_BUILD"
         ;;
     -g|--gtest)
-        do_build OFF OFF OFF ON  "$GDB_BUILD"
+        do_build OFF OFF OFF ON  OFF "$GDB_BUILD"
+        ;;
+    -b|--benchmark)
+        do_build OFF OFF OFF OFF ON  "$GDB_BUILD"
         ;;
     -c|--clean)
         clean
         ;;
     -cb|--clean-build)
         clean
-        do_build ON ON ON ON "$GDB_BUILD"
+        do_build ON  ON  ON  ON  ON  "$GDB_BUILD"
         ;;
     -cc|--clean-cache)
         clean_cache

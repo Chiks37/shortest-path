@@ -8,6 +8,7 @@ option(BUILD_CUSTOM_TEST_NETWORKIT "Build custom_test_networkit executable (netw
 option(BUILD_CUSTOM_TEST_GAPBS "Build custom_test_gapbs executable (GAPBS reference)" OFF)
 option(BUILD_LONGEST_PATH_SEARCH "Build longest_path_search executable" OFF)
 option(BUILD_GTEST "Build and run Google Tests" OFF)
+option(BUILD_BENCHMARK "Build benchmark executable" OFF)
 
 # -- Build configuration
 set(CMAKE_CONFIGURATION_TYPES
@@ -94,11 +95,13 @@ if(BUILD_CUSTOM_TEST_NETWORKIT)
     target_link_libraries(custom_test_networkit PRIVATE sp_lib)
 endif()
 
-if(BUILD_CUSTOM_TEST_GAPBS)
+if(BUILD_CUSTOM_TEST_GAPBS OR BUILD_BENCHMARK)
     # Mirrors how networkit/TBB are handled: compiled into cache/deps/gapbs/
     # so the artifact survives ./build.sh -c.
     add_subdirectory(cmake/gapbs ${DEPS_CACHE_DIR}/gapbs EXCLUDE_FROM_ALL)
+endif()
 
+if(BUILD_CUSTOM_TEST_GAPBS)
     add_executable(custom_test_gapbs app/custom_test_gapbs/main.cpp)
     target_link_libraries(custom_test_gapbs PRIVATE sp_lib gapbs_launcher)
 endif()
@@ -106,6 +109,11 @@ endif()
 if(BUILD_LONGEST_PATH_SEARCH)
     add_executable(longest_path_search app/longest_path_search/main.cpp)
     target_link_libraries(longest_path_search PRIVATE sp_lib)
+endif()
+
+if(BUILD_BENCHMARK)
+    add_executable(benchmark app/benchmark/main.cpp)
+    target_link_libraries(benchmark PRIVATE sp_lib gapbs_launcher)
 endif()
 
 if(BUILD_GTEST)
@@ -142,5 +150,6 @@ message(STATUS "   custom_test_networkit:      ${BUILD_CUSTOM_TEST_NETWORKIT}")
 message(STATUS "   custom_test_gapbs:          ${BUILD_CUSTOM_TEST_GAPBS}")
 message(STATUS "   longest_path_search:        ${BUILD_LONGEST_PATH_SEARCH}")
 message(STATUS "   sp_tests (gtest):           ${BUILD_GTEST}")
+message(STATUS "   benchmark:                  ${BUILD_BENCHMARK}")
 message(STATUS "")
 message(STATUS "======================================")
