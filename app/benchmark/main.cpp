@@ -1,9 +1,11 @@
 #include "custom_launcher.hpp"
 #include "gapbs_launcher.hpp"
 #include "networkit_launcher.hpp"
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <omp.h>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -18,11 +20,10 @@ struct BenchmarkStat
     double avgPreTimeMs;
     double avgExecTimeMs;
     double distance;
+    bool failed;
+    std::string errorMsg;
 };
 
-// Re-build launcher each iteration: every Launcher::execute() rebuilds its
-// algo/graph state from scratch, so reusing a launcher would still time the
-// same work, but a fresh object guarantees no leftover caches between runs.
 template <typename FactoryT>
 BenchmarkStat measure(const std::string &name, int source, int destination,
                       FactoryT factory)
@@ -30,16 +31,25 @@ BenchmarkStat measure(const std::string &name, int source, int destination,
     double preSum = 0.0;
     double execSum = 0.0;
     double lastDistance = 0.0;
-    for (int i = 0; i < kRunsCount; ++i)
+    try
     {
-        auto launcher = factory();
-        launcher.execute(source, destination);
-        const auto &res = launcher.getResult();
-        preSum += res.preProccessTimeMs;
-        execSum += res.executionTimeMs;
-        lastDistance = res.shortestDistance;
+        for (int i = 0; i < kRunsCount; ++i)
+        {
+            auto launcher = factory();
+            launcher.execute(source, destination);
+            const auto &res = launcher.getResult();
+            preSum += res.preProccessTimeMs;
+            execSum += res.executionTimeMs;
+            lastDistance = res.shortestDistance;
+        }
     }
-    return {name, preSum / kRunsCount, execSum / kRunsCount, lastDistance};
+    catch (const std::exception &e)
+    {
+        return {name, 0.0, 0.0, 0.0, true, e.what()};
+    }
+    return {
+        name, preSum / kRunsCount, execSum / kRunsCount, lastDistance, false,
+        ""};
 }
 
 void printStats(const std::vector<BenchmarkStat> &stats)
@@ -53,35 +63,41 @@ void printStats(const std::vector<BenchmarkStat> &stats)
     std::cout << std::string(nameW + colW * 3, '-') << std::endl;
     for (const auto &s : stats)
     {
-        std::cout << std::left << std::setw(nameW) << s.algoName << std::right
-                  << std::fixed << std::setprecision(3) << std::setw(colW)
+        std::cout << std::left << std::setw(nameW) << s.algoName << std::right;
+        if (s.failed)
+        {
+            std::cout << "  FAILED: " << s.errorMsg << std::endl;
+            continue;
+        }
+        std::cout << std::fixed << std::setprecision(3) << std::setw(colW)
                   << s.avgPreTimeMs << std::setw(colW) << s.avgExecTimeMs
                   << std::setw(colW) << s.distance << std::endl;
     }
 }
 
-void runBenchmark(const std::string &graphFilename,
-                  const std::string &nodesMappingFilename)
+std::vector<int> parseThreadList(const std::string &arg)
 {
-#pragma omp parallel
+    std::vector<int> result;
+    std::stringstream ss(arg);
+    std::string item;
+    while (std::getline(ss, item, ','))
     {
-        int id = omp_get_thread_num();
-
-#pragma omp critical
-        {
-            std::cout << "Thread " << id << std::endl;
-        }
+        if (!item.empty())
+            result.push_back(std::atoi(item.c_str()));
     }
+    return result;
+}
 
-    int source = 0;
-    std::cout << "Source (start from 1) >> ";
-    std::cin >> source;
-    source--;
+void runForThreads(int numThreads, const std::string &graphFilename,
+                   const std::string &nodesMappingFilename, int source,
+                   int destination)
+{
+    omp_set_num_threads(numThreads);
 
-    int destination = 0;
-    std::cout << "Destination (start from 1) >> ";
-    std::cin >> destination;
-    destination--;
+    std::cout << std::endl
+              << "########################################" << std::endl
+              << "# Threads: " << numThreads << std::endl
+              << "########################################" << std::endl;
 
     std::vector<BenchmarkStat> stats;
     stats.reserve(SP::CustomLauncher::algoIds.size() + 2);
@@ -91,10 +107,12 @@ void runBenchmark(const std::string &graphFilename,
         const auto &name = SP::CustomLauncher::algoNames.at(algoId);
         std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
                   << std::endl;
-        stats.push_back(measure(name, source, destination, [&]() {
-            return SP::CustomLauncher(algoId, graphFilename,
-                                      nodesMappingFilename);
-        }));
+        stats.push_back(measure(name, source, destination,
+                                [&]() {
+                                    return SP::CustomLauncher(
+                                        algoId, graphFilename,
+                                        nodesMappingFilename);
+                                }));
     }
 
     {
@@ -102,10 +120,13 @@ void runBenchmark(const std::string &graphFilename,
             SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
         std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
                   << std::endl;
-        stats.push_back(measure(name, source, destination, [&]() {
-            return SP::NetworkitLauncher(
-                graphFilename, SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
-        }));
+        stats.push_back(measure(
+            name, source, destination,
+            [&]()
+            {
+                return SP::NetworkitLauncher(
+                    graphFilename, SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
+            }));
     }
 
     {
@@ -113,15 +134,18 @@ void runBenchmark(const std::string &graphFilename,
             SP::GapbsLauncher::AlgoId::DIJKSTRA_SEQ);
         std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
                   << std::endl;
-        stats.push_back(measure(name, source, destination, [&]() {
-            return SP::GapbsLauncher(graphFilename,
-                                     SP::GapbsLauncher::AlgoId::DIJKSTRA_SEQ);
-        }));
+        stats.push_back(measure(
+            name, source, destination,
+            [&]()
+            {
+                return SP::GapbsLauncher(
+                    graphFilename, SP::GapbsLauncher::AlgoId::DIJKSTRA_SEQ);
+            }));
     }
 
     std::cout << std::endl
-              << "=== Benchmark results (avg over " << kRunsCount
-              << " runs) ===" << std::endl;
+              << "=== Results for " << numThreads << " thread(s) (avg over "
+              << kRunsCount << " runs) ===" << std::endl;
     printStats(stats);
 }
 
@@ -129,17 +153,51 @@ void runBenchmark(const std::string &graphFilename,
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
+    if (argc < 4)
     {
-        std::cerr << "Usage: " << argv[0] << " <.mtx file>" << std::endl;
+        std::cerr << "Usage: " << argv[0]
+                  << " <.mtx file> <source> <destination> "
+                     "[-t|--threads N[,N...]]"
+                  << std::endl;
         return 1;
     }
 
     std::string graphFilename(argv[1]);
+    int source = std::atoi(argv[2]) - 1;
+    int destination = std::atoi(argv[3]) - 1;
+    std::vector<int> threadCounts{omp_get_max_threads()};
+
+    for (int i = 4; i < argc; ++i)
+    {
+        std::string arg(argv[i]);
+        if ((arg == "-t" || arg == "--threads") && i + 1 < argc)
+        {
+            threadCounts = parseThreadList(argv[++i]);
+        }
+    }
+
+    if (threadCounts.empty())
+    {
+        std::cerr << "No valid thread counts parsed." << std::endl;
+        return 1;
+    }
+
     std::string nodesMappingFilename =
         graphFilename.substr(0, graphFilename.find_last_of('.')) +
         "_nodes_mapping.txt";
 
-    runBenchmark(graphFilename, nodesMappingFilename);
+    std::cout << "=== Configuration ===" << std::endl;
+    std::cout << "Graph: " << graphFilename << std::endl;
+    std::cout << "Route: " << (source + 1) << " -> " << (destination + 1)
+              << std::endl;
+    std::cout << "Thread sweep:";
+    for (int n : threadCounts)
+        std::cout << ' ' << n;
+    std::cout << std::endl;
+
+    for (int n : threadCounts)
+        runForThreads(n, graphFilename, nodesMappingFilename, source,
+                      destination);
+
     return 0;
 }
