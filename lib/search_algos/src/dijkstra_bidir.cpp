@@ -42,7 +42,46 @@ ReturnCode DijkstraBiDirAlgo::preProcessImpl()
     distancesBackward.resize(graph.V);
     parentsBackward.resize(graph.V);
 
+    buildReverseGraph();
+
     return rc;
+}
+
+void DijkstraBiDirAlgo::buildReverseGraph()
+{
+    int V = graph.V;
+    int nz = graph.Xadj[V];
+
+    reverseXadj.assign(V + 1, 0);
+    reverseAdjncy.resize(nz);
+    reverseEweights.resize(nz);
+
+    for (int i = 0; i < nz; i++)
+    {
+        reverseXadj[graph.Adjncy[i] + 1]++;
+    }
+    for (int v = 0; v < V; v++)
+    {
+        reverseXadj[v + 1] += reverseXadj[v];
+    }
+
+    std::vector<int> cursor(reverseXadj.begin(), reverseXadj.end() - 1);
+    for (int u = 0; u < V; u++)
+    {
+        for (int i = graph.Xadj[u]; i < graph.Xadj[u + 1]; i++)
+        {
+            int v = graph.Adjncy[i];
+            int pos = cursor[v]++;
+            reverseAdjncy[pos] = u;
+            reverseEweights[pos] = graph.Eweights[i];
+        }
+    }
+
+    reverseGraph.Xadj = reverseXadj.data();
+    reverseGraph.Adjncy = reverseAdjncy.data();
+    reverseGraph.Eweights = reverseEweights.data();
+    reverseGraph.V = V;
+    reverseGraph.nz = nz;
 }
 
 ReturnCode DijkstraBiDirAlgo::computeImpl()
@@ -53,15 +92,15 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
         {
 #pragma omp task shared(pq, distances, parents, distancesBackward)
             {
-                runHalfSearch(pq, distances, parents, distancesBackward,
+                runHalfSearch(graph, pq, distances, parents, distancesBackward,
                               &DijkstraBiDirAlgo::estimateCost);
             }
 
 #pragma omp task shared(pqBackward, distancesBackward, parentsBackward,        \
                         distances)
             {
-                runHalfSearch(pqBackward, distancesBackward, parentsBackward,
-                              distances,
+                runHalfSearch(reverseGraph, pqBackward, distancesBackward,
+                              parentsBackward, distances,
                               &DijkstraBiDirAlgo::estimateCostBackward);
             }
 
@@ -107,6 +146,7 @@ ReturnCode DijkstraBiDirAlgo::buildResult()
 }
 
 ReturnCode DijkstraBiDirAlgo::runHalfSearch(
+    const crsGraph &searchGraph,
     std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
     std::vector<double> &myDistances, std::vector<int> &myParents,
     const std::vector<double> &otherDistances,
@@ -126,18 +166,25 @@ ReturnCode DijkstraBiDirAlgo::runHalfSearch(
         if (curVerPoppedEstCost > curVerStoredEstCost)
             continue;
 
-        // Early exit condition: we already reached destination vertex
-        if (curVerPoppedEstCost >= shortestPathLength)
+        // Early exit condition: we already reached destination vertex.
+        // shortestPathLength is shared with the other half-search, so it
+        // must be snapshotted under the same lock that guards its updates.
+        double bestSoFar;
+#pragma omp critical(bidirMeeting)
+        {
+            bestSoFar = shortestPathLength;
+        }
+        if (curVerPoppedEstCost >= bestSoFar)
         {
             break;
         }
 
         // Researching neighbors
-        for (int i = graph.Xadj[currentVertex];
-             i < graph.Xadj[currentVertex + 1]; i++)
+        for (int i = searchGraph.Xadj[currentVertex];
+             i < searchGraph.Xadj[currentVertex + 1]; i++)
         {
-            int neighborVertex = graph.Adjncy[i];
-            double neighborVertexWeight = graph.Eweights[i];
+            int neighborVertex = searchGraph.Adjncy[i];
+            double neighborVertexWeight = searchGraph.Eweights[i];
 
             // Updating values
             double neighbVerNewDistance =
@@ -151,13 +198,14 @@ ReturnCode DijkstraBiDirAlgo::runHalfSearch(
                 myPq.push({neighborVertex, neigbourEstimatedCost});
 
                 // Cross-check: check if the other search has reached this
-                // vertex
-                if (otherDistances[neighborVertex] !=
-                    std::numeric_limits<double>::infinity())
+                // vertex. Snapshot the value written by the other half-search
+                // once so the guard and the sum stay consistent.
+                double otherDistance = otherDistances[neighborVertex];
+                if (otherDistance != std::numeric_limits<double>::infinity())
                 {
-                    double potentialPath = myDistances[neighborVertex] +
-                                           otherDistances[neighborVertex];
-#pragma omp critical
+                    double potentialPath =
+                        myDistances[neighborVertex] + otherDistance;
+#pragma omp critical(bidirMeeting)
                     {
                         if (potentialPath < shortestPathLength)
                         {

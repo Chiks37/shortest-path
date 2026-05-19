@@ -27,12 +27,20 @@ class DijkstraBiDirAlgo : public DijkstraSeqAlgo
     int meetingVertex;
     double shortestPathLength;
 
+    // Transpose of graph: the backward search must traverse reversed edges
+    std::vector<int> reverseXadj;
+    std::vector<int> reverseAdjncy;
+    std::vector<double> reverseEweights;
+    crsGraph reverseGraph{};
+
     virtual void initInternalData() override;
     virtual void resetInternalData() override;
     virtual ReturnCode preProcessImpl() override;
     virtual ReturnCode computeImpl() override;
     virtual ReturnCode buildResult() override;
+    void buildReverseGraph();
     ReturnCode runHalfSearch(
+        const crsGraph &searchGraph,
         std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
         std::vector<double> &myDistances, std::vector<int> &myParents,
         const std::vector<double> &otherDistances, CostEstimator costEstimator);
