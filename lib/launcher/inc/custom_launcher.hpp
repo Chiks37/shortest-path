@@ -6,7 +6,9 @@
 #pragma once
 
 #include "alt.hpp"
+#include "alt_delta.hpp"
 #include "astarg.hpp"
+#include "astarg_delta.hpp"
 #include "delta_stepping.hpp"
 #include "dijkstra_bidir.hpp"
 #include "dijkstra_par_expansion.hpp"
@@ -34,6 +36,8 @@ class CustomLauncher : public Launcher
         DELTA_STEPPING,
         ASTARG,
         ALT,
+        ASTARG_DELTA,
+        ALT_DELTA,
         COUNT
     };
 
@@ -44,7 +48,9 @@ class CustomLauncher : public Launcher
                    AlgoId::DIJKSTRA_PAR_RELAXATION,
                    AlgoId::DELTA_STEPPING,
                    AlgoId::ASTARG,
-                   AlgoId::ALT};
+                   AlgoId::ALT,
+                   AlgoId::ASTARG_DELTA,
+                   AlgoId::ALT_DELTA};
 
     static inline const std::unordered_map<AlgoId, std::string> algoNames = {
         {AlgoId::DIJKSTRA_SEQ, "dijkstra_seq"},
@@ -53,7 +59,9 @@ class CustomLauncher : public Launcher
         {AlgoId::DIJKSTRA_PAR_RELAXATION, "dijkstra_par_relaxation"},
         {AlgoId::DELTA_STEPPING, "delta_stepping"},
         {AlgoId::ASTARG, "astarg"},
-        {AlgoId::ALT, "alt"}};
+        {AlgoId::ALT, "alt"},
+        {AlgoId::ASTARG_DELTA, "astarg_delta"},
+        {AlgoId::ALT_DELTA, "alt_delta"}};
 
   private:
     AlgoId algoId;

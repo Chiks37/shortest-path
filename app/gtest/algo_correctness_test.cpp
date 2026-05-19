@@ -11,6 +11,10 @@ struct Route
 {
     int source;
     int destination;
+    std::string name() const
+    {
+        return std::to_string(source) + "_to_" + std::to_string(destination);
+    }
 };
 
 static const Route kTestRoutes[] = {
@@ -36,12 +40,15 @@ TEST_P(AlgoCorrectnessTest, DistanceMatchesNetworkit)
     algo.execute(route.source, route.destination);
     const double actual = algo.getResult().shortestDistance;
 
-    EXPECT_NEAR(actual, expected, 0.1)
-        << SP::CustomLauncher::algoNames.at(algoId) << " route " << route.source
-        << " -> " << route.destination;
+    EXPECT_NEAR(actual, expected, 0.1);
 }
 
 INSTANTIATE_TEST_SUITE_P(
     AllAlgos, AlgoCorrectnessTest,
     testing::Combine(testing::ValuesIn(SP::CustomLauncher::algoIds),
-                     testing::ValuesIn(kTestRoutes)));
+                     testing::ValuesIn(kTestRoutes)),
+    [](const testing::TestParamInfo<AlgoCorrectnessTest::ParamType> &info)
+    {
+        return SP::CustomLauncher::algoNames.at(std::get<0>(info.param)) + "_" +
+               std::get<1>(info.param).name();
+    });

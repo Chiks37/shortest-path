@@ -57,32 +57,29 @@ void DeltaSteppingAlgo::resetInternalData()
     }
 }
 
-ReturnCode DeltaSteppingAlgo::preProcessImpl()
+void DeltaSteppingAlgo::computeDelta()
 {
-    ReturnCode rc = DijkstraAlgo::preProcessImpl();
-    if (rc != ReturnCode::OK)
-    {
-        return rc;
-    }
-
     if (graph.nz <= 0)
     {
         delta = 1.0;
-    }
-    else
-    {
-        double sum = 0.0;
-        for (int i = 0; i < graph.nz; ++i)
-        {
-            sum += graph.Eweights[i];
-        }
-        delta = sum / static_cast<double>(graph.nz);
-        if (!std::isfinite(delta) || delta <= 0.0)
-        {
-            delta = 1.0;
-        }
+        return;
     }
 
+    double sum = 0.0;
+    for (int i = 0; i < graph.nz; ++i)
+    {
+        sum += graph.Eweights[i];
+    }
+
+    delta = sum / static_cast<double>(graph.nz);
+    if (!std::isfinite(delta) || delta <= 0.0)
+    {
+        delta = 1.0;
+    }
+}
+
+void DeltaSteppingAlgo::classifyEdges()
+{
     lightEdges.assign(graph.V, {});
     heavyEdges.assign(graph.V, {});
 
@@ -103,6 +100,18 @@ ReturnCode DeltaSteppingAlgo::preProcessImpl()
             }
         }
     }
+}
+
+ReturnCode DeltaSteppingAlgo::preProcessImpl()
+{
+    ReturnCode rc = DijkstraAlgo::preProcessImpl();
+    if (rc != ReturnCode::OK)
+    {
+        return rc;
+    }
+
+    computeDelta();
+    classifyEdges();
 
     return rc;
 }
@@ -151,7 +160,7 @@ ReturnCode DeltaSteppingAlgo::runSearch()
                     std::memory_order_acquire))
                 {
                 }
-                baseDist = distances[currentVertex];
+                baseDist = getDistance(currentVertex);
                 vertexLocks[currentVertex].clear(std::memory_order_release);
 
                 if (baseDist == inf)
@@ -165,16 +174,18 @@ ReturnCode DeltaSteppingAlgo::runSearch()
                     int neighborVertex = e.vertex;
                     double newDist = baseDist + e.val;
                     bool updated = false;
+                    double neigbourEstimatedCost = 0.0;
 
                     while (vertexLocks[neighborVertex].test_and_set(
                         std::memory_order_acquire))
                     {
                     }
 
-                    if (newDist < distances[neighborVertex])
+                    if (newDist < getDistance(neighborVertex))
                     {
                         distances[neighborVertex] = newDist;
                         parents[neighborVertex] = currentVertex;
+                        neigbourEstimatedCost = estimateCost(neighborVertex);
                         updated = true;
                     }
 
@@ -183,8 +194,8 @@ ReturnCode DeltaSteppingAlgo::runSearch()
 
                     if (updated)
                     {
-                        std::size_t bucketIndex =
-                            static_cast<std::size_t>(newDist / delta);
+                        std::size_t bucketIndex = static_cast<std::size_t>(
+                            neigbourEstimatedCost / delta);
                         buffer.push_back({neighborVertex, bucketIndex});
                     }
                 }

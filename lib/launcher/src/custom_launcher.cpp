@@ -29,6 +29,11 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
                                                 nodesMappingFileName);
     case AlgoId::ALT:
         return std::make_shared<SP::ALTAlgo>(graphFileName);
+    case AlgoId::ASTARG_DELTA:
+        return std::make_shared<SP::AStarGDeltaAlgo>(graphFileName,
+                                                     nodesMappingFileName);
+    case AlgoId::ALT_DELTA:
+        return std::make_shared<SP::ALTDeltaAlgo>(graphFileName);
     default:
         return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
     }
