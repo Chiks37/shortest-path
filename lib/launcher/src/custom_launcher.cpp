@@ -34,6 +34,18 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
                                                      nodesMappingFileName);
     case AlgoId::ALT_DELTA:
         return std::make_shared<SP::ALTDeltaAlgo>(graphFileName);
+    case AlgoId::ASTARG_BIDIR:
+        return std::make_shared<SP::AStarGBiDirAlgo>(graphFileName,
+                                                     nodesMappingFileName);
+    case AlgoId::ALT_BIDIR:
+        return std::make_shared<SP::ALTBiDirAlgo>(graphFileName);
+    case AlgoId::DELTA_STEPPING_BIDIR:
+        return std::make_shared<SP::DeltaSteppingBiDirAlgo>(graphFileName);
+    case AlgoId::ASTARG_DELTA_BIDIR:
+        return std::make_shared<SP::AStarGDeltaBiDirAlgo>(graphFileName,
+                                                          nodesMappingFileName);
+    case AlgoId::ALT_DELTA_BIDIR:
+        return std::make_shared<SP::ALTDeltaBiDirAlgo>(graphFileName);
     default:
         return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
     }

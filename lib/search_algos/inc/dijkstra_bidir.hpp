@@ -3,6 +3,7 @@
  * @author tarakanov.2004@mail.ru
  * @brief Dijkstra (bidirectional version) algorithm class header file
  */
+#pragma once
 
 #include "dijkstra_seq.hpp"
 #include <limits>
@@ -46,8 +47,11 @@ class DijkstraBiDirAlgo : public DijkstraSeqAlgo
         const std::vector<double> &otherDistances, CostEstimator costEstimator);
     std::vector<int> reconstructPath(int source, int destination,
                                      const std::vector<int> &myParents);
-    double getDistanceBackward(int vertex) { return distancesBackward[vertex]; }
-    double estimateCostBackward(int vertex)
+    virtual double getDistanceBackward(int vertex)
+    {
+        return distancesBackward[vertex];
+    }
+    virtual double estimateCostBackward(int vertex)
     {
         return getDistanceBackward(vertex);
     }

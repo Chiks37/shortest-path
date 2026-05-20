@@ -6,10 +6,15 @@
 #pragma once
 
 #include "alt.hpp"
+#include "alt_bidir.hpp"
 #include "alt_delta.hpp"
+#include "alt_delta_bidir.hpp"
 #include "astarg.hpp"
+#include "astarg_bidir.hpp"
 #include "astarg_delta.hpp"
+#include "astarg_delta_bidir.hpp"
 #include "delta_stepping.hpp"
+#include "delta_stepping_bidir.hpp"
 #include "dijkstra_bidir.hpp"
 #include "dijkstra_par_expansion.hpp"
 #include "dijkstra_par_relaxation.hpp"
@@ -38,6 +43,11 @@ class CustomLauncher : public Launcher
         ALT,
         ASTARG_DELTA,
         ALT_DELTA,
+        ASTARG_BIDIR,
+        ALT_BIDIR,
+        DELTA_STEPPING_BIDIR,
+        ASTARG_DELTA_BIDIR,
+        ALT_DELTA_BIDIR,
         COUNT
     };
 
@@ -50,7 +60,12 @@ class CustomLauncher : public Launcher
                    AlgoId::ASTARG,
                    AlgoId::ALT,
                    AlgoId::ASTARG_DELTA,
-                   AlgoId::ALT_DELTA};
+                   AlgoId::ALT_DELTA,
+                   AlgoId::ASTARG_BIDIR,
+                   AlgoId::ALT_BIDIR,
+                   AlgoId::DELTA_STEPPING_BIDIR,
+                   AlgoId::ASTARG_DELTA_BIDIR,
+                   AlgoId::ALT_DELTA_BIDIR};
 
     static inline const std::unordered_map<AlgoId, std::string> algoNames = {
         {AlgoId::DIJKSTRA_SEQ, "dijkstra_seq"},
@@ -61,7 +76,12 @@ class CustomLauncher : public Launcher
         {AlgoId::ASTARG, "astarg"},
         {AlgoId::ALT, "alt"},
         {AlgoId::ASTARG_DELTA, "astarg_delta"},
-        {AlgoId::ALT_DELTA, "alt_delta"}};
+        {AlgoId::ALT_DELTA, "alt_delta"},
+        {AlgoId::ASTARG_BIDIR, "astarg_bidir"},
+        {AlgoId::ALT_BIDIR, "alt_bidir"},
+        {AlgoId::DELTA_STEPPING_BIDIR, "delta_stepping_bidir"},
+        {AlgoId::ASTARG_DELTA_BIDIR, "astarg_delta_bidir"},
+        {AlgoId::ALT_DELTA_BIDIR, "alt_delta_bidir"}};
 
   private:
     AlgoId algoId;
