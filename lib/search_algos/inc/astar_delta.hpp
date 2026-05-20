@@ -18,10 +18,14 @@ class AStarDeltaAlgo : public DeltaSteppingAlgo
     virtual ~AStarDeltaAlgo() {}
 
   protected:
-    virtual double estimateCost(int vertex) override
-    {
-        return distances[vertex] + heuristic(vertex);
-    }
+    virtual void resetInternalData() override;
+    virtual double estimateCost(int vertex) override;
+    virtual ReturnCode buildResult() override;
     virtual double heuristic(int vertex) = 0;
+
+    // h(v) cached per query. Materialized in resetInternalData (after the
+    // destination is set), used to compute reduced edge weights and to
+    // restore the original distance in buildResult.
+    std::vector<double> cachedH;
 };
 } // namespace SP
