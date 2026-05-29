@@ -1,22 +1,22 @@
 /**
- * @file astar_delta_bidir.hpp
+ * @file abstract_astar_delta_bidir.hpp
  * @author tarakanov.2004@mail.ru
  * @brief Bidirectional Astar delta-stepping algorithm class header file
  */
 #pragma once
 
-#include "delta_stepping_bidir.hpp"
+#include "abstract_delta_stepping_bidir.hpp"
 
 namespace SP
 {
-class AStarDeltaBiDirAlgo : public DeltaSteppingBiDirAlgo
+class AbstractAStarDeltaBiDirAlgo : public AbstractDeltaSteppingBiDirAlgo
 {
   public:
-    AStarDeltaBiDirAlgo(std::string graphFileName)
-        : DeltaSteppingBiDirAlgo(graphFileName)
+    AbstractAStarDeltaBiDirAlgo(std::string graphFileName)
+        : AbstractDeltaSteppingBiDirAlgo(graphFileName)
     {
     }
-    virtual ~AStarDeltaBiDirAlgo() {}
+    virtual ~AbstractAStarDeltaBiDirAlgo() {}
 
   protected:
     virtual void resetInternalData() override;

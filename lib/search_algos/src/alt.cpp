@@ -13,7 +13,7 @@ namespace SP
 {
 ReturnCode ALTAlgo::preProcessImpl()
 {
-    ReturnCode rc = AStarAlgo::preProcessImpl();
+    ReturnCode rc = AbstractAStarAlgo::preProcessImpl();
     landmarks.reserve(landmarksCount);
     distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
 

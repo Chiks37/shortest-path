@@ -1,21 +1,22 @@
 /**
- * @file astar_delta.hpp
+ * @file abstract_astar_delta.hpp
  * @author tarakanov.2004@mail.ru
  * @brief Astar delta-stepping algorithm class header file
  */
 #pragma once
 
-#include "delta_stepping.hpp"
+#include "abstract_delta_stepping.hpp"
 
 namespace SP
 {
-class AStarDeltaAlgo : public DeltaSteppingAlgo
+class AbstractAStarDeltaAlgo : public AbstractDeltaSteppingAlgo
 {
   public:
-    AStarDeltaAlgo(std::string graphFileName) : DeltaSteppingAlgo(graphFileName)
+    AbstractAStarDeltaAlgo(std::string graphFileName)
+        : AbstractDeltaSteppingAlgo(graphFileName)
     {
     }
-    virtual ~AStarDeltaAlgo() {}
+    virtual ~AbstractAStarDeltaAlgo() {}
 
   protected:
     virtual void resetInternalData() override;

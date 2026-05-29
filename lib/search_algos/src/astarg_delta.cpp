@@ -15,7 +15,7 @@ namespace SP
 
 ReturnCode AStarGDeltaAlgo::preProcessImpl()
 {
-    ReturnCode rc = AStarDeltaAlgo::preProcessImpl();
+    ReturnCode rc = AbstractAStarDeltaAlgo::preProcessImpl();
     if (rc != ReturnCode::OK)
     {
         return rc;

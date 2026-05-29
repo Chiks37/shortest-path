@@ -1,13 +1,13 @@
-#include "dijkstra_seq.hpp"
+#include "abstract_dijkstra_seq.hpp"
 /**
- * @file dijkstra_seq.cpp
+ * @file abstract_dijkstra_seq.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Dijkstra algorithm sequential version class source file
  */
 
 namespace SP
 {
-ReturnCode DijkstraSeqAlgo::runSearch()
+ReturnCode AbstractDijkstraSeqAlgo::runSearch()
 {
     while (!pq.empty())
     {
@@ -52,17 +52,17 @@ ReturnCode DijkstraSeqAlgo::runSearch()
     return ReturnCode::OK;
 }
 
-void DijkstraSeqAlgo::initInternalData()
+void AbstractDijkstraSeqAlgo::initInternalData()
 {
-    DijkstraAlgo::initInternalData();
+    AbstractDijkstraAlgo::initInternalData();
 
     // Clear the pq
     pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
 }
 
-void DijkstraSeqAlgo::resetInternalData()
+void AbstractDijkstraSeqAlgo::resetInternalData()
 {
-    DijkstraAlgo::resetInternalData();
+    AbstractDijkstraAlgo::resetInternalData();
 
     double sourceEstimatedCost = estimateCost(this->source);
     pq.push({this->source, sourceEstimatedCost});

@@ -1,0 +1,1351 @@
+diff --git a/.gitignore b/.gitignore
+index 1a2b0e5..2378c44 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -7,4 +7,5 @@
+ /cache/
+ scripts/__pycache__/
+ graphs/
+-CLAUDE.md
+\ No newline at end of file
++CLAUDE.md
++doxygen_out/
+\ No newline at end of file
+diff --git a/lib/search_algos/inc/abstract_astar.hpp b/lib/search_algos/inc/abstract_astar.hpp
+index 7a47284..e597c5c 100644
+--- a/lib/search_algos/inc/abstract_astar.hpp
++++ b/lib/search_algos/inc/abstract_astar.hpp
+@@ -1,19 +1,22 @@
+ /**
+- * @file astar.hpp
++ * @file abstract_astar.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Astar algorithm class header file
+  */
+ #pragma once
+ 
+-#include "dijkstra_seq.hpp"
++#include "abstract_dijkstra_seq.hpp"
+ 
+ namespace SP
+ {
+-class AStarAlgo : public DijkstraSeqAlgo
++class AbstractAStarAlgo : public AbstractDijkstraSeqAlgo
+ {
+   public:
+-    AStarAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName) {}
+-    virtual ~AStarAlgo() {}
++    AbstractAStarAlgo(std::string graphFileName)
++        : AbstractDijkstraSeqAlgo(graphFileName)
++    {
++    }
++    virtual ~AbstractAStarAlgo() {}
+ 
+   protected:
+     virtual double estimateCost(int vertex) override
+diff --git a/lib/search_algos/inc/abstract_astar_bidir.hpp b/lib/search_algos/inc/abstract_astar_bidir.hpp
+index 41b1d02..d16b3b1 100644
+--- a/lib/search_algos/inc/abstract_astar_bidir.hpp
++++ b/lib/search_algos/inc/abstract_astar_bidir.hpp
+@@ -1,21 +1,22 @@
+ /**
+- * @file astar_bidir.hpp
++ * @file abstract_astar_bidir.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Bidirectional Astar algorithm class header file
+  */
+ #pragma once
+ 
+-#include "dijkstra_bidir.hpp"
++#include "abstract_dijkstra_bidir.hpp"
+ 
+ namespace SP
+ {
+-class AStarBiDirAlgo : public DijkstraBiDirAlgo
++class AbstractAStarBiDirAlgo : public AbstractDijkstraBiDirAlgo
+ {
+   public:
+-    AStarBiDirAlgo(std::string graphFileName) : DijkstraBiDirAlgo(graphFileName)
++    AbstractAStarBiDirAlgo(std::string graphFileName)
++        : AbstractDijkstraBiDirAlgo(graphFileName)
+     {
+     }
+-    virtual ~AStarBiDirAlgo() {}
++    virtual ~AbstractAStarBiDirAlgo() {}
+ 
+   protected:
+     virtual void resetInternalData() override;
+diff --git a/lib/search_algos/inc/abstract_astar_delta.hpp b/lib/search_algos/inc/abstract_astar_delta.hpp
+index 391ab22..ca4017c 100644
+--- a/lib/search_algos/inc/abstract_astar_delta.hpp
++++ b/lib/search_algos/inc/abstract_astar_delta.hpp
+@@ -1,21 +1,22 @@
+ /**
+- * @file astar_delta.hpp
++ * @file abstract_astar_delta.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Astar delta-stepping algorithm class header file
+  */
+ #pragma once
+ 
+-#include "delta_stepping.hpp"
++#include "abstract_delta_stepping.hpp"
+ 
+ namespace SP
+ {
+-class AStarDeltaAlgo : public DeltaSteppingAlgo
++class AbstractAStarDeltaAlgo : public AbstractDeltaSteppingAlgo
+ {
+   public:
+-    AStarDeltaAlgo(std::string graphFileName) : DeltaSteppingAlgo(graphFileName)
++    AbstractAStarDeltaAlgo(std::string graphFileName)
++        : AbstractDeltaSteppingAlgo(graphFileName)
+     {
+     }
+-    virtual ~AStarDeltaAlgo() {}
++    virtual ~AbstractAStarDeltaAlgo() {}
+ 
+   protected:
+     virtual void resetInternalData() override;
+diff --git a/lib/search_algos/inc/abstract_astar_delta_bidir.hpp b/lib/search_algos/inc/abstract_astar_delta_bidir.hpp
+index 751ffa7..81d55d7 100644
+--- a/lib/search_algos/inc/abstract_astar_delta_bidir.hpp
++++ b/lib/search_algos/inc/abstract_astar_delta_bidir.hpp
+@@ -1,22 +1,22 @@
+ /**
+- * @file astar_delta_bidir.hpp
++ * @file abstract_astar_delta_bidir.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Bidirectional Astar delta-stepping algorithm class header file
+  */
+ #pragma once
+ 
+-#include "delta_stepping_bidir.hpp"
++#include "abstract_delta_stepping_bidir.hpp"
+ 
+ namespace SP
+ {
+-class AStarDeltaBiDirAlgo : public DeltaSteppingBiDirAlgo
++class AbstractAStarDeltaBiDirAlgo : public AbstractDeltaSteppingBiDirAlgo
+ {
+   public:
+-    AStarDeltaBiDirAlgo(std::string graphFileName)
+-        : DeltaSteppingBiDirAlgo(graphFileName)
++    AbstractAStarDeltaBiDirAlgo(std::string graphFileName)
++        : AbstractDeltaSteppingBiDirAlgo(graphFileName)
+     {
+     }
+-    virtual ~AStarDeltaBiDirAlgo() {}
++    virtual ~AbstractAStarDeltaBiDirAlgo() {}
+ 
+   protected:
+     virtual void resetInternalData() override;
+diff --git a/lib/search_algos/inc/abstract_delta_stepping.hpp b/lib/search_algos/inc/abstract_delta_stepping.hpp
+index 7a4a7e7..14f0662 100644
+--- a/lib/search_algos/inc/abstract_delta_stepping.hpp
++++ b/lib/search_algos/inc/abstract_delta_stepping.hpp
+@@ -1,24 +1,24 @@
+ /**
+- * @file delta_stepping.hpp
++ * @file abstract_delta_stepping.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Delta-Stepping algorithm class header file
+  */
+ #pragma once
+ 
+-#include "dijkstra.hpp"
++#include "abstract_dijkstra.hpp"
+ #include <atomic>
+ #include <cstddef>
+ 
+ namespace SP
+ {
+-class DeltaSteppingAlgo : public DijkstraAlgo
++class AbstractDeltaSteppingAlgo : public AbstractDijkstraAlgo
+ {
+-  public:
+-    DeltaSteppingAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName)
++  protected:
++    AbstractDeltaSteppingAlgo(std::string graphFileName)
++        : AbstractDijkstraAlgo(graphFileName)
+     {
+     }
+ 
+-  protected:
+     virtual void initInternalData() override;
+     virtual void resetInternalData() override;
+     virtual ReturnCode preProcessImpl() override;
+diff --git a/lib/search_algos/inc/abstract_delta_stepping_bidir.hpp b/lib/search_algos/inc/abstract_delta_stepping_bidir.hpp
+index a87a8c6..b986666 100644
+--- a/lib/search_algos/inc/abstract_delta_stepping_bidir.hpp
++++ b/lib/search_algos/inc/abstract_delta_stepping_bidir.hpp
+@@ -1,27 +1,24 @@
+ /**
+- * @file delta_stepping_bidir.hpp
++ * @file abstract_delta_stepping_bidir.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Bidirectional delta-stepping algorithm class header file
+  */
+ #pragma once
+ 
+-#include "delta_stepping.hpp"
++#include "abstract_delta_stepping.hpp"
+ #include <limits>
+ 
+ namespace SP
+ {
+-class DeltaSteppingBiDirAlgo : public DeltaSteppingAlgo
++class AbstractDeltaSteppingBiDirAlgo : public AbstractDeltaSteppingAlgo
+ {
+-  public:
+-    DeltaSteppingBiDirAlgo(std::string graphFileName)
+-        : DeltaSteppingAlgo(graphFileName),
+-          meetingVertex(-1),
++  protected:
++    AbstractDeltaSteppingBiDirAlgo(std::string graphFileName)
++        : AbstractDeltaSteppingAlgo(graphFileName), meetingVertex(-1),
+           shortestPathLength(std::numeric_limits<double>::infinity())
+     {
+     }
+-    virtual ~DeltaSteppingBiDirAlgo() {}
+ 
+-  protected:
+     virtual void initInternalData() override;
+     virtual void resetInternalData() override;
+     virtual ReturnCode preProcessImpl() override;
+@@ -38,7 +35,8 @@ class DeltaSteppingBiDirAlgo : public DeltaSteppingAlgo
+     bool processOneBucket(bool forward, std::size_t &currentBucket);
+ 
+     // Backward direction mirror of all per-vertex state inherited from
+-    // DeltaSteppingAlgo. The reverse graph drives the backward bucket loop.
++    // AbstractDeltaSteppingAlgo. The reverse graph drives the backward bucket
++    // loop.
+     std::vector<double> distancesBackward;
+     std::vector<int> parentsBackward;
+     std::vector<std::vector<edge>> lightEdgesBackward;
+diff --git a/lib/search_algos/inc/abstract_dijkstra.hpp b/lib/search_algos/inc/abstract_dijkstra.hpp
+index da53d4a..de05c13 100644
+--- a/lib/search_algos/inc/abstract_dijkstra.hpp
++++ b/lib/search_algos/inc/abstract_dijkstra.hpp
+@@ -1,5 +1,5 @@
+ /**
+- * @file dijkstra.hpp
++ * @file abstract_dijkstra.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Dijkstra algorithm class header file
+  */
+@@ -12,11 +12,11 @@
+ 
+ namespace SP
+ {
+-class DijkstraAlgo : public BaseAlgo
++class AbstractDijkstraAlgo : public BaseAlgo
+ {
+   public:
+-    DijkstraAlgo(std::string graphFileName) : BaseAlgo(graphFileName) {}
+-    virtual ~DijkstraAlgo() {}
++    AbstractDijkstraAlgo(std::string graphFileName) : BaseAlgo(graphFileName) {}
++    virtual ~AbstractDijkstraAlgo() {}
+     virtual ReturnCode setSrcDest(int source, int destination) override;
+ 
+   protected:
+diff --git a/lib/search_algos/inc/abstract_dijkstra_bidir.hpp b/lib/search_algos/inc/abstract_dijkstra_bidir.hpp
+index 0f3792d..04daa85 100644
+--- a/lib/search_algos/inc/abstract_dijkstra_bidir.hpp
++++ b/lib/search_algos/inc/abstract_dijkstra_bidir.hpp
+@@ -1,26 +1,25 @@
+ /**
+- * @file dijkstra_bidir.hpp
++ * @file abstract_dijkstra_bidir.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Dijkstra (bidirectional version) algorithm class header file
+  */
+ #pragma once
+ 
+-#include "dijkstra_seq.hpp"
++#include "abstract_dijkstra_seq.hpp"
+ #include <limits>
+ 
+ namespace SP
+ {
+-class DijkstraBiDirAlgo : public DijkstraSeqAlgo
++class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
+ {
+-  public:
+-    DijkstraBiDirAlgo(std::string graphFileName)
+-        : DijkstraSeqAlgo(graphFileName), meetingVertex(-1),
++  protected:
++    AbstractDijkstraBiDirAlgo(std::string graphFileName)
++        : AbstractDijkstraSeqAlgo(graphFileName), meetingVertex(-1),
+           shortestPathLength(std::numeric_limits<double>::infinity())
+     {
+     }
+ 
+-  protected:
+-    using CostEstimator = double (DijkstraBiDirAlgo::*)(int vertex);
++    using CostEstimator = double (AbstractDijkstraBiDirAlgo::*)(int vertex);
+     std::vector<double> distancesBackward;
+     std::vector<int> parentsBackward;
+     std::vector<int> shortestPathBackward;
+diff --git a/lib/search_algos/inc/abstract_dijkstra_seq.hpp b/lib/search_algos/inc/abstract_dijkstra_seq.hpp
+index 5e1dae6..3abbbe6 100644
+--- a/lib/search_algos/inc/abstract_dijkstra_seq.hpp
++++ b/lib/search_algos/inc/abstract_dijkstra_seq.hpp
+@@ -1,20 +1,22 @@
+ /**
+- * @file dijkstra_seq.hpp
++ * @file abstract_dijkstra_seq.hpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Dijkstra algorithm sequential version class header file
+  */
+ #pragma once
+ 
+-#include "dijkstra.hpp"
++#include "abstract_dijkstra.hpp"
+ 
+ namespace SP
+ {
+-class DijkstraSeqAlgo : public DijkstraAlgo
++class AbstractDijkstraSeqAlgo : public AbstractDijkstraAlgo
+ {
+-  public:
+-    DijkstraSeqAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
+-
+   protected:
++    AbstractDijkstraSeqAlgo(std::string graphFileName)
++        : AbstractDijkstraAlgo(graphFileName)
++    {
++    }
++
+     virtual ReturnCode runSearch();
+ 
+     virtual void initInternalData() override;
+diff --git a/lib/search_algos/inc/alt.hpp b/lib/search_algos/inc/alt.hpp
+index f9a4a2f..df44c01 100644
+--- a/lib/search_algos/inc/alt.hpp
++++ b/lib/search_algos/inc/alt.hpp
+@@ -5,15 +5,15 @@
+  */
+ #pragma once
+ 
+-#include "astar.hpp"
++#include "abstract_astar.hpp"
+ #include "dijkstra_sssp.hpp"
+ 
+ namespace SP
+ {
+-class ALTAlgo : public AStarAlgo
++class ALTAlgo final : public AbstractAStarAlgo
+ {
+   public:
+-    ALTAlgo(std::string graphFileName) : AStarAlgo(graphFileName) {}
++    ALTAlgo(std::string graphFileName) : AbstractAStarAlgo(graphFileName) {}
+     virtual ~ALTAlgo() {}
+ 
+   protected:
+diff --git a/lib/search_algos/inc/alt_bidir.hpp b/lib/search_algos/inc/alt_bidir.hpp
+index 7315bed..e97a3e5 100644
+--- a/lib/search_algos/inc/alt_bidir.hpp
++++ b/lib/search_algos/inc/alt_bidir.hpp
+@@ -5,15 +5,18 @@
+  */
+ #pragma once
+ 
+-#include "astar_bidir.hpp"
++#include "abstract_astar_bidir.hpp"
+ #include "dijkstra_sssp.hpp"
+ 
+ namespace SP
+ {
+-class ALTBiDirAlgo : public AStarBiDirAlgo
++class ALTBiDirAlgo final : public AbstractAStarBiDirAlgo
+ {
+   public:
+-    ALTBiDirAlgo(std::string graphFileName) : AStarBiDirAlgo(graphFileName) {}
++    ALTBiDirAlgo(std::string graphFileName)
++        : AbstractAStarBiDirAlgo(graphFileName)
++    {
++    }
+     virtual ~ALTBiDirAlgo() {}
+ 
+   protected:
+diff --git a/lib/search_algos/inc/alt_delta.hpp b/lib/search_algos/inc/alt_delta.hpp
+index e2e11e0..79cb066 100644
+--- a/lib/search_algos/inc/alt_delta.hpp
++++ b/lib/search_algos/inc/alt_delta.hpp
+@@ -5,15 +5,18 @@
+  */
+ #pragma once
+ 
+-#include "astar_delta.hpp"
++#include "abstract_astar_delta.hpp"
+ #include "dijkstra_sssp.hpp"
+ 
+ namespace SP
+ {
+-class ALTDeltaAlgo : public AStarDeltaAlgo
++class ALTDeltaAlgo final : public AbstractAStarDeltaAlgo
+ {
+   public:
+-    ALTDeltaAlgo(std::string graphFileName) : AStarDeltaAlgo(graphFileName) {}
++    ALTDeltaAlgo(std::string graphFileName)
++        : AbstractAStarDeltaAlgo(graphFileName)
++    {
++    }
+     virtual ~ALTDeltaAlgo() {}
+ 
+   protected:
+diff --git a/lib/search_algos/inc/alt_delta_bidir.hpp b/lib/search_algos/inc/alt_delta_bidir.hpp
+index 85182b0..0b4e53d 100644
+--- a/lib/search_algos/inc/alt_delta_bidir.hpp
++++ b/lib/search_algos/inc/alt_delta_bidir.hpp
+@@ -5,16 +5,16 @@
+  */
+ #pragma once
+ 
+-#include "astar_delta_bidir.hpp"
++#include "abstract_astar_delta_bidir.hpp"
+ #include "dijkstra_sssp.hpp"
+ 
+ namespace SP
+ {
+-class ALTDeltaBiDirAlgo : public AStarDeltaBiDirAlgo
++class ALTDeltaBiDirAlgo final : public AbstractAStarDeltaBiDirAlgo
+ {
+   public:
+     ALTDeltaBiDirAlgo(std::string graphFileName)
+-        : AStarDeltaBiDirAlgo(graphFileName)
++        : AbstractAStarDeltaBiDirAlgo(graphFileName)
+     {
+     }
+     virtual ~ALTDeltaBiDirAlgo() {}
+diff --git a/lib/search_algos/inc/astarg.hpp b/lib/search_algos/inc/astarg.hpp
+index 90de04d..b9845ed 100644
+--- a/lib/search_algos/inc/astarg.hpp
++++ b/lib/search_algos/inc/astarg.hpp
+@@ -3,18 +3,19 @@
+  * @author tarakanov.2004@mail.ru
+  * @brief Astar with geometical heuristic algorithm class header file
+  */
+-#include "astar.hpp"
++#include "abstract_astar.hpp"
+ #include <utility>
+ #include <vector>
+ 
+ namespace SP
+ {
+ 
+-class AStarGAlgo : public AStarAlgo
++class AStarGAlgo final : public AbstractAStarAlgo
+ {
+   public:
+     AStarGAlgo(std::string graphFileName, std::string nodesMappingFileName)
+-        : AStarAlgo(graphFileName), nodesMappingFileName(nodesMappingFileName)
++        : AbstractAStarAlgo(graphFileName),
++          nodesMappingFileName(nodesMappingFileName)
+     {
+     }
+ 
+diff --git a/lib/search_algos/inc/astarg_bidir.hpp b/lib/search_algos/inc/astarg_bidir.hpp
+index cf8d9fc..5ee56e1 100644
+--- a/lib/search_algos/inc/astarg_bidir.hpp
++++ b/lib/search_algos/inc/astarg_bidir.hpp
+@@ -6,18 +6,18 @@
+  */
+ #pragma once
+ 
+-#include "astar_bidir.hpp"
++#include "abstract_astar_bidir.hpp"
+ #include <utility>
+ #include <vector>
+ 
+ namespace SP
+ {
+ 
+-class AStarGBiDirAlgo : public AStarBiDirAlgo
++class AStarGBiDirAlgo final : public AbstractAStarBiDirAlgo
+ {
+   public:
+     AStarGBiDirAlgo(std::string graphFileName, std::string nodesMappingFileName)
+-        : AStarBiDirAlgo(graphFileName),
++        : AbstractAStarBiDirAlgo(graphFileName),
+           nodesMappingFileName(nodesMappingFileName)
+     {
+     }
+diff --git a/lib/search_algos/inc/astarg_delta.hpp b/lib/search_algos/inc/astarg_delta.hpp
+index 87e2198..1859b4a 100644
+--- a/lib/search_algos/inc/astarg_delta.hpp
++++ b/lib/search_algos/inc/astarg_delta.hpp
+@@ -4,18 +4,18 @@
+  * @brief Astar with geometical heuristic delta-stepping algorithm class header
+  * file
+  */
+-#include "astar_delta.hpp"
++#include "abstract_astar_delta.hpp"
+ #include <utility>
+ #include <vector>
+ 
+ namespace SP
+ {
+ 
+-class AStarGDeltaAlgo : public AStarDeltaAlgo
++class AStarGDeltaAlgo final : public AbstractAStarDeltaAlgo
+ {
+   public:
+     AStarGDeltaAlgo(std::string graphFileName, std::string nodesMappingFileName)
+-        : AStarDeltaAlgo(graphFileName),
++        : AbstractAStarDeltaAlgo(graphFileName),
+           nodesMappingFileName(nodesMappingFileName)
+     {
+     }
+diff --git a/lib/search_algos/inc/astarg_delta_bidir.hpp b/lib/search_algos/inc/astarg_delta_bidir.hpp
+index f0997ce..c01e26c 100644
+--- a/lib/search_algos/inc/astarg_delta_bidir.hpp
++++ b/lib/search_algos/inc/astarg_delta_bidir.hpp
+@@ -6,19 +6,19 @@
+  */
+ #pragma once
+ 
+-#include "astar_delta_bidir.hpp"
++#include "abstract_astar_delta_bidir.hpp"
+ #include <utility>
+ #include <vector>
+ 
+ namespace SP
+ {
+ 
+-class AStarGDeltaBiDirAlgo : public AStarDeltaBiDirAlgo
++class AStarGDeltaBiDirAlgo final : public AbstractAStarDeltaBiDirAlgo
+ {
+   public:
+     AStarGDeltaBiDirAlgo(std::string graphFileName,
+                          std::string nodesMappingFileName)
+-        : AStarDeltaBiDirAlgo(graphFileName),
++        : AbstractAStarDeltaBiDirAlgo(graphFileName),
+           nodesMappingFileName(nodesMappingFileName)
+     {
+     }
+diff --git a/lib/search_algos/inc/dijkstra_par_expansion.hpp b/lib/search_algos/inc/dijkstra_par_expansion.hpp
+index bd82e35..ebda61f 100644
+--- a/lib/search_algos/inc/dijkstra_par_expansion.hpp
++++ b/lib/search_algos/inc/dijkstra_par_expansion.hpp
+@@ -4,16 +4,16 @@
+  * @brief Dijkstra algorithm class with parallel expansion header file
+  */
+ 
+-#include "dijkstra.hpp"
++#include "abstract_dijkstra.hpp"
+ #include "tracked_pq.hpp"
+ 
+ namespace SP
+ {
+-class DijkstraParExpansionAlgo : public DijkstraAlgo
++class DijkstraParExpansionAlgo final : public AbstractDijkstraAlgo
+ {
+   public:
+     DijkstraParExpansionAlgo(std::string graphFileName)
+-        : DijkstraAlgo(graphFileName)
++        : AbstractDijkstraAlgo(graphFileName)
+     {
+     }
+ 
+diff --git a/lib/search_algos/inc/dijkstra_par_relaxation.hpp b/lib/search_algos/inc/dijkstra_par_relaxation.hpp
+index 17f40e9..c0d684e 100644
+--- a/lib/search_algos/inc/dijkstra_par_relaxation.hpp
++++ b/lib/search_algos/inc/dijkstra_par_relaxation.hpp
+@@ -5,17 +5,17 @@
+  */
+ #pragma once
+ 
+-#include "dijkstra_seq.hpp"
++#include "abstract_dijkstra_seq.hpp"
+ #include <atomic>
+ 
+ namespace SP
+ {
+ 
+-class DijkstraParRelaxationAlgo : public DijkstraSeqAlgo
++class DijkstraParRelaxationAlgo final : public AbstractDijkstraSeqAlgo
+ {
+   public:
+     DijkstraParRelaxationAlgo(std::string graphFileName)
+-        : DijkstraSeqAlgo(graphFileName)
++        : AbstractDijkstraSeqAlgo(graphFileName)
+     {
+     }
+ 
+diff --git a/lib/search_algos/inc/dijkstra_sssp.hpp b/lib/search_algos/inc/dijkstra_sssp.hpp
+index 4f98d04..cbb8e1c 100644
+--- a/lib/search_algos/inc/dijkstra_sssp.hpp
++++ b/lib/search_algos/inc/dijkstra_sssp.hpp
+@@ -5,14 +5,15 @@
+  */
+ #pragma once
+ 
+-#include "dijkstra_seq.hpp"
++#include "abstract_dijkstra_seq.hpp"
+ 
+ namespace SP
+ {
+-class DijkstraSsspAlgo : public DijkstraSeqAlgo
++class DijkstraSsspAlgo final : public AbstractDijkstraSeqAlgo
+ {
+   public:
+-    DijkstraSsspAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName)
++    DijkstraSsspAlgo(std::string graphFileName)
++        : AbstractDijkstraSeqAlgo(graphFileName)
+     {
+     }
+ 
+diff --git a/lib/search_algos/src/abstract_astar.cpp b/lib/search_algos/src/abstract_astar.cpp
+index 4092fd6..ed94d99 100644
+--- a/lib/search_algos/src/abstract_astar.cpp
++++ b/lib/search_algos/src/abstract_astar.cpp
+@@ -1,10 +1,10 @@
+ /**
+- * @file astar.cpp
++ * @file abstract_astar.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Astar algorithm class source file
+  */
+ 
+-#include "astar.hpp"
++#include "abstract_astar.hpp"
+ 
+ namespace SP
+ {
+diff --git a/lib/search_algos/src/abstract_astar_bidir.cpp b/lib/search_algos/src/abstract_astar_bidir.cpp
+index 7f37559..90216ed 100644
+--- a/lib/search_algos/src/abstract_astar_bidir.cpp
++++ b/lib/search_algos/src/abstract_astar_bidir.cpp
+@@ -1,15 +1,15 @@
+ /**
+- * @file astar_bidir.cpp
++ * @file abstract_astar_bidir.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Bidirectional Astar algorithm class source file
+  */
+ 
+-#include "astar_bidir.hpp"
++#include "abstract_astar_bidir.hpp"
+ 
+ namespace SP
+ {
+ 
+-void AStarBiDirAlgo::resetInternalData()
++void AbstractAStarBiDirAlgo::resetInternalData()
+ {
+     cachedHsrc.assign(graph.V, 0.0);
+     cachedHdst.assign(graph.V, 0.0);
+@@ -19,15 +19,15 @@ void AStarBiDirAlgo::resetInternalData()
+         cachedHdst[v] = heuristic(v, this->destination);
+     }
+ 
+-    DijkstraBiDirAlgo::resetInternalData();
++    AbstractDijkstraBiDirAlgo::resetInternalData();
+ }
+ 
+-double AStarBiDirAlgo::estimateCost(int vertex)
++double AbstractAStarBiDirAlgo::estimateCost(int vertex)
+ {
+     return distances[vertex] + 0.5 * (cachedHdst[vertex] - cachedHsrc[vertex]);
+ }
+ 
+-double AStarBiDirAlgo::estimateCostBackward(int vertex)
++double AbstractAStarBiDirAlgo::estimateCostBackward(int vertex)
+ {
+     return distancesBackward[vertex] +
+            0.5 * (cachedHsrc[vertex] - cachedHdst[vertex]);
+diff --git a/lib/search_algos/src/abstract_astar_delta.cpp b/lib/search_algos/src/abstract_astar_delta.cpp
+index 075ca6f..1775a52 100644
+--- a/lib/search_algos/src/abstract_astar_delta.cpp
++++ b/lib/search_algos/src/abstract_astar_delta.cpp
+@@ -1,19 +1,19 @@
+ /**
+- * @file astar_delta.cpp
++ * @file abstract_astar_delta.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Astar delta-stepping algorithm class source file
+  */
+ 
+-#include "astar_delta.hpp"
++#include "abstract_astar_delta.hpp"
+ #include <cmath>
+ #include <limits>
+ 
+ namespace SP
+ {
+ 
+-void AStarDeltaAlgo::resetInternalData()
++void AbstractAStarDeltaAlgo::resetInternalData()
+ {
+-    DeltaSteppingAlgo::resetInternalData();
++    AbstractDeltaSteppingAlgo::resetInternalData();
+ 
+     cachedH.assign(graph.V, 0.0);
+     for (int v = 0; v < graph.V; ++v)
+@@ -111,11 +111,14 @@ void AStarDeltaAlgo::resetInternalData()
+     }
+ }
+ 
+-double AStarDeltaAlgo::estimateCost(int vertex) { return distances[vertex]; }
++double AbstractAStarDeltaAlgo::estimateCost(int vertex)
++{
++    return distances[vertex];
++}
+ 
+-ReturnCode AStarDeltaAlgo::buildResult()
++ReturnCode AbstractAStarDeltaAlgo::buildResult()
+ {
+-    ReturnCode rc = DijkstraAlgo::buildResult();
++    ReturnCode rc = AbstractDijkstraAlgo::buildResult();
+     if (ReturnCode::OK != rc)
+     {
+         return rc;
+diff --git a/lib/search_algos/src/abstract_astar_delta_bidir.cpp b/lib/search_algos/src/abstract_astar_delta_bidir.cpp
+index 270408e..7d6795a 100644
+--- a/lib/search_algos/src/abstract_astar_delta_bidir.cpp
++++ b/lib/search_algos/src/abstract_astar_delta_bidir.cpp
+@@ -1,19 +1,19 @@
+ /**
+- * @file astar_delta_bidir.cpp
++ * @file abstract_astar_delta_bidir.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Bidirectional Astar delta-stepping algorithm class source file
+  */
+ 
+-#include "astar_delta_bidir.hpp"
++#include "abstract_astar_delta_bidir.hpp"
+ #include <cmath>
+ #include <limits>
+ 
+ namespace SP
+ {
+ 
+-void AStarDeltaBiDirAlgo::resetInternalData()
++void AbstractAStarDeltaBiDirAlgo::resetInternalData()
+ {
+-    DeltaSteppingBiDirAlgo::resetInternalData();
++    AbstractDeltaSteppingBiDirAlgo::resetInternalData();
+ 
+     cachedHsrc.assign(graph.V, 0.0);
+     cachedHdst.assign(graph.V, 0.0);
+@@ -153,9 +153,9 @@ void AStarDeltaBiDirAlgo::resetInternalData()
+     }
+ }
+ 
+-ReturnCode AStarDeltaBiDirAlgo::buildResult()
++ReturnCode AbstractAStarDeltaBiDirAlgo::buildResult()
+ {
+-    ReturnCode rc = DeltaSteppingBiDirAlgo::buildResult();
++    ReturnCode rc = AbstractDeltaSteppingBiDirAlgo::buildResult();
+     if (ReturnCode::OK != rc)
+     {
+         return rc;
+@@ -163,8 +163,7 @@ ReturnCode AStarDeltaBiDirAlgo::buildResult()
+ 
+     if (outData.shortestDistance != std::numeric_limits<double>::infinity())
+     {
+-        double piSrc =
+-            0.5 * (cachedHdst[source] - cachedHsrc[source]);
++        double piSrc = 0.5 * (cachedHdst[source] - cachedHsrc[source]);
+         double piDst =
+             0.5 * (cachedHdst[destination] - cachedHsrc[destination]);
+         outData.shortestDistance += piSrc - piDst;
+diff --git a/lib/search_algos/src/abstract_delta_stepping.cpp b/lib/search_algos/src/abstract_delta_stepping.cpp
+index 498f6eb..378a989 100644
+--- a/lib/search_algos/src/abstract_delta_stepping.cpp
++++ b/lib/search_algos/src/abstract_delta_stepping.cpp
+@@ -1,10 +1,10 @@
+ /**
+- * @file delta_stepping.cpp
++ * @file abstract_delta_stepping.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Delta-Stepping algorithm class source file
+  */
+ 
+-#include "delta_stepping.hpp"
++#include "abstract_delta_stepping.hpp"
+ #include <cmath>
+ #include <limits>
+ #include <utility>
+@@ -16,9 +16,9 @@
+ namespace SP
+ {
+ 
+-void DeltaSteppingAlgo::initInternalData()
++void AbstractDeltaSteppingAlgo::initInternalData()
+ {
+-    DijkstraAlgo::initInternalData();
++    AbstractDijkstraAlgo::initInternalData();
+ 
+     vertexLocks = std::vector<std::atomic_flag>(graph.V);
+     for (auto &vertexLock : vertexLocks)
+@@ -33,9 +33,9 @@ void DeltaSteppingAlgo::initInternalData()
+     insertStamp = 0;
+ }
+ 
+-void DeltaSteppingAlgo::resetInternalData()
++void AbstractDeltaSteppingAlgo::resetInternalData()
+ {
+-    DijkstraAlgo::resetInternalData();
++    AbstractDijkstraAlgo::resetInternalData();
+ 
+     for (auto &vertexLock : vertexLocks)
+     {
+@@ -57,7 +57,7 @@ void DeltaSteppingAlgo::resetInternalData()
+     }
+ }
+ 
+-void DeltaSteppingAlgo::computeDelta()
++void AbstractDeltaSteppingAlgo::computeDelta()
+ {
+     if (graph.nz <= 0)
+     {
+@@ -78,7 +78,7 @@ void DeltaSteppingAlgo::computeDelta()
+     }
+ }
+ 
+-void DeltaSteppingAlgo::classifyEdges()
++void AbstractDeltaSteppingAlgo::classifyEdges()
+ {
+     lightEdges.assign(graph.V, {});
+     heavyEdges.assign(graph.V, {});
+@@ -102,9 +102,9 @@ void DeltaSteppingAlgo::classifyEdges()
+     }
+ }
+ 
+-ReturnCode DeltaSteppingAlgo::preProcessImpl()
++ReturnCode AbstractDeltaSteppingAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = DijkstraAlgo::preProcessImpl();
++    ReturnCode rc = AbstractDijkstraAlgo::preProcessImpl();
+     if (rc != ReturnCode::OK)
+     {
+         return rc;
+@@ -116,7 +116,7 @@ ReturnCode DeltaSteppingAlgo::preProcessImpl()
+     return rc;
+ }
+ 
+-ReturnCode DeltaSteppingAlgo::runSearch()
++ReturnCode AbstractDeltaSteppingAlgo::runSearch()
+ {
+     if (graph.V <= 0)
+     {
+diff --git a/lib/search_algos/src/abstract_delta_stepping_bidir.cpp b/lib/search_algos/src/abstract_delta_stepping_bidir.cpp
+index 1841eda..72492e2 100644
+--- a/lib/search_algos/src/abstract_delta_stepping_bidir.cpp
++++ b/lib/search_algos/src/abstract_delta_stepping_bidir.cpp
+@@ -1,10 +1,10 @@
+ /**
+- * @file delta_stepping_bidir.cpp
++ * @file abstract_delta_stepping_bidir.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Bidirectional delta-stepping algorithm class source file
+  */
+ 
+-#include "delta_stepping_bidir.hpp"
++#include "abstract_delta_stepping_bidir.hpp"
+ #include <algorithm>
+ #include <cmath>
+ #include <limits>
+@@ -17,9 +17,9 @@
+ namespace SP
+ {
+ 
+-void DeltaSteppingBiDirAlgo::initInternalData()
++void AbstractDeltaSteppingBiDirAlgo::initInternalData()
+ {
+-    DeltaSteppingAlgo::initInternalData();
++    AbstractDeltaSteppingAlgo::initInternalData();
+ 
+     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
+     distancesBackward[this->destination] = 0.0;
+@@ -41,9 +41,9 @@ void DeltaSteppingBiDirAlgo::initInternalData()
+     shortestPathLength = std::numeric_limits<double>::infinity();
+ }
+ 
+-void DeltaSteppingBiDirAlgo::resetInternalData()
++void AbstractDeltaSteppingBiDirAlgo::resetInternalData()
+ {
+-    DeltaSteppingAlgo::resetInternalData();
++    AbstractDeltaSteppingAlgo::resetInternalData();
+ 
+     for (auto &vertexLock : vertexLocksBackward)
+     {
+@@ -65,9 +65,9 @@ void DeltaSteppingBiDirAlgo::resetInternalData()
+     }
+ }
+ 
+-ReturnCode DeltaSteppingBiDirAlgo::preProcessImpl()
++ReturnCode AbstractDeltaSteppingBiDirAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = DeltaSteppingAlgo::preProcessImpl();
++    ReturnCode rc = AbstractDeltaSteppingAlgo::preProcessImpl();
+     if (rc != ReturnCode::OK)
+     {
+         return rc;
+@@ -82,7 +82,7 @@ ReturnCode DeltaSteppingBiDirAlgo::preProcessImpl()
+     return rc;
+ }
+ 
+-void DeltaSteppingBiDirAlgo::buildReverseGraph()
++void AbstractDeltaSteppingBiDirAlgo::buildReverseGraph()
+ {
+     int V = graph.V;
+     int nz = graph.Xadj[V];
+@@ -119,7 +119,7 @@ void DeltaSteppingBiDirAlgo::buildReverseGraph()
+     reverseGraph.nz = nz;
+ }
+ 
+-void DeltaSteppingBiDirAlgo::classifyBackwardEdges()
++void AbstractDeltaSteppingBiDirAlgo::classifyBackwardEdges()
+ {
+     lightEdgesBackward.assign(graph.V, {});
+     heavyEdgesBackward.assign(graph.V, {});
+@@ -146,7 +146,7 @@ void DeltaSteppingBiDirAlgo::classifyBackwardEdges()
+     }
+ }
+ 
+-ReturnCode DeltaSteppingBiDirAlgo::runSearch()
++ReturnCode AbstractDeltaSteppingBiDirAlgo::runSearch()
+ {
+     if (graph.V <= 0)
+     {
+@@ -173,8 +173,8 @@ ReturnCode DeltaSteppingBiDirAlgo::runSearch()
+     return ReturnCode::OK;
+ }
+ 
+-bool DeltaSteppingBiDirAlgo::processOneBucket(bool forward,
+-                                              std::size_t &currentBucket)
++bool AbstractDeltaSteppingBiDirAlgo::processOneBucket(
++    bool forward, std::size_t &currentBucket)
+ {
+     auto &myDistances = forward ? distances : distancesBackward;
+     auto &myParents = forward ? parents : parentsBackward;
+@@ -366,7 +366,7 @@ bool DeltaSteppingBiDirAlgo::processOneBucket(bool forward,
+     return false;
+ }
+ 
+-ReturnCode DeltaSteppingBiDirAlgo::buildResult()
++ReturnCode AbstractDeltaSteppingBiDirAlgo::buildResult()
+ {
+     if (meetingVertex == -1)
+     {
+diff --git a/lib/search_algos/src/abstract_dijkstra.cpp b/lib/search_algos/src/abstract_dijkstra.cpp
+index d18bf34..3f2325c 100644
+--- a/lib/search_algos/src/abstract_dijkstra.cpp
++++ b/lib/search_algos/src/abstract_dijkstra.cpp
+@@ -1,16 +1,16 @@
+ /**
+- * @file dijkstra.cpp
++ * @file abstract_dijkstra.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Dijkstra algorithm class source file
+  */
+ 
+-#include "dijkstra.hpp"
++#include "abstract_dijkstra.hpp"
+ #include <algorithm>
+ #include <limits>
+ 
+ namespace SP
+ {
+-ReturnCode DijkstraAlgo::setSrcDest(int source, int destination)
++ReturnCode AbstractDijkstraAlgo::setSrcDest(int source, int destination)
+ {
+     ReturnCode rc = BaseAlgo::setSrcDest(source, destination);
+     if (rc != ReturnCode::OK)
+@@ -23,7 +23,7 @@ ReturnCode DijkstraAlgo::setSrcDest(int source, int destination)
+     return rc;
+ }
+ 
+-ReturnCode DijkstraAlgo::preProcessImpl()
++ReturnCode AbstractDijkstraAlgo::preProcessImpl()
+ {
+     ReturnCode rc = BaseAlgo::preProcessImpl();
+     if (ReturnCode::OK != rc)
+@@ -37,14 +37,14 @@ ReturnCode DijkstraAlgo::preProcessImpl()
+     return rc;
+ }
+ 
+-ReturnCode DijkstraAlgo::computeImpl()
++ReturnCode AbstractDijkstraAlgo::computeImpl()
+ {
+     ReturnCode rc = runSearch();
+     rc = rc != ReturnCode::OK ? rc : buildResult();
+     return rc;
+ }
+ 
+-void DijkstraAlgo::initInternalData()
++void AbstractDijkstraAlgo::initInternalData()
+ {
+     distances.assign(graph.V, std::numeric_limits<double>::infinity());
+     distances[this->source] = 0.0;
+@@ -52,9 +52,9 @@ void DijkstraAlgo::initInternalData()
+     parents.assign(graph.V, -1);
+ }
+ 
+-void DijkstraAlgo::resetInternalData() { initInternalData(); }
++void AbstractDijkstraAlgo::resetInternalData() { initInternalData(); }
+ 
+-ReturnCode DijkstraAlgo::buildResult()
++ReturnCode AbstractDijkstraAlgo::buildResult()
+ {
+     ReturnCode rc = ReturnCode::OK;
+ 
+@@ -69,7 +69,7 @@ ReturnCode DijkstraAlgo::buildResult()
+     return rc;
+ }
+ 
+-double DijkstraAlgo::getDistance(int vertex)
++double AbstractDijkstraAlgo::getDistance(int vertex)
+ {
+     if (vertex < 0 || vertex >= graph.V)
+     {
+@@ -78,7 +78,7 @@ double DijkstraAlgo::getDistance(int vertex)
+     return distances[vertex];
+ }
+ 
+-std::vector<int> DijkstraAlgo::reconstructPath(int destination)
++std::vector<int> AbstractDijkstraAlgo::reconstructPath(int destination)
+ {
+     int currentVertex = destination;
+     std::vector<int> path;
+@@ -98,7 +98,7 @@ std::vector<int> DijkstraAlgo::reconstructPath(int destination)
+     return path;
+ }
+ 
+-bool DijkstraAlgo::completeCondition(int currentVertex)
++bool AbstractDijkstraAlgo::completeCondition(int currentVertex)
+ {
+     return currentVertex == this->destination;
+ }
+diff --git a/lib/search_algos/src/abstract_dijkstra_bidir.cpp b/lib/search_algos/src/abstract_dijkstra_bidir.cpp
+index f9cf33d..6e903ab 100644
+--- a/lib/search_algos/src/abstract_dijkstra_bidir.cpp
++++ b/lib/search_algos/src/abstract_dijkstra_bidir.cpp
+@@ -1,16 +1,16 @@
+ /**
+- * @file dijkstra_bidir.cpp
++ * @file abstract_dijkstra_bidir.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Dijkstra (bidirectional version) algorithm class source file
+  */
+-#include "dijkstra_bidir.hpp"
++#include "abstract_dijkstra_bidir.hpp"
+ #include <omp.h>
+ 
+ namespace SP
+ {
+-void DijkstraBiDirAlgo::initInternalData()
++void AbstractDijkstraBiDirAlgo::initInternalData()
+ {
+-    DijkstraSeqAlgo::initInternalData();
++    AbstractDijkstraSeqAlgo::initInternalData();
+ 
+     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
+     distancesBackward[this->destination] = 0.0;
+@@ -24,16 +24,16 @@ void DijkstraBiDirAlgo::initInternalData()
+     shortestPathLength = std::numeric_limits<double>::infinity();
+ }
+ 
+-void DijkstraBiDirAlgo::resetInternalData()
++void AbstractDijkstraBiDirAlgo::resetInternalData()
+ {
+-    DijkstraSeqAlgo::resetInternalData();
++    AbstractDijkstraSeqAlgo::resetInternalData();
+ 
+     double destEstimatedCost = estimateCostBackward(this->destination);
+     pqBackward.push({this->destination, destEstimatedCost});
+ }
+-ReturnCode DijkstraBiDirAlgo::preProcessImpl()
++ReturnCode AbstractDijkstraBiDirAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = DijkstraSeqAlgo::preProcessImpl();
++    ReturnCode rc = AbstractDijkstraSeqAlgo::preProcessImpl();
+     if (ReturnCode::OK != rc)
+     {
+         return rc;
+@@ -47,7 +47,7 @@ ReturnCode DijkstraBiDirAlgo::preProcessImpl()
+     return rc;
+ }
+ 
+-void DijkstraBiDirAlgo::buildReverseGraph()
++void AbstractDijkstraBiDirAlgo::buildReverseGraph()
+ {
+     int V = graph.V;
+     int nz = graph.Xadj[V];
+@@ -84,7 +84,7 @@ void DijkstraBiDirAlgo::buildReverseGraph()
+     reverseGraph.nz = nz;
+ }
+ 
+-ReturnCode DijkstraBiDirAlgo::computeImpl()
++ReturnCode AbstractDijkstraBiDirAlgo::computeImpl()
+ {
+ #pragma omp parallel
+     {
+@@ -93,7 +93,7 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
+ #pragma omp task shared(pq, distances, parents, distancesBackward)
+             {
+                 runHalfSearch(graph, pq, distances, parents, distancesBackward,
+-                              &DijkstraBiDirAlgo::estimateCost);
++                              &AbstractDijkstraBiDirAlgo::estimateCost);
+             }
+ 
+ #pragma omp task shared(pqBackward, distancesBackward, parentsBackward,        \
+@@ -101,7 +101,7 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
+             {
+                 runHalfSearch(reverseGraph, pqBackward, distancesBackward,
+                               parentsBackward, distances,
+-                              &DijkstraBiDirAlgo::estimateCostBackward);
++                              &AbstractDijkstraBiDirAlgo::estimateCostBackward);
+             }
+ 
+ #pragma omp taskwait
+@@ -127,7 +127,7 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
+     return ReturnCode::OK;
+ }
+ 
+-ReturnCode DijkstraBiDirAlgo::buildResult()
++ReturnCode AbstractDijkstraBiDirAlgo::buildResult()
+ {
+     if (meetingVertex != -1)
+     {
+@@ -145,12 +145,12 @@ ReturnCode DijkstraBiDirAlgo::buildResult()
+     return ReturnCode::OK;
+ }
+ 
+-ReturnCode DijkstraBiDirAlgo::runHalfSearch(
++ReturnCode AbstractDijkstraBiDirAlgo::runHalfSearch(
+     const crsGraph &searchGraph,
+     std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
+     std::vector<double> &myDistances, std::vector<int> &myParents,
+     const std::vector<double> &otherDistances,
+-    DijkstraBiDirAlgo::CostEstimator costEstimator)
++    AbstractDijkstraBiDirAlgo::CostEstimator costEstimator)
+ {
+     while (!myPq.empty())
+     {
+@@ -222,8 +222,8 @@ ReturnCode DijkstraBiDirAlgo::runHalfSearch(
+ }
+ 
+ std::vector<int>
+-DijkstraBiDirAlgo::reconstructPath(int source, int destination,
+-                                   const std::vector<int> &myParents)
++AbstractDijkstraBiDirAlgo::reconstructPath(int source, int destination,
++                                           const std::vector<int> &myParents)
+ {
+     int currentVertex = destination;
+     std::vector<int> path;
+diff --git a/lib/search_algos/src/abstract_dijkstra_seq.cpp b/lib/search_algos/src/abstract_dijkstra_seq.cpp
+index f52ed1e..bbdb86c 100644
+--- a/lib/search_algos/src/abstract_dijkstra_seq.cpp
++++ b/lib/search_algos/src/abstract_dijkstra_seq.cpp
+@@ -1,13 +1,13 @@
+-#include "dijkstra_seq.hpp"
++#include "abstract_dijkstra_seq.hpp"
+ /**
+- * @file dijkstra_seq.cpp
++ * @file abstract_dijkstra_seq.cpp
+  * @author tarakanov.2004@mail.ru
+  * @brief Dijkstra algorithm sequential version class source file
+  */
+ 
+ namespace SP
+ {
+-ReturnCode DijkstraSeqAlgo::runSearch()
++ReturnCode AbstractDijkstraSeqAlgo::runSearch()
+ {
+     while (!pq.empty())
+     {
+@@ -52,17 +52,17 @@ ReturnCode DijkstraSeqAlgo::runSearch()
+     return ReturnCode::OK;
+ }
+ 
+-void DijkstraSeqAlgo::initInternalData()
++void AbstractDijkstraSeqAlgo::initInternalData()
+ {
+-    DijkstraAlgo::initInternalData();
++    AbstractDijkstraAlgo::initInternalData();
+ 
+     // Clear the pq
+     pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
+ }
+ 
+-void DijkstraSeqAlgo::resetInternalData()
++void AbstractDijkstraSeqAlgo::resetInternalData()
+ {
+-    DijkstraAlgo::resetInternalData();
++    AbstractDijkstraAlgo::resetInternalData();
+ 
+     double sourceEstimatedCost = estimateCost(this->source);
+     pq.push({this->source, sourceEstimatedCost});
+diff --git a/lib/search_algos/src/alt.cpp b/lib/search_algos/src/alt.cpp
+index af7fb4a..cc56145 100644
+--- a/lib/search_algos/src/alt.cpp
++++ b/lib/search_algos/src/alt.cpp
+@@ -13,7 +13,7 @@ namespace SP
+ {
+ ReturnCode ALTAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarAlgo::preProcessImpl();
+     landmarks.reserve(landmarksCount);
+     distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
+ 
+diff --git a/lib/search_algos/src/alt_bidir.cpp b/lib/search_algos/src/alt_bidir.cpp
+index 73163e8..c8d5364 100644
+--- a/lib/search_algos/src/alt_bidir.cpp
++++ b/lib/search_algos/src/alt_bidir.cpp
+@@ -13,7 +13,7 @@ namespace SP
+ {
+ ReturnCode ALTBiDirAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarBiDirAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarBiDirAlgo::preProcessImpl();
+     landmarks.reserve(landmarksCount);
+     distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
+ 
+diff --git a/lib/search_algos/src/alt_delta.cpp b/lib/search_algos/src/alt_delta.cpp
+index 5203ab5..ab5b364 100644
+--- a/lib/search_algos/src/alt_delta.cpp
++++ b/lib/search_algos/src/alt_delta.cpp
+@@ -13,7 +13,7 @@ namespace SP
+ {
+ ReturnCode ALTDeltaAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarDeltaAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarDeltaAlgo::preProcessImpl();
+     landmarks.reserve(landmarksCount);
+     distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
+ 
+diff --git a/lib/search_algos/src/alt_delta_bidir.cpp b/lib/search_algos/src/alt_delta_bidir.cpp
+index 0a14442..d9d19fb 100644
+--- a/lib/search_algos/src/alt_delta_bidir.cpp
++++ b/lib/search_algos/src/alt_delta_bidir.cpp
+@@ -13,7 +13,7 @@ namespace SP
+ {
+ ReturnCode ALTDeltaBiDirAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarDeltaBiDirAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarDeltaBiDirAlgo::preProcessImpl();
+     landmarks.reserve(landmarksCount);
+     distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
+ 
+diff --git a/lib/search_algos/src/astarg.cpp b/lib/search_algos/src/astarg.cpp
+index 005e4a4..bf972bc 100644
+--- a/lib/search_algos/src/astarg.cpp
++++ b/lib/search_algos/src/astarg.cpp
+@@ -14,7 +14,7 @@ namespace SP
+ 
+ ReturnCode AStarGAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarAlgo::preProcessImpl();
+     if (rc != ReturnCode::OK)
+     {
+         return rc;
+diff --git a/lib/search_algos/src/astarg_bidir.cpp b/lib/search_algos/src/astarg_bidir.cpp
+index 7e92165..07951ce 100644
+--- a/lib/search_algos/src/astarg_bidir.cpp
++++ b/lib/search_algos/src/astarg_bidir.cpp
+@@ -15,7 +15,7 @@ namespace SP
+ 
+ ReturnCode AStarGBiDirAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarBiDirAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarBiDirAlgo::preProcessImpl();
+     if (rc != ReturnCode::OK)
+     {
+         return rc;
+@@ -25,7 +25,8 @@ ReturnCode AStarGBiDirAlgo::preProcessImpl()
+ 
+ double AStarGBiDirAlgo::heuristic(int vertex, int target)
+ {
+-    double dx = vertexCoordinates[vertex].first - vertexCoordinates[target].first;
++    double dx =
++        vertexCoordinates[vertex].first - vertexCoordinates[target].first;
+     double dy =
+         vertexCoordinates[vertex].second - vertexCoordinates[target].second;
+     return std::hypot(dx, dy);
+diff --git a/lib/search_algos/src/astarg_delta.cpp b/lib/search_algos/src/astarg_delta.cpp
+index e1f03f3..f6457ef 100644
+--- a/lib/search_algos/src/astarg_delta.cpp
++++ b/lib/search_algos/src/astarg_delta.cpp
+@@ -15,7 +15,7 @@ namespace SP
+ 
+ ReturnCode AStarGDeltaAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarDeltaAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarDeltaAlgo::preProcessImpl();
+     if (rc != ReturnCode::OK)
+     {
+         return rc;
+diff --git a/lib/search_algos/src/astarg_delta_bidir.cpp b/lib/search_algos/src/astarg_delta_bidir.cpp
+index e7d0cfb..9e69d18 100644
+--- a/lib/search_algos/src/astarg_delta_bidir.cpp
++++ b/lib/search_algos/src/astarg_delta_bidir.cpp
+@@ -15,7 +15,7 @@ namespace SP
+ 
+ ReturnCode AStarGDeltaBiDirAlgo::preProcessImpl()
+ {
+-    ReturnCode rc = AStarDeltaBiDirAlgo::preProcessImpl();
++    ReturnCode rc = AbstractAStarDeltaBiDirAlgo::preProcessImpl();
+     if (rc != ReturnCode::OK)
+     {
+         return rc;
+diff --git a/lib/search_algos/src/dijkstra_par_expansion.cpp b/lib/search_algos/src/dijkstra_par_expansion.cpp
+index 2b39657..2cbfe76 100644
+--- a/lib/search_algos/src/dijkstra_par_expansion.cpp
++++ b/lib/search_algos/src/dijkstra_par_expansion.cpp
+@@ -78,7 +78,7 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
+ 
+ void DijkstraParExpansionAlgo::initInternalData()
+ {
+-    DijkstraAlgo::initInternalData();
++    AbstractDijkstraAlgo::initInternalData();
+ 
+     // Clear the pq
+     trackedPQ.clear();
+@@ -89,7 +89,7 @@ void DijkstraParExpansionAlgo::initInternalData()
+ 
+ void DijkstraParExpansionAlgo::resetInternalData()
+ {
+-    DijkstraAlgo::resetInternalData();
++    AbstractDijkstraAlgo::resetInternalData();
+ 
+     double sourceEstimatedCost = estimateCost(this->source);
+     trackedPQ.push({this->source, sourceEstimatedCost});
+diff --git a/lib/search_algos/src/dijkstra_par_relaxation.cpp b/lib/search_algos/src/dijkstra_par_relaxation.cpp
+index c8d59a6..85a4948 100644
+--- a/lib/search_algos/src/dijkstra_par_relaxation.cpp
++++ b/lib/search_algos/src/dijkstra_par_relaxation.cpp
+@@ -84,7 +84,7 @@ ReturnCode DijkstraParRelaxationAlgo::runSearch()
+ 
+ void DijkstraParRelaxationAlgo::initInternalData()
+ {
+-    DijkstraSeqAlgo::initInternalData();
++    AbstractDijkstraSeqAlgo::initInternalData();
+ 
+     vertexLocks = std::vector<std::atomic_flag>(graph.V);
+     for (auto &vertexLock : vertexLocks)
+@@ -95,7 +95,7 @@ void DijkstraParRelaxationAlgo::initInternalData()
+ 
+ void DijkstraParRelaxationAlgo::resetInternalData()
+ {
+-    DijkstraSeqAlgo::resetInternalData();
++    AbstractDijkstraSeqAlgo::resetInternalData();
+ 
+     for (auto &vertexLock : vertexLocks)
+     {
+@@ -107,7 +107,8 @@ void DijkstraParRelaxationAlgo::resetInternalData()
+ 
+ bool DijkstraParRelaxationAlgo::completeCondition(int currentVertex)
+ {
+-    return isQueueEmpty || DijkstraSeqAlgo::completeCondition(currentVertex);
++    return isQueueEmpty ||
++           AbstractDijkstraSeqAlgo::completeCondition(currentVertex);
+ }
+ 
+ } // namespace SP

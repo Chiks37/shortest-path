@@ -5,14 +5,15 @@
  */
 #pragma once
 
-#include "dijkstra_seq.hpp"
+#include "abstract_dijkstra_seq.hpp"
 
 namespace SP
 {
-class DijkstraSsspAlgo : public DijkstraSeqAlgo
+class DijkstraSsspAlgo final : public AbstractDijkstraSeqAlgo
 {
   public:
-    DijkstraSsspAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName)
+    DijkstraSsspAlgo(std::string graphFileName)
+        : AbstractDijkstraSeqAlgo(graphFileName)
     {
     }
 

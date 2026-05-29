@@ -5,15 +5,18 @@
  */
 #pragma once
 
-#include "astar_delta.hpp"
+#include "abstract_astar_delta.hpp"
 #include "dijkstra_sssp.hpp"
 
 namespace SP
 {
-class ALTDeltaAlgo : public AStarDeltaAlgo
+class ALTDeltaAlgo final : public AbstractAStarDeltaAlgo
 {
   public:
-    ALTDeltaAlgo(std::string graphFileName) : AStarDeltaAlgo(graphFileName) {}
+    ALTDeltaAlgo(std::string graphFileName)
+        : AbstractAStarDeltaAlgo(graphFileName)
+    {
+    }
     virtual ~ALTDeltaAlgo() {}
 
   protected:

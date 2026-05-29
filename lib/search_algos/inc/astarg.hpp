@@ -3,18 +3,19 @@
  * @author tarakanov.2004@mail.ru
  * @brief Astar with geometical heuristic algorithm class header file
  */
-#include "astar.hpp"
+#include "abstract_astar.hpp"
 #include <utility>
 #include <vector>
 
 namespace SP
 {
 
-class AStarGAlgo : public AStarAlgo
+class AStarGAlgo final : public AbstractAStarAlgo
 {
   public:
     AStarGAlgo(std::string graphFileName, std::string nodesMappingFileName)
-        : AStarAlgo(graphFileName), nodesMappingFileName(nodesMappingFileName)
+        : AbstractAStarAlgo(graphFileName),
+          nodesMappingFileName(nodesMappingFileName)
     {
     }
 

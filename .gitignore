@@ -8,3 +8,4 @@
 scripts/__pycache__/
 graphs/
 CLAUDE.md
+doxygen_out/

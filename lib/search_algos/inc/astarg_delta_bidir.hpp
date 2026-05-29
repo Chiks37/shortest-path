@@ -6,19 +6,19 @@
  */
 #pragma once
 
-#include "astar_delta_bidir.hpp"
+#include "abstract_astar_delta_bidir.hpp"
 #include <utility>
 #include <vector>
 
 namespace SP
 {
 
-class AStarGDeltaBiDirAlgo : public AStarDeltaBiDirAlgo
+class AStarGDeltaBiDirAlgo final : public AbstractAStarDeltaBiDirAlgo
 {
   public:
     AStarGDeltaBiDirAlgo(std::string graphFileName,
                          std::string nodesMappingFileName)
-        : AStarDeltaBiDirAlgo(graphFileName),
+        : AbstractAStarDeltaBiDirAlgo(graphFileName),
           nodesMappingFileName(nodesMappingFileName)
     {
     }

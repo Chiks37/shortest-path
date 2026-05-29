@@ -1,10 +1,10 @@
 /**
- * @file delta_stepping.cpp
+ * @file abstract_delta_stepping.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Delta-Stepping algorithm class source file
  */
 
-#include "delta_stepping.hpp"
+#include "abstract_delta_stepping.hpp"
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -16,9 +16,9 @@
 namespace SP
 {
 
-void DeltaSteppingAlgo::initInternalData()
+void AbstractDeltaSteppingAlgo::initInternalData()
 {
-    DijkstraAlgo::initInternalData();
+    AbstractDijkstraAlgo::initInternalData();
 
     vertexLocks = std::vector<std::atomic_flag>(graph.V);
     for (auto &vertexLock : vertexLocks)
@@ -33,9 +33,9 @@ void DeltaSteppingAlgo::initInternalData()
     insertStamp = 0;
 }
 
-void DeltaSteppingAlgo::resetInternalData()
+void AbstractDeltaSteppingAlgo::resetInternalData()
 {
-    DijkstraAlgo::resetInternalData();
+    AbstractDijkstraAlgo::resetInternalData();
 
     for (auto &vertexLock : vertexLocks)
     {
@@ -57,7 +57,7 @@ void DeltaSteppingAlgo::resetInternalData()
     }
 }
 
-void DeltaSteppingAlgo::computeDelta()
+void AbstractDeltaSteppingAlgo::computeDelta()
 {
     if (graph.nz <= 0)
     {
@@ -78,7 +78,7 @@ void DeltaSteppingAlgo::computeDelta()
     }
 }
 
-void DeltaSteppingAlgo::classifyEdges()
+void AbstractDeltaSteppingAlgo::classifyEdges()
 {
     lightEdges.assign(graph.V, {});
     heavyEdges.assign(graph.V, {});
@@ -102,9 +102,9 @@ void DeltaSteppingAlgo::classifyEdges()
     }
 }
 
-ReturnCode DeltaSteppingAlgo::preProcessImpl()
+ReturnCode AbstractDeltaSteppingAlgo::preProcessImpl()
 {
-    ReturnCode rc = DijkstraAlgo::preProcessImpl();
+    ReturnCode rc = AbstractDijkstraAlgo::preProcessImpl();
     if (rc != ReturnCode::OK)
     {
         return rc;
@@ -116,7 +116,7 @@ ReturnCode DeltaSteppingAlgo::preProcessImpl()
     return rc;
 }
 
-ReturnCode DeltaSteppingAlgo::runSearch()
+ReturnCode AbstractDeltaSteppingAlgo::runSearch()
 {
     if (graph.V <= 0)
     {

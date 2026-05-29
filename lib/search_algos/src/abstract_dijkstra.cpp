@@ -1,16 +1,16 @@
 /**
- * @file dijkstra.cpp
+ * @file abstract_dijkstra.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Dijkstra algorithm class source file
  */
 
-#include "dijkstra.hpp"
+#include "abstract_dijkstra.hpp"
 #include <algorithm>
 #include <limits>
 
 namespace SP
 {
-ReturnCode DijkstraAlgo::setSrcDest(int source, int destination)
+ReturnCode AbstractDijkstraAlgo::setSrcDest(int source, int destination)
 {
     ReturnCode rc = BaseAlgo::setSrcDest(source, destination);
     if (rc != ReturnCode::OK)
@@ -23,7 +23,7 @@ ReturnCode DijkstraAlgo::setSrcDest(int source, int destination)
     return rc;
 }
 
-ReturnCode DijkstraAlgo::preProcessImpl()
+ReturnCode AbstractDijkstraAlgo::preProcessImpl()
 {
     ReturnCode rc = BaseAlgo::preProcessImpl();
     if (ReturnCode::OK != rc)
@@ -37,14 +37,14 @@ ReturnCode DijkstraAlgo::preProcessImpl()
     return rc;
 }
 
-ReturnCode DijkstraAlgo::computeImpl()
+ReturnCode AbstractDijkstraAlgo::computeImpl()
 {
     ReturnCode rc = runSearch();
     rc = rc != ReturnCode::OK ? rc : buildResult();
     return rc;
 }
 
-void DijkstraAlgo::initInternalData()
+void AbstractDijkstraAlgo::initInternalData()
 {
     distances.assign(graph.V, std::numeric_limits<double>::infinity());
     distances[this->source] = 0.0;
@@ -52,9 +52,9 @@ void DijkstraAlgo::initInternalData()
     parents.assign(graph.V, -1);
 }
 
-void DijkstraAlgo::resetInternalData() { initInternalData(); }
+void AbstractDijkstraAlgo::resetInternalData() { initInternalData(); }
 
-ReturnCode DijkstraAlgo::buildResult()
+ReturnCode AbstractDijkstraAlgo::buildResult()
 {
     ReturnCode rc = ReturnCode::OK;
 
@@ -69,7 +69,7 @@ ReturnCode DijkstraAlgo::buildResult()
     return rc;
 }
 
-double DijkstraAlgo::getDistance(int vertex)
+double AbstractDijkstraAlgo::getDistance(int vertex)
 {
     if (vertex < 0 || vertex >= graph.V)
     {
@@ -78,7 +78,7 @@ double DijkstraAlgo::getDistance(int vertex)
     return distances[vertex];
 }
 
-std::vector<int> DijkstraAlgo::reconstructPath(int destination)
+std::vector<int> AbstractDijkstraAlgo::reconstructPath(int destination)
 {
     int currentVertex = destination;
     std::vector<int> path;
@@ -98,7 +98,7 @@ std::vector<int> DijkstraAlgo::reconstructPath(int destination)
     return path;
 }
 
-bool DijkstraAlgo::completeCondition(int currentVertex)
+bool AbstractDijkstraAlgo::completeCondition(int currentVertex)
 {
     return currentVertex == this->destination;
 }

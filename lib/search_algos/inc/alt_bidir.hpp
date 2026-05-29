@@ -5,15 +5,18 @@
  */
 #pragma once
 
-#include "astar_bidir.hpp"
+#include "abstract_astar_bidir.hpp"
 #include "dijkstra_sssp.hpp"
 
 namespace SP
 {
-class ALTBiDirAlgo : public AStarBiDirAlgo
+class ALTBiDirAlgo final : public AbstractAStarBiDirAlgo
 {
   public:
-    ALTBiDirAlgo(std::string graphFileName) : AStarBiDirAlgo(graphFileName) {}
+    ALTBiDirAlgo(std::string graphFileName)
+        : AbstractAStarBiDirAlgo(graphFileName)
+    {
+    }
     virtual ~ALTBiDirAlgo() {}
 
   protected:

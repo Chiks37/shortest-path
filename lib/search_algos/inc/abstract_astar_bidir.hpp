@@ -1,21 +1,22 @@
 /**
- * @file astar_bidir.hpp
+ * @file abstract_astar_bidir.hpp
  * @author tarakanov.2004@mail.ru
  * @brief Bidirectional Astar algorithm class header file
  */
 #pragma once
 
-#include "dijkstra_bidir.hpp"
+#include "abstract_dijkstra_bidir.hpp"
 
 namespace SP
 {
-class AStarBiDirAlgo : public DijkstraBiDirAlgo
+class AbstractAStarBiDirAlgo : public AbstractDijkstraBiDirAlgo
 {
   public:
-    AStarBiDirAlgo(std::string graphFileName) : DijkstraBiDirAlgo(graphFileName)
+    AbstractAStarBiDirAlgo(std::string graphFileName)
+        : AbstractDijkstraBiDirAlgo(graphFileName)
     {
     }
-    virtual ~AStarBiDirAlgo() {}
+    virtual ~AbstractAStarBiDirAlgo() {}
 
   protected:
     virtual void resetInternalData() override;

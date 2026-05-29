@@ -78,7 +78,7 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
 
 void DijkstraParExpansionAlgo::initInternalData()
 {
-    DijkstraAlgo::initInternalData();
+    AbstractDijkstraAlgo::initInternalData();
 
     // Clear the pq
     trackedPQ.clear();
@@ -89,7 +89,7 @@ void DijkstraParExpansionAlgo::initInternalData()
 
 void DijkstraParExpansionAlgo::resetInternalData()
 {
-    DijkstraAlgo::resetInternalData();
+    AbstractDijkstraAlgo::resetInternalData();
 
     double sourceEstimatedCost = estimateCost(this->source);
     trackedPQ.push({this->source, sourceEstimatedCost});

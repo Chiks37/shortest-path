@@ -4,16 +4,16 @@
  * @brief Dijkstra algorithm class with parallel expansion header file
  */
 
-#include "dijkstra.hpp"
+#include "abstract_dijkstra.hpp"
 #include "tracked_pq.hpp"
 
 namespace SP
 {
-class DijkstraParExpansionAlgo : public DijkstraAlgo
+class DijkstraParExpansionAlgo final : public AbstractDijkstraAlgo
 {
   public:
     DijkstraParExpansionAlgo(std::string graphFileName)
-        : DijkstraAlgo(graphFileName)
+        : AbstractDijkstraAlgo(graphFileName)
     {
     }
 

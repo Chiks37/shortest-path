@@ -1,15 +1,15 @@
 /**
- * @file astar_bidir.cpp
+ * @file abstract_astar_bidir.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Bidirectional Astar algorithm class source file
  */
 
-#include "astar_bidir.hpp"
+#include "abstract_astar_bidir.hpp"
 
 namespace SP
 {
 
-void AStarBiDirAlgo::resetInternalData()
+void AbstractAStarBiDirAlgo::resetInternalData()
 {
     cachedHsrc.assign(graph.V, 0.0);
     cachedHdst.assign(graph.V, 0.0);
@@ -19,15 +19,15 @@ void AStarBiDirAlgo::resetInternalData()
         cachedHdst[v] = heuristic(v, this->destination);
     }
 
-    DijkstraBiDirAlgo::resetInternalData();
+    AbstractDijkstraBiDirAlgo::resetInternalData();
 }
 
-double AStarBiDirAlgo::estimateCost(int vertex)
+double AbstractAStarBiDirAlgo::estimateCost(int vertex)
 {
     return distances[vertex] + 0.5 * (cachedHdst[vertex] - cachedHsrc[vertex]);
 }
 
-double AStarBiDirAlgo::estimateCostBackward(int vertex)
+double AbstractAStarBiDirAlgo::estimateCostBackward(int vertex)
 {
     return distancesBackward[vertex] +
            0.5 * (cachedHsrc[vertex] - cachedHdst[vertex]);

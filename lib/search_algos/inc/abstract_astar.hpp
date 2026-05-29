@@ -1,19 +1,22 @@
 /**
- * @file astar.hpp
+ * @file abstract_astar.hpp
  * @author tarakanov.2004@mail.ru
  * @brief Astar algorithm class header file
  */
 #pragma once
 
-#include "dijkstra_seq.hpp"
+#include "abstract_dijkstra_seq.hpp"
 
 namespace SP
 {
-class AStarAlgo : public DijkstraSeqAlgo
+class AbstractAStarAlgo : public AbstractDijkstraSeqAlgo
 {
   public:
-    AStarAlgo(std::string graphFileName) : DijkstraSeqAlgo(graphFileName) {}
-    virtual ~AStarAlgo() {}
+    AbstractAStarAlgo(std::string graphFileName)
+        : AbstractDijkstraSeqAlgo(graphFileName)
+    {
+    }
+    virtual ~AbstractAStarAlgo() {}
 
   protected:
     virtual double estimateCost(int vertex) override

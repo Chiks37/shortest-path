@@ -84,7 +84,7 @@ ReturnCode DijkstraParRelaxationAlgo::runSearch()
 
 void DijkstraParRelaxationAlgo::initInternalData()
 {
-    DijkstraSeqAlgo::initInternalData();
+    AbstractDijkstraSeqAlgo::initInternalData();
 
     vertexLocks = std::vector<std::atomic_flag>(graph.V);
     for (auto &vertexLock : vertexLocks)
@@ -95,7 +95,7 @@ void DijkstraParRelaxationAlgo::initInternalData()
 
 void DijkstraParRelaxationAlgo::resetInternalData()
 {
-    DijkstraSeqAlgo::resetInternalData();
+    AbstractDijkstraSeqAlgo::resetInternalData();
 
     for (auto &vertexLock : vertexLocks)
     {
@@ -107,7 +107,8 @@ void DijkstraParRelaxationAlgo::resetInternalData()
 
 bool DijkstraParRelaxationAlgo::completeCondition(int currentVertex)
 {
-    return isQueueEmpty || DijkstraSeqAlgo::completeCondition(currentVertex);
+    return isQueueEmpty ||
+           AbstractDijkstraSeqAlgo::completeCondition(currentVertex);
 }
 
 } // namespace SP

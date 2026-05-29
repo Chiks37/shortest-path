@@ -15,7 +15,7 @@ namespace SP
 
 ReturnCode AStarGBiDirAlgo::preProcessImpl()
 {
-    ReturnCode rc = AStarBiDirAlgo::preProcessImpl();
+    ReturnCode rc = AbstractAStarBiDirAlgo::preProcessImpl();
     if (rc != ReturnCode::OK)
     {
         return rc;
@@ -25,7 +25,8 @@ ReturnCode AStarGBiDirAlgo::preProcessImpl()
 
 double AStarGBiDirAlgo::heuristic(int vertex, int target)
 {
-    double dx = vertexCoordinates[vertex].first - vertexCoordinates[target].first;
+    double dx =
+        vertexCoordinates[vertex].first - vertexCoordinates[target].first;
     double dy =
         vertexCoordinates[vertex].second - vertexCoordinates[target].second;
     return std::hypot(dx, dy);
