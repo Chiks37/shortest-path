@@ -1,16 +1,16 @@
 /**
- * @file dijkstra_bidir.cpp
+ * @file abstract_dijkstra_bidir.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Dijkstra (bidirectional version) algorithm class source file
  */
-#include "dijkstra_bidir.hpp"
+#include "abstract_dijkstra_bidir.hpp"
 #include <omp.h>
 
 namespace SP
 {
-void DijkstraBiDirAlgo::initInternalData()
+void AbstractDijkstraBiDirAlgo::initInternalData()
 {
-    DijkstraSeqAlgo::initInternalData();
+    AbstractDijkstraSeqAlgo::initInternalData();
 
     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
     distancesBackward[this->destination] = 0.0;
@@ -24,16 +24,16 @@ void DijkstraBiDirAlgo::initInternalData()
     shortestPathLength = std::numeric_limits<double>::infinity();
 }
 
-void DijkstraBiDirAlgo::resetInternalData()
+void AbstractDijkstraBiDirAlgo::resetInternalData()
 {
-    DijkstraSeqAlgo::resetInternalData();
+    AbstractDijkstraSeqAlgo::resetInternalData();
 
     double destEstimatedCost = estimateCostBackward(this->destination);
     pqBackward.push({this->destination, destEstimatedCost});
 }
-ReturnCode DijkstraBiDirAlgo::preProcessImpl()
+ReturnCode AbstractDijkstraBiDirAlgo::preProcessImpl()
 {
-    ReturnCode rc = DijkstraSeqAlgo::preProcessImpl();
+    ReturnCode rc = AbstractDijkstraSeqAlgo::preProcessImpl();
     if (ReturnCode::OK != rc)
     {
         return rc;
@@ -47,7 +47,7 @@ ReturnCode DijkstraBiDirAlgo::preProcessImpl()
     return rc;
 }
 
-void DijkstraBiDirAlgo::buildReverseGraph()
+void AbstractDijkstraBiDirAlgo::buildReverseGraph()
 {
     int V = graph.V;
     int nz = graph.Xadj[V];
@@ -84,7 +84,7 @@ void DijkstraBiDirAlgo::buildReverseGraph()
     reverseGraph.nz = nz;
 }
 
-ReturnCode DijkstraBiDirAlgo::computeImpl()
+ReturnCode AbstractDijkstraBiDirAlgo::computeImpl()
 {
 #pragma omp parallel
     {
@@ -93,7 +93,7 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
 #pragma omp task shared(pq, distances, parents, distancesBackward)
             {
                 runHalfSearch(graph, pq, distances, parents, distancesBackward,
-                              &DijkstraBiDirAlgo::estimateCost);
+                              &AbstractDijkstraBiDirAlgo::estimateCost);
             }
 
 #pragma omp task shared(pqBackward, distancesBackward, parentsBackward,        \
@@ -101,7 +101,7 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
             {
                 runHalfSearch(reverseGraph, pqBackward, distancesBackward,
                               parentsBackward, distances,
-                              &DijkstraBiDirAlgo::estimateCostBackward);
+                              &AbstractDijkstraBiDirAlgo::estimateCostBackward);
             }
 
 #pragma omp taskwait
@@ -127,7 +127,7 @@ ReturnCode DijkstraBiDirAlgo::computeImpl()
     return ReturnCode::OK;
 }
 
-ReturnCode DijkstraBiDirAlgo::buildResult()
+ReturnCode AbstractDijkstraBiDirAlgo::buildResult()
 {
     if (meetingVertex != -1)
     {
@@ -145,12 +145,12 @@ ReturnCode DijkstraBiDirAlgo::buildResult()
     return ReturnCode::OK;
 }
 
-ReturnCode DijkstraBiDirAlgo::runHalfSearch(
+ReturnCode AbstractDijkstraBiDirAlgo::runHalfSearch(
     const crsGraph &searchGraph,
     std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
     std::vector<double> &myDistances, std::vector<int> &myParents,
     const std::vector<double> &otherDistances,
-    DijkstraBiDirAlgo::CostEstimator costEstimator)
+    AbstractDijkstraBiDirAlgo::CostEstimator costEstimator)
 {
     while (!myPq.empty())
     {
@@ -222,8 +222,8 @@ ReturnCode DijkstraBiDirAlgo::runHalfSearch(
 }
 
 std::vector<int>
-DijkstraBiDirAlgo::reconstructPath(int source, int destination,
-                                   const std::vector<int> &myParents)
+AbstractDijkstraBiDirAlgo::reconstructPath(int source, int destination,
+                                           const std::vector<int> &myParents)
 {
     int currentVertex = destination;
     std::vector<int> path;

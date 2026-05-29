@@ -1,5 +1,5 @@
 /**
- * @file dijkstra.hpp
+ * @file abstract_dijkstra.hpp
  * @author tarakanov.2004@mail.ru
  * @brief Dijkstra algorithm class header file
  */
@@ -12,11 +12,11 @@
 
 namespace SP
 {
-class DijkstraAlgo : public BaseAlgo
+class AbstractDijkstraAlgo : public BaseAlgo
 {
   public:
-    DijkstraAlgo(std::string graphFileName) : BaseAlgo(graphFileName) {}
-    virtual ~DijkstraAlgo() {}
+    AbstractDijkstraAlgo(std::string graphFileName) : BaseAlgo(graphFileName) {}
+    virtual ~AbstractDijkstraAlgo() {}
     virtual ReturnCode setSrcDest(int source, int destination) override;
 
   protected:

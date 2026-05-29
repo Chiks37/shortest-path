@@ -5,59 +5,16 @@
  */
 #pragma once
 
-#include "delta_stepping.hpp"
-#include <limits>
+#include "abstract_delta_stepping_bidir.hpp"
 
 namespace SP
 {
-class DeltaSteppingBiDirAlgo : public DeltaSteppingAlgo
+class DeltaSteppingBiDirAlgo final : public AbstractDeltaSteppingBiDirAlgo
 {
   public:
     DeltaSteppingBiDirAlgo(std::string graphFileName)
-        : DeltaSteppingAlgo(graphFileName),
-          meetingVertex(-1),
-          shortestPathLength(std::numeric_limits<double>::infinity())
+        : AbstractDeltaSteppingBiDirAlgo(graphFileName)
     {
     }
-    virtual ~DeltaSteppingBiDirAlgo() {}
-
-  protected:
-    virtual void initInternalData() override;
-    virtual void resetInternalData() override;
-    virtual ReturnCode preProcessImpl() override;
-    virtual ReturnCode runSearch() override;
-    virtual ReturnCode buildResult() override;
-
-    void buildReverseGraph();
-    void classifyBackwardEdges();
-
-    // Process one bucket of the selected direction (forward = true uses the
-    // inherited delta-stepping state on the original graph; forward = false
-    // mirrors it on the reverse graph). Returns true when the direction is
-    // done (either all buckets exhausted or Pohl prune kicks in).
-    bool processOneBucket(bool forward, std::size_t &currentBucket);
-
-    // Backward direction mirror of all per-vertex state inherited from
-    // DeltaSteppingAlgo. The reverse graph drives the backward bucket loop.
-    std::vector<double> distancesBackward;
-    std::vector<int> parentsBackward;
-    std::vector<std::vector<edge>> lightEdgesBackward;
-    std::vector<std::vector<edge>> heavyEdgesBackward;
-    std::vector<std::vector<int>> bucketsBackward;
-    std::vector<int> bucketInsertStampBackward;
-    std::vector<std::size_t> bucketInsertBucketBackward;
-    int insertStampBackward{0};
-    std::vector<std::atomic_flag> vertexLocksBackward;
-
-    // Transpose of graph for the backward half-search.
-    std::vector<int> reverseXadj;
-    std::vector<int> reverseAdjncy;
-    std::vector<double> reverseEweights;
-    crsGraph reverseGraph{};
-
-    // Best path length seen so far and the vertex where the two searches met.
-    // Updated under critical(deltaBidirMeeting) from either direction.
-    int meetingVertex;
-    double shortestPathLength;
 };
 } // namespace SP

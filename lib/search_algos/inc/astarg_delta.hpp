@@ -4,18 +4,18 @@
  * @brief Astar with geometical heuristic delta-stepping algorithm class header
  * file
  */
-#include "astar_delta.hpp"
+#include "abstract_astar_delta.hpp"
 #include <utility>
 #include <vector>
 
 namespace SP
 {
 
-class AStarGDeltaAlgo : public AStarDeltaAlgo
+class AStarGDeltaAlgo final : public AbstractAStarDeltaAlgo
 {
   public:
     AStarGDeltaAlgo(std::string graphFileName, std::string nodesMappingFileName)
-        : AStarDeltaAlgo(graphFileName),
+        : AbstractAStarDeltaAlgo(graphFileName),
           nodesMappingFileName(nodesMappingFileName)
     {
     }

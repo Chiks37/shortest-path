@@ -1,10 +1,10 @@
 /**
- * @file delta_stepping_bidir.cpp
+ * @file abstract_delta_stepping_bidir.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Bidirectional delta-stepping algorithm class source file
  */
 
-#include "delta_stepping_bidir.hpp"
+#include "abstract_delta_stepping_bidir.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -17,9 +17,9 @@
 namespace SP
 {
 
-void DeltaSteppingBiDirAlgo::initInternalData()
+void AbstractDeltaSteppingBiDirAlgo::initInternalData()
 {
-    DeltaSteppingAlgo::initInternalData();
+    AbstractDeltaSteppingAlgo::initInternalData();
 
     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
     distancesBackward[this->destination] = 0.0;
@@ -41,9 +41,9 @@ void DeltaSteppingBiDirAlgo::initInternalData()
     shortestPathLength = std::numeric_limits<double>::infinity();
 }
 
-void DeltaSteppingBiDirAlgo::resetInternalData()
+void AbstractDeltaSteppingBiDirAlgo::resetInternalData()
 {
-    DeltaSteppingAlgo::resetInternalData();
+    AbstractDeltaSteppingAlgo::resetInternalData();
 
     for (auto &vertexLock : vertexLocksBackward)
     {
@@ -65,9 +65,9 @@ void DeltaSteppingBiDirAlgo::resetInternalData()
     }
 }
 
-ReturnCode DeltaSteppingBiDirAlgo::preProcessImpl()
+ReturnCode AbstractDeltaSteppingBiDirAlgo::preProcessImpl()
 {
-    ReturnCode rc = DeltaSteppingAlgo::preProcessImpl();
+    ReturnCode rc = AbstractDeltaSteppingAlgo::preProcessImpl();
     if (rc != ReturnCode::OK)
     {
         return rc;
@@ -82,7 +82,7 @@ ReturnCode DeltaSteppingBiDirAlgo::preProcessImpl()
     return rc;
 }
 
-void DeltaSteppingBiDirAlgo::buildReverseGraph()
+void AbstractDeltaSteppingBiDirAlgo::buildReverseGraph()
 {
     int V = graph.V;
     int nz = graph.Xadj[V];
@@ -119,7 +119,7 @@ void DeltaSteppingBiDirAlgo::buildReverseGraph()
     reverseGraph.nz = nz;
 }
 
-void DeltaSteppingBiDirAlgo::classifyBackwardEdges()
+void AbstractDeltaSteppingBiDirAlgo::classifyBackwardEdges()
 {
     lightEdgesBackward.assign(graph.V, {});
     heavyEdgesBackward.assign(graph.V, {});
@@ -146,7 +146,7 @@ void DeltaSteppingBiDirAlgo::classifyBackwardEdges()
     }
 }
 
-ReturnCode DeltaSteppingBiDirAlgo::runSearch()
+ReturnCode AbstractDeltaSteppingBiDirAlgo::runSearch()
 {
     if (graph.V <= 0)
     {
@@ -173,8 +173,8 @@ ReturnCode DeltaSteppingBiDirAlgo::runSearch()
     return ReturnCode::OK;
 }
 
-bool DeltaSteppingBiDirAlgo::processOneBucket(bool forward,
-                                              std::size_t &currentBucket)
+bool AbstractDeltaSteppingBiDirAlgo::processOneBucket(
+    bool forward, std::size_t &currentBucket)
 {
     auto &myDistances = forward ? distances : distancesBackward;
     auto &myParents = forward ? parents : parentsBackward;
@@ -366,7 +366,7 @@ bool DeltaSteppingBiDirAlgo::processOneBucket(bool forward,
     return false;
 }
 
-ReturnCode DeltaSteppingBiDirAlgo::buildResult()
+ReturnCode AbstractDeltaSteppingBiDirAlgo::buildResult()
 {
     if (meetingVertex == -1)
     {

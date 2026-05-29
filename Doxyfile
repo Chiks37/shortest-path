@@ -1,0 +1,70 @@
+# Doxyfile for building class derivation graph
+PROJECT_NAME           = "SearchAlgos"
+PROJECT_BRIEF          = "Inheritance graph"
+
+# Что анализировать
+INPUT                  = lib
+RECURSIVE              = YES
+FILE_PATTERNS          = *.hpp *.h *.cpp *.cc
+
+# Исключить приложения и тесты
+EXCLUDE                = app
+EXCLUDE_PATTERNS       = */benchmark/* \
+                          */gtest/* \
+                          */custom_test_*/* \
+                          */longest_path_search/*
+
+# Вытаскивать всё, даже без комментариев
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+
+# Не нужны предупреждения про отсутствие документации
+WARN_IF_UNDOCUMENTED   = NO
+WARN_NO_PARAMDOC       = NO
+
+# Графы
+HAVE_DOT               = YES
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = NO
+GROUP_GRAPHS           = NO
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+INCLUDE_GRAPH          = NO
+INCLUDED_BY_GRAPH      = NO
+DIRECTORY_GRAPH        = NO
+
+# Размер графов
+DOT_GRAPH_MAX_NODES    = 300
+MAX_DOT_GRAPH_DEPTH    = 0
+DOT_MULTI_TARGETS      = YES
+DOT_TRANSPARENT        = YES
+DOT_IMAGE_FORMAT       = svg
+
+# Генерация только HTML
+GENERATE_HTML          = YES
+HTML_OUTPUT            = doxygen_out
+
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_DOCBOOK       = NO
+
+# Индексы
+DISABLE_INDEX          = NO
+GENERATE_TREEVIEW      = YES
+SEARCHENGINE           = NO
+
+# Красивее отображать STL
+BUILTIN_STL_SUPPORT    = YES
+
+# Не разворачивать всё подряд
+HIDE_UNDOC_CLASSES     = NO
+HIDE_UNDOC_MEMBERS     = YES
+
+# Сортировка
+SORT_MEMBER_DOCS       = NO
+SORT_BRIEF_DOCS        = NO
+SORT_BY_SCOPE_NAME     = YES

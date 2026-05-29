@@ -1,19 +1,19 @@
 /**
- * @file astar_delta_bidir.cpp
+ * @file abstract_astar_delta_bidir.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Bidirectional Astar delta-stepping algorithm class source file
  */
 
-#include "astar_delta_bidir.hpp"
+#include "abstract_astar_delta_bidir.hpp"
 #include <cmath>
 #include <limits>
 
 namespace SP
 {
 
-void AStarDeltaBiDirAlgo::resetInternalData()
+void AbstractAStarDeltaBiDirAlgo::resetInternalData()
 {
-    DeltaSteppingBiDirAlgo::resetInternalData();
+    AbstractDeltaSteppingBiDirAlgo::resetInternalData();
 
     cachedHsrc.assign(graph.V, 0.0);
     cachedHdst.assign(graph.V, 0.0);
@@ -153,9 +153,9 @@ void AStarDeltaBiDirAlgo::resetInternalData()
     }
 }
 
-ReturnCode AStarDeltaBiDirAlgo::buildResult()
+ReturnCode AbstractAStarDeltaBiDirAlgo::buildResult()
 {
-    ReturnCode rc = DeltaSteppingBiDirAlgo::buildResult();
+    ReturnCode rc = AbstractDeltaSteppingBiDirAlgo::buildResult();
     if (ReturnCode::OK != rc)
     {
         return rc;
@@ -163,8 +163,7 @@ ReturnCode AStarDeltaBiDirAlgo::buildResult()
 
     if (outData.shortestDistance != std::numeric_limits<double>::infinity())
     {
-        double piSrc =
-            0.5 * (cachedHdst[source] - cachedHsrc[source]);
+        double piSrc = 0.5 * (cachedHdst[source] - cachedHsrc[source]);
         double piDst =
             0.5 * (cachedHdst[destination] - cachedHsrc[destination]);
         outData.shortestDistance += piSrc - piDst;

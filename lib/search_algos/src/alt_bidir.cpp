@@ -13,7 +13,7 @@ namespace SP
 {
 ReturnCode ALTBiDirAlgo::preProcessImpl()
 {
-    ReturnCode rc = AStarBiDirAlgo::preProcessImpl();
+    ReturnCode rc = AbstractAStarBiDirAlgo::preProcessImpl();
     landmarks.reserve(landmarksCount);
     distFromLandmarks.resize(landmarksCount, std::vector<double>(graph.V));
 

@@ -1,19 +1,19 @@
 /**
- * @file astar_delta.cpp
+ * @file abstract_astar_delta.cpp
  * @author tarakanov.2004@mail.ru
  * @brief Astar delta-stepping algorithm class source file
  */
 
-#include "astar_delta.hpp"
+#include "abstract_astar_delta.hpp"
 #include <cmath>
 #include <limits>
 
 namespace SP
 {
 
-void AStarDeltaAlgo::resetInternalData()
+void AbstractAStarDeltaAlgo::resetInternalData()
 {
-    DeltaSteppingAlgo::resetInternalData();
+    AbstractDeltaSteppingAlgo::resetInternalData();
 
     cachedH.assign(graph.V, 0.0);
     for (int v = 0; v < graph.V; ++v)
@@ -111,11 +111,14 @@ void AStarDeltaAlgo::resetInternalData()
     }
 }
 
-double AStarDeltaAlgo::estimateCost(int vertex) { return distances[vertex]; }
-
-ReturnCode AStarDeltaAlgo::buildResult()
+double AbstractAStarDeltaAlgo::estimateCost(int vertex)
 {
-    ReturnCode rc = DijkstraAlgo::buildResult();
+    return distances[vertex];
+}
+
+ReturnCode AbstractAStarDeltaAlgo::buildResult()
+{
+    ReturnCode rc = AbstractDijkstraAlgo::buildResult();
     if (ReturnCode::OK != rc)
     {
         return rc;

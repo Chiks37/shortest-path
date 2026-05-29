@@ -5,16 +5,16 @@
  */
 #pragma once
 
-#include "astar_delta_bidir.hpp"
+#include "abstract_astar_delta_bidir.hpp"
 #include "dijkstra_sssp.hpp"
 
 namespace SP
 {
-class ALTDeltaBiDirAlgo : public AStarDeltaBiDirAlgo
+class ALTDeltaBiDirAlgo final : public AbstractAStarDeltaBiDirAlgo
 {
   public:
     ALTDeltaBiDirAlgo(std::string graphFileName)
-        : AStarDeltaBiDirAlgo(graphFileName)
+        : AbstractAStarDeltaBiDirAlgo(graphFileName)
     {
     }
     virtual ~ALTDeltaBiDirAlgo() {}

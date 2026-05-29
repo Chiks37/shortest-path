@@ -5,22 +5,16 @@
  */
 #pragma once
 
-#include "dijkstra.hpp"
+#include "abstract_dijkstra_seq.hpp"
 
 namespace SP
 {
-class DijkstraSeqAlgo : public DijkstraAlgo
+class DijkstraSeqAlgo final : public AbstractDijkstraSeqAlgo
 {
   public:
-    DijkstraSeqAlgo(std::string graphFileName) : DijkstraAlgo(graphFileName) {}
-
-  protected:
-    virtual ReturnCode runSearch();
-
-    virtual void initInternalData() override;
-    virtual void resetInternalData() override;
-
-    // Priority queue for storing of next vertexes to be considered
-    std::priority_queue<edge, std::vector<edge>, compareEdges> pq;
+    DijkstraSeqAlgo(std::string graphFileName)
+        : AbstractDijkstraSeqAlgo(graphFileName)
+    {
+    }
 };
 } // namespace SP

@@ -5,17 +5,17 @@
  */
 #pragma once
 
-#include "dijkstra_seq.hpp"
+#include "abstract_dijkstra_seq.hpp"
 #include <atomic>
 
 namespace SP
 {
 
-class DijkstraParRelaxationAlgo : public DijkstraSeqAlgo
+class DijkstraParRelaxationAlgo final : public AbstractDijkstraSeqAlgo
 {
   public:
     DijkstraParRelaxationAlgo(std::string graphFileName)
-        : DijkstraSeqAlgo(graphFileName)
+        : AbstractDijkstraSeqAlgo(graphFileName)
     {
     }
 
