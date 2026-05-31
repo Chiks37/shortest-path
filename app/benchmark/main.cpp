@@ -1,3 +1,4 @@
+#include "algo_config.hpp"
 #include "custom_launcher.hpp"
 #include "gapbs_launcher.hpp"
 #include "networkit_launcher.hpp"
@@ -102,7 +103,7 @@ void runForThreads(int numThreads, const std::string &graphFilename,
     std::vector<BenchmarkStat> stats;
     stats.reserve(SP::CustomLauncher::algoIds.size() + 2);
 
-    for (auto algoId : SP::CustomLauncher::algoIds)
+    for (auto algoId : SP::AlgoConfig::enabledCustom())
     {
         const auto &name = SP::CustomLauncher::algoNames.at(algoId);
         std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
@@ -118,29 +119,36 @@ void runForThreads(int numThreads, const std::string &graphFilename,
     {
         const auto &name = SP::NetworkitLauncher::algoNames.at(
             SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
-        std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
-                  << std::endl;
-        stats.push_back(measure(
-            name, source, destination,
-            [&]()
-            {
-                return SP::NetworkitLauncher(
-                    graphFilename, SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
-            }));
+        if (SP::AlgoConfig::isEnabled(name))
+        {
+            std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
+                      << std::endl;
+            stats.push_back(
+                measure(name, source, destination,
+                        [&]()
+                        {
+                            return SP::NetworkitLauncher(
+                                graphFilename,
+                                SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
+                        }));
+        }
     }
 
     {
         const auto &name = SP::GapbsLauncher::algoNames.at(
             SP::GapbsLauncher::AlgoId::DIJKSTRA_SEQ);
-        std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
-                  << std::endl;
-        stats.push_back(measure(
-            name, source, destination,
-            [&]()
-            {
-                return SP::GapbsLauncher(
-                    graphFilename, SP::GapbsLauncher::AlgoId::DIJKSTRA_SEQ);
-            }));
+        if (SP::AlgoConfig::isEnabled(name))
+        {
+            std::cout << "Running " << name << " (" << kRunsCount << " runs)..."
+                      << std::endl;
+            stats.push_back(measure(
+                name, source, destination,
+                [&]()
+                {
+                    return SP::GapbsLauncher(
+                        graphFilename, SP::GapbsLauncher::AlgoId::DIJKSTRA_SEQ);
+                }));
+        }
     }
 
     std::cout << std::endl

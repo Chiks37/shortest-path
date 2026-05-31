@@ -1,3 +1,4 @@
+#include "algo_config.hpp"
 #include "custom_launcher.hpp"
 #include "gapbs_launcher.hpp"
 #include <iostream>
@@ -25,7 +26,7 @@ void testAllMethods(std::string graphFilename, std::string nodesMappingFilename)
     std::cin >> destination;
     destination--;
 
-    for (auto algoId : SP::CustomLauncher::algoIds)
+    for (auto algoId : SP::AlgoConfig::enabledCustom())
     {
         SP::CustomLauncher customLauncher(algoId, graphFilename,
                                           nodesMappingFilename);
@@ -41,6 +42,8 @@ void testAllMethods(std::string graphFilename, std::string nodesMappingFilename)
 
     for (auto algoId : SP::GapbsLauncher::algoIds)
     {
+        if (!SP::AlgoConfig::isEnabled(SP::GapbsLauncher::algoNames.at(algoId)))
+            continue;
         SP::GapbsLauncher gapbsLauncher(graphFilename, algoId);
         gapbsLauncher.execute(source, destination);
         gapbsLauncher.printReport();
