@@ -4,7 +4,8 @@ set(PROJECT_NAME shortest_path)
 project(${PROJECT_NAME})
 
 # -- Target selection (set by build.sh via -D flags)
-option(BUILD_CUSTOM_TEST_NETWORKIT "Build custom_test_networkit executable (networkit reference)" OFF)
+option(BUILD_CUSTOM_TEST_NETWORKIT "Build custom_test_networkit executable (networkit reference)"
+       OFF)
 option(BUILD_CUSTOM_TEST_GAPBS "Build custom_test_gapbs executable (GAPBS reference)" OFF)
 option(BUILD_LONGEST_PATH_SEARCH "Build longest_path_search executable" OFF)
 option(BUILD_GTEST "Build and run Google Tests" OFF)
@@ -48,37 +49,72 @@ foreach(FOLDER ${CODE_FOLDERS})
         "${FOLDER}/**/*.c"
         "${FOLDER}/**/*.cpp")
     # gapbs_launcher.cpp uses GAPBS headers; compiled separately via cmake/gapbs/
-    list(FILTER SOURCES_TEMP EXCLUDE REGEX ".*gapbs.*\\.cpp$")
+    list(
+        FILTER
+        SOURCES_TEMP
+        EXCLUDE
+        REGEX
+        ".*gapbs.*\\.cpp$")
     set(LIB_SOURCES ${LIB_SOURCES} ${SOURCES_TEMP})
 endforeach()
 set(HEADERS_FOLDERS ${HEADERS_FOLDERS} "${LIB_FOLDER}") # general.hpp
 # --
 
-# -- Third-party build flags
-set(NETWORKIT_BUILD_CORE
-    ON
-    CACHE BOOL "" FORCE)
-set(NETWORKIT_BUILD_TESTS
-    OFF
-    CACHE BOOL "" FORCE)
-set(NETWORKIT_BUILD_PYTHON
-    OFF
-    CACHE BOOL "" FORCE)
-set(TBB_TEST
-    OFF
-    CACHE BOOL "" FORCE)
-set(TBB_EXAMPLES
-    OFF
-    CACHE BOOL "" FORCE)
-
-# 3rdparty libs are built into cache/deps/ so they survive a clean of build/.
+# -- Prebuilt 3rdparty dependencies networkit/TBB/googletest are built once per configuration into
+# cache/deps/<name>/<config>/ and imported here. They are rebuilt only when the artifact is missing
+# (editing this file never rebuilds them), and debug/release versions are kept and built
+# independently.
 set(DEPS_CACHE_DIR "${CMAKE_SOURCE_DIR}/cache/deps")
-
-add_subdirectory(3rdparty/networkit ${DEPS_CACHE_DIR}/networkit)
-add_subdirectory(3rdparty/oneTBB   ${DEPS_CACHE_DIR}/tbb)
+string(TOLOWER "${CMAKE_BUILD_TYPE}" DEP_CONFIG_DIR)
+include(${CMAKE_SOURCE_DIR}/cmake/PrebuiltDeps.cmake)
 
 find_package(OpenMP REQUIRED)
 find_package(Boost REQUIRED)
+find_package(Threads REQUIRED)
+
+# networkit (shared, monolithic). tlx is statically baked into the .so.
+ensure_prebuilt_dep(
+    NAME
+    networkit
+    SRC
+    "${CMAKE_SOURCE_DIR}/3rdparty/networkit"
+    LIB_GLOB
+    "libnetworkit.so"
+    OUT_VAR
+    NETWORKIT_LIB
+    CMAKE_ARGS
+    -DNETWORKIT_BUILD_CORE=ON
+    -DNETWORKIT_BUILD_TESTS=OFF
+    -DNETWORKIT_MONOLITH=ON
+    -DNETWORKIT_BUILD_PYTHON=OFF)
+add_library(networkit SHARED IMPORTED)
+set_target_properties(
+    networkit
+    PROPERTIES
+        IMPORTED_LOCATION "${NETWORKIT_LIB}"
+        INTERFACE_INCLUDE_DIRECTORIES
+        "${CMAKE_SOURCE_DIR}/3rdparty/networkit/include;${CMAKE_SOURCE_DIR}/3rdparty/networkit/extlibs/tlx;${CMAKE_SOURCE_DIR}/3rdparty/networkit/extlibs/ttmath"
+)
+
+# oneTBB (shared). Output lands in a compiler/arch-specific subdir, so glob. Debug builds emit
+# libtbb_debug.so instead of libtbb.so.
+ensure_prebuilt_dep(
+    NAME
+    tbb
+    SRC
+    "${CMAKE_SOURCE_DIR}/3rdparty/oneTBB"
+    LIB_GLOB
+    "libtbb.so"
+    "libtbb_debug.so"
+    OUT_VAR
+    TBB_LIB
+    CMAKE_ARGS
+    -DTBB_TEST=OFF
+    -DTBB_EXAMPLES=OFF)
+add_library(TBB::tbb SHARED IMPORTED)
+set_target_properties(
+    TBB::tbb PROPERTIES IMPORTED_LOCATION "${TBB_LIB}"
+                        INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/3rdparty/oneTBB/include")
 
 if(GDB_BUILD)
     add_compile_options(-O0 -g3 -ggdb)
@@ -91,6 +127,8 @@ endif()
 add_library(sp_lib STATIC ${LIB_SOURCES})
 target_include_directories(sp_lib PUBLIC ${HEADERS_FOLDERS})
 target_link_libraries(sp_lib PUBLIC networkit OpenMP::OpenMP_CXX TBB::tbb Boost::headers)
+# Runtime ON/OFF config consumed by AlgoConfig (edited without rebuilding).
+target_compile_definitions(sp_lib PRIVATE ALGOS_CONFIG_PATH="${CMAKE_SOURCE_DIR}/algorithms.conf")
 
 # -- Executable targets
 if(BUILD_CUSTOM_TEST_NETWORKIT)
@@ -99,8 +137,8 @@ if(BUILD_CUSTOM_TEST_NETWORKIT)
 endif()
 
 if(BUILD_CUSTOM_TEST_GAPBS OR BUILD_BENCHMARK)
-    # Mirrors how networkit/TBB are handled: compiled into cache/deps/gapbs/
-    # so the artifact survives ./build.sh -c.
+    # Mirrors how networkit/TBB are handled: compiled into cache/deps/gapbs/ so the artifact
+    # survives ./build.sh -c.
     add_subdirectory(cmake/gapbs ${DEPS_CACHE_DIR}/gapbs EXCLUDE_FROM_ALL)
 endif()
 
@@ -120,11 +158,30 @@ if(BUILD_BENCHMARK)
 endif()
 
 if(BUILD_GTEST)
-    # GOOGLETEST_VERSION must be set before add_subdirectory: the bundled CMakeLists uses it in
-    # project() and set_target_properties(VERSION).
-    set(GOOGLETEST_VERSION "1.8.0")
-    add_subdirectory(3rdparty/networkit/extlibs/googletest/googletest ${DEPS_CACHE_DIR}/googletest
-                     EXCLUDE_FROM_ALL)
+    ensure_prebuilt_dep(
+        NAME
+        googletest
+        SRC
+        "${CMAKE_SOURCE_DIR}/3rdparty/networkit/extlibs/googletest/googletest"
+        LIB_GLOB
+        "libgtest.a"
+        OUT_VAR
+        GTEST_LIB
+        CMAKE_ARGS
+        -DGOOGLETEST_VERSION=1.8.0)
+    get_filename_component(GTEST_LIB_DIR "${GTEST_LIB}" DIRECTORY)
+
+    add_library(gtest STATIC IMPORTED)
+    set_target_properties(
+        gtest
+        PROPERTIES IMPORTED_LOCATION "${GTEST_LIB}"
+                   INTERFACE_INCLUDE_DIRECTORIES
+                   "${CMAKE_SOURCE_DIR}/3rdparty/networkit/extlibs/googletest/googletest/include"
+                   INTERFACE_LINK_LIBRARIES Threads::Threads)
+
+    add_library(gtest_main STATIC IMPORTED)
+    set_target_properties(gtest_main PROPERTIES IMPORTED_LOCATION "${GTEST_LIB_DIR}/libgtest_main.a"
+                                                INTERFACE_LINK_LIBRARIES gtest)
 
     add_executable(sp_tests app/gtest/algo_correctness_test.cpp)
     target_link_libraries(sp_tests PRIVATE sp_lib gtest_main)

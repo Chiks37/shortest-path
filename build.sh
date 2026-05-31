@@ -33,13 +33,15 @@ function do_cmake_format() {
 }
 
 # Removes build/ and bin/ only; cache/deps/ (3rdparty artifacts) is preserved.
+# Prebuilt deps live in cache/deps/<name>/<debug|release>/ and are reused as-is.
 function clean() {
     rm -rf "$BUILD_DIR"
     rm -rf bin
 }
 
-# Removes the 3rdparty build cache (networkit, TBB, googletest, GAPBS).
-# Use when you need a truly fresh build of everything.
+# Removes the 3rdparty build cache (networkit, TBB, googletest, GAPBS) for both
+# debug and release. Use when you need a truly fresh build of everything; the
+# active configuration is rebuilt on the next build.
 function clean_cache() {
     rm -rf "$DEPS_CACHE_DIR"
 }
@@ -76,6 +78,11 @@ function help() {
     echo "  $0 -g                 # build and run Google Tests"
     echo "  $0 -cb                # clean then build all (3rdparty cache preserved)"
     echo "  $0 -cc && $0 -a       # full rebuild including 3rdparty"
+    echo ""
+    echo "3rdparty deps (networkit, TBB, googletest) are cached per configuration"
+    echo "in cache/deps/<name>/<debug|release>/ and are rebuilt ONLY when their"
+    echo ".so/.a is missing. A -gdb (Debug) build never touches the Release cache"
+    echo "and vice versa."
 }
 
 # Parse TARGET and -gdb independently so their order does not matter.

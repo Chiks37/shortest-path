@@ -1,3 +1,4 @@
+#include "algo_config.hpp"
 #include "custom_launcher.hpp"
 #include "networkit_launcher.hpp"
 #include <iostream>
@@ -25,7 +26,7 @@ void testAllMethods(std::string graphFilename, std::string nodesMappingFilename)
     std::cin >> destination;
     destination--;
 
-    for (auto algoId : SP::CustomLauncher::algoIds)
+    for (auto algoId : SP::AlgoConfig::enabledCustom())
     {
         SP::CustomLauncher customLauncher(algoId, graphFilename,
                                           nodesMappingFilename);
@@ -39,14 +40,15 @@ void testAllMethods(std::string graphFilename, std::string nodesMappingFilename)
               << std::endl
               << std::endl;
 
-    SP::NetworkitLauncher networkitLauncher(
-        graphFilename, SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
-    networkitLauncher.execute(source, destination);
-    networkitLauncher.printReport();
-    networkitLauncher = SP::NetworkitLauncher(
-        graphFilename, SP::NetworkitLauncher::AlgoId::ASTARG);
-    networkitLauncher.execute(source, destination);
-    networkitLauncher.printReport();
+    for (auto algoId : SP::NetworkitLauncher::algoIds)
+    {
+        if (!SP::AlgoConfig::isEnabled(
+                SP::NetworkitLauncher::algoNames.at(algoId)))
+            continue;
+        SP::NetworkitLauncher networkitLauncher(graphFilename, algoId);
+        networkitLauncher.execute(source, destination);
+        networkitLauncher.printReport();
+    }
 }
 
 int main(int argc, char *argv[])
