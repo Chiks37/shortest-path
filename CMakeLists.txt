@@ -14,8 +14,10 @@ option(BUILD_BENCHMARK "Build benchmark executable" OFF)
 set(CMAKE_CONFIGURATION_TYPES
     "Debug;Release"
     CACHE STRING "Configs" FORCE)
-if(NOT CMAKE_BUILD_TYPE)
+if(GDB_BUILD)
     set(CMAKE_BUILD_TYPE Debug)
+elseif(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../bin/")
 
@@ -76,6 +78,7 @@ add_subdirectory(3rdparty/networkit ${DEPS_CACHE_DIR}/networkit)
 add_subdirectory(3rdparty/oneTBB   ${DEPS_CACHE_DIR}/tbb)
 
 find_package(OpenMP REQUIRED)
+find_package(Boost REQUIRED)
 
 if(GDB_BUILD)
     add_compile_options(-O0 -g3 -ggdb)
@@ -87,7 +90,7 @@ endif()
 # -- Shared static library (avoids recompiling lib sources for every target)
 add_library(sp_lib STATIC ${LIB_SOURCES})
 target_include_directories(sp_lib PUBLIC ${HEADERS_FOLDERS})
-target_link_libraries(sp_lib PUBLIC networkit OpenMP::OpenMP_CXX TBB::tbb)
+target_link_libraries(sp_lib PUBLIC networkit OpenMP::OpenMP_CXX TBB::tbb Boost::headers)
 
 # -- Executable targets
 if(BUILD_CUSTOM_TEST_NETWORKIT)

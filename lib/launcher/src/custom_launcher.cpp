@@ -16,6 +16,12 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
     {
     case AlgoId::DIJKSTRA_SEQ:
         return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
+    case AlgoId::DIJKSTRA_SEQ_PAIRING_HEAP:
+        return std::make_shared<SP::DijkstraSeqPairingHeapAlgo>(graphFileName);
+    case AlgoId::DIJKSTRA_SEQ_BINOMIAL_HEAP:
+        return std::make_shared<SP::DijkstraSeqBinomialHeapAlgo>(graphFileName);
+    case AlgoId::DIJKSTRA_SEQ_D_ARY_HEAP:
+        return std::make_shared<SP::DijkstraSeqDaryHeapAlgo>(graphFileName);
     case AlgoId::DIJKSTRA_BIDIR:
         return std::make_shared<SP::DijkstraBiDirAlgo>(graphFileName);
     case AlgoId::DIJKSTRA_PAR_EXPANSION:
