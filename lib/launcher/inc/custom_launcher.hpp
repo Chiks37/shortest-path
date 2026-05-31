@@ -19,6 +19,9 @@
 #include "dijkstra_par_expansion.hpp"
 #include "dijkstra_par_relaxation.hpp"
 #include "dijkstra_seq.hpp"
+#include "dijkstra_seq_binomial_heap.hpp"
+#include "dijkstra_seq_d_ary_heap.hpp"
+#include "dijkstra_seq_pairing_heap.hpp"
 #include "launcher.hpp"
 
 #include <array>
@@ -35,6 +38,9 @@ class CustomLauncher : public Launcher
     enum class AlgoId
     {
         DIJKSTRA_SEQ,
+        DIJKSTRA_SEQ_PAIRING_HEAP,
+        DIJKSTRA_SEQ_BINOMIAL_HEAP,
+        DIJKSTRA_SEQ_D_ARY_HEAP,
         DIJKSTRA_BIDIR,
         DIJKSTRA_PAR_EXPANSION,
         DIJKSTRA_PAR_RELAXATION,
@@ -53,6 +59,9 @@ class CustomLauncher : public Launcher
 
     static constexpr std::array<AlgoId, static_cast<size_t>(AlgoId::COUNT)>
         algoIds = {AlgoId::DIJKSTRA_SEQ,
+                   AlgoId::DIJKSTRA_SEQ_PAIRING_HEAP,
+                   AlgoId::DIJKSTRA_SEQ_BINOMIAL_HEAP,
+                   AlgoId::DIJKSTRA_SEQ_D_ARY_HEAP,
                    AlgoId::DIJKSTRA_BIDIR,
                    AlgoId::DIJKSTRA_PAR_EXPANSION,
                    AlgoId::DIJKSTRA_PAR_RELAXATION,
@@ -69,6 +78,9 @@ class CustomLauncher : public Launcher
 
     static inline const std::unordered_map<AlgoId, std::string> algoNames = {
         {AlgoId::DIJKSTRA_SEQ, "dijkstra_seq"},
+        {AlgoId::DIJKSTRA_SEQ_PAIRING_HEAP, "dijkstra_seq_pairing_heap"},
+        {AlgoId::DIJKSTRA_SEQ_BINOMIAL_HEAP, "dijkstra_seq_binomial_heap"},
+        {AlgoId::DIJKSTRA_SEQ_D_ARY_HEAP, "dijkstra_seq_d_ary_heap"},
         {AlgoId::DIJKSTRA_BIDIR, "dijkstra_bidir"},
         {AlgoId::DIJKSTRA_PAR_EXPANSION, "dijkstra_par_expansion"},
         {AlgoId::DIJKSTRA_PAR_RELAXATION, "dijkstra_par_relaxation"},
