@@ -17,11 +17,11 @@ class DijkstraSsspAlgo final : public AbstractDijkstraSeqAlgo
     {
     }
 
-    std::vector<double> getDistances() const { return std::move(distances); }
+    const std::vector<double> &getDistances() const { return distances; }
     ReturnCode setSource(int source) { return setSrcDest(source, source); }
 
   protected:
     virtual ReturnCode buildResult() override { return ReturnCode::OK; }
-    virtual bool completeCondition(int currentVertex) { return false; }
+    virtual bool completeCondition(int) override { return false; }
 };
 } // namespace SP
