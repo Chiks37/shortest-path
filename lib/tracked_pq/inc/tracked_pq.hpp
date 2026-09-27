@@ -16,30 +16,28 @@ class TrackedPriorityQueue
     TrackedPriorityQueue() = default;
     ~TrackedPriorityQueue() = default;
 
-    void push(const edge &item) { queue.push(item); }
-
-    bool try_pop(edge &item)
+    // An item is counted from push until mark_as_done, so the queue is never
+    // seen drained while an item is passed from the queue to a worker
+    void push(const edge &item)
     {
-        auto rc = queue.try_pop(item);
-        in_progress_count += rc ? 1 : 0;
-        return rc;
+        unfinished_count++;
+        queue.push(item);
     }
 
-    void mark_as_done() { in_progress_count--; }
+    bool try_pop(edge &item) { return queue.try_pop(item); }
 
-    bool is_drained() const
-    {
-        return queue.empty() && 0 == in_progress_count.load();
-    }
+    void mark_as_done() { unfinished_count--; }
+
+    bool is_drained() const { return 0 == unfinished_count.load(); }
 
     void clear()
     {
         queue.clear();
-        in_progress_count.store(0);
+        unfinished_count.store(0);
     }
 
   protected:
     tbb::concurrent_priority_queue<edge, compareEdges> queue;
-    std::atomic<int> in_progress_count{0};
+    std::atomic<int> unfinished_count{0};
 };
 } // namespace SP
