@@ -26,6 +26,6 @@ class DijkstraParRelaxationAlgo final : public AbstractDijkstraSeqAlgo
     virtual bool completeCondition(int currentVertex);
 
     std::vector<std::atomic_flag> vertexLocks;
-    bool isQueueEmpty;
+    bool isQueueEmpty{false};
 };
 } // namespace SP

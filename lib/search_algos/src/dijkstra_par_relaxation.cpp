@@ -102,7 +102,7 @@ void DijkstraParRelaxationAlgo::resetInternalData()
         vertexLock.clear(std::memory_order_release);
     }
 
-    bool isQueueEmpty = false;
+    isQueueEmpty = false;
 }
 
 bool DijkstraParRelaxationAlgo::completeCondition(int currentVertex)
