@@ -6,6 +6,7 @@
 
 #include "custom_launcher.hpp"
 #include <chrono>
+#include <fstream>
 
 namespace SP
 {
@@ -59,6 +60,19 @@ CustomLauncher::createAlgoObject(AlgoId algoId,
         break;
     }
     return nullptr;
+}
+
+std::string
+CustomLauncher::findNodesMappingFile(const std::string &graphFileName)
+{
+    std::string base = graphFileName.substr(0, graphFileName.find_last_of('.'));
+    std::string fileName = base + "_nodes_mapping.txt";
+    if (!std::ifstream(fileName).is_open() &&
+        std::ifstream(base + "_node_mapping.txt").is_open())
+    {
+        fileName = base + "_node_mapping.txt";
+    }
+    return fileName;
 }
 
 void CustomLauncher::execute(int source, int destination)

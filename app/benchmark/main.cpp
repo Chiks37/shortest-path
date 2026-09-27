@@ -191,8 +191,7 @@ int main(int argc, char *argv[])
     }
 
     std::string nodesMappingFilename =
-        graphFilename.substr(0, graphFilename.find_last_of('.')) +
-        "_nodes_mapping.txt";
+        SP::CustomLauncher::findNodesMappingFile(graphFilename);
 
     std::cout << "=== Configuration ===" << std::endl;
     std::cout << "Graph: " << graphFilename << std::endl;

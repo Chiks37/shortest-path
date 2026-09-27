@@ -102,6 +102,9 @@ class CustomLauncher : public Launcher
     static std::shared_ptr<SP::BaseAlgo>
     createAlgoObject(AlgoId algoId, const std::string &graphFileName,
                      const std::string &nodesMappingFileName = "");
+    // Coordinates file next to the graph: <graph>_nodes_mapping.txt, or
+    // <graph>_node_mapping.txt as some converted graphs name it
+    static std::string findNodesMappingFile(const std::string &graphFileName);
     std::string getAlgoName() const override { return algoNames.at(algoId); }
     void execute(int source, int destination) override;
 

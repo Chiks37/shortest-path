@@ -60,8 +60,7 @@ int main(int argc, char *argv[])
 
     std::string graphFilename(argv[1]);
     std::string nodesMappingFilename =
-        graphFilename.substr(0, graphFilename.find_last_of('.')) +
-        "_nodes_mapping.txt";
+        SP::CustomLauncher::findNodesMappingFile(graphFilename);
 
     testAllMethods(graphFilename, nodesMappingFilename);
     return 0;
