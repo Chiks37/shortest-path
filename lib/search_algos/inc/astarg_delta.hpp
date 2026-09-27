@@ -5,8 +5,7 @@
  * file
  */
 #include "abstract_astar_delta.hpp"
-#include <utility>
-#include <vector>
+#include "coordinates.hpp"
 
 namespace SP
 {
@@ -22,11 +21,10 @@ class AStarGDeltaAlgo final : public AbstractAStarDeltaAlgo
 
   protected:
     std::string nodesMappingFileName;
-    std::vector<std::pair<double, double>> vertexCoordinates;
+    Coordinates coordinates;
 
     virtual ReturnCode preProcessImpl() override;
     virtual double heuristic(int vertex) override;
-    ReturnCode loadNodeMapping();
 };
 
 } // namespace SP

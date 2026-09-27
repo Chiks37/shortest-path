@@ -9,6 +9,7 @@ extern "C"
 {
 #include "graphio.h"
 }
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -19,31 +20,21 @@ enum class ReturnCode : int
 {
     OK = 0,
     ERROR = 1,
-    BAD_ARGUMENTS = 2,
-    NOT_CONFIGURED = 3,
-    NOT_READY = 4
+    BAD_ARGUMENTS = 2
 };
 
 struct OutData
 {
-    double shortestDistance;
+    // NaN while there is no result, infinity for an unreachable destination
+    double shortestDistance = std::numeric_limits<double>::quiet_NaN();
     std::vector<int> shortestPath;
-};
-
-enum class State
-{
-    UNCONFIGURED, // Not preprocessed
-    READY,        // Preprocessed and ready to compute
-    COMPUTED,     // Computations are done
-    ERROR         // ERROR occured
 };
 
 class BaseAlgo
 {
   public:
     BaseAlgo(std::string graphFileName)
-        : currentState(State::UNCONFIGURED), graphFileName(graphFileName),
-          source(-1), destination(-1){};
+        : source(-1), destination(-1), graphFileName(graphFileName){};
     virtual ~BaseAlgo() = default;
 
     ReturnCode preProcess();
@@ -56,22 +47,17 @@ class BaseAlgo
     const OutData &getResult() const { return outData; }
     int getCurrentSource() const { return source; }
     int getCurrentDestination() const { return destination; }
-    State getState() const { return currentState; }
 
   protected:
-    crsGraph graph;
+    crsGraph graph{};
     int source;
     int destination;
     OutData outData;
-    State currentState;
     std::string graphFileName;
 
   private:
-    ReturnCode setVertex(int &vertex, int value);
     bool sourceDestValidation();
     ReturnCode loadGraph();
-    ReturnCode setSource(int source);
-    ReturnCode setDestination(int destination);
 };
 
 } // namespace SP

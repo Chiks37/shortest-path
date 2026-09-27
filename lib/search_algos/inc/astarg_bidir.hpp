@@ -7,8 +7,7 @@
 #pragma once
 
 #include "abstract_astar_bidir.hpp"
-#include <utility>
-#include <vector>
+#include "coordinates.hpp"
 
 namespace SP
 {
@@ -24,11 +23,10 @@ class AStarGBiDirAlgo final : public AbstractAStarBiDirAlgo
 
   protected:
     std::string nodesMappingFileName;
-    std::vector<std::pair<double, double>> vertexCoordinates;
+    Coordinates coordinates;
 
     virtual ReturnCode preProcessImpl() override;
     virtual double heuristic(int vertex, int target) override;
-    ReturnCode loadNodeMapping();
 };
 
 } // namespace SP

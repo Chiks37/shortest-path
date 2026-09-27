@@ -5,31 +5,13 @@
  */
 
 #include "base.hpp"
+#include <algorithm>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 
 namespace SP
 {
-ReturnCode BaseAlgo::setVertex(int &vertex, int value)
-{
-    if (State::READY != currentState && State::COMPUTED != currentState)
-    {
-        return ReturnCode::NOT_READY;
-    }
-
-    if (value < 0 || value >= graph.V)
-    {
-        return ReturnCode::BAD_ARGUMENTS;
-    }
-
-    vertex = value;
-
-    currentState = State::READY; // If it was computed this say that the out
-                                 // data is not actual
-
-    return ReturnCode::OK;
-}
-
 bool BaseAlgo::sourceDestValidation()
 {
     bool rc = true;
@@ -63,53 +45,63 @@ ReturnCode BaseAlgo::loadGraph()
 
     file.close();
 
+    // graphio leaves zero weights in a pattern matrix, while networkit and
+    // GAPBS treat each of its edges as weighing 1
+    int nz = graph.Xadj[graph.V];
+    if (mm_is_pattern(graph.matcode))
+    {
+        std::fill(graph.Eweights, graph.Eweights + nz, 1.0);
+    }
+
+    for (int i = 0; i < nz; ++i)
+    {
+        if (!std::isfinite(graph.Eweights[i]) || graph.Eweights[i] < 0.0)
+        {
+            return ReturnCode::BAD_ARGUMENTS;
+        }
+    }
+
     return ReturnCode::OK;
 }
 
 ReturnCode BaseAlgo::preProcess()
 {
     auto rc = preProcessImpl();
-    currentState = ReturnCode::OK == rc ? State::READY : State::ERROR;
+    if (ReturnCode::OK != rc)
+    {
+        // Every query is rejected on a graph without vertices, so nothing runs
+        // on a graph that failed to load or to be preprocessed
+        graph.V = 0;
+    }
     return rc;
 }
 
-ReturnCode BaseAlgo::preProcessImpl()
-{
-    if (State::UNCONFIGURED != currentState) // Graph is already loaded
-    {
-        return ReturnCode::OK;
-    }
-    return loadGraph();
-}
+ReturnCode BaseAlgo::preProcessImpl() { return loadGraph(); }
 
 ReturnCode BaseAlgo::setSrcDest(int source, int destination)
 {
-    ReturnCode rc = setSource(source);
-    rc = rc != ReturnCode::OK ? rc : setDestination(destination);
-    return rc;
-}
+    this->source = source;
+    this->destination = destination;
+    if (sourceDestValidation())
+    {
+        return ReturnCode::OK;
+    }
 
-ReturnCode BaseAlgo::setSource(int source)
-{
-    return setVertex(this->source, source);
-}
-
-ReturnCode BaseAlgo::setDestination(int destination)
-{
-    return setVertex(this->destination, destination);
+    // A rejected query must not leave the previous one ready to compute
+    this->source = -1;
+    this->destination = -1;
+    return ReturnCode::BAD_ARGUMENTS;
 }
 
 ReturnCode BaseAlgo::compute()
 {
-    if (currentState != State::READY)
+    outData = OutData();
+    if (!sourceDestValidation())
     {
-        return ReturnCode::NOT_READY;
+        return ReturnCode::BAD_ARGUMENTS;
     }
 
-    auto rc = computeImpl();
-
-    currentState = ReturnCode::OK == rc ? State::COMPUTED : State::ERROR;
-    return rc;
+    return computeImpl();
 }
 
 } // namespace SP

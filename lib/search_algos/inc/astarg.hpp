@@ -4,8 +4,7 @@
  * @brief Astar with geometical heuristic algorithm class header file
  */
 #include "abstract_astar.hpp"
-#include <utility>
-#include <vector>
+#include "coordinates.hpp"
 
 namespace SP
 {
@@ -21,11 +20,10 @@ class AStarGAlgo final : public AbstractAStarAlgo
 
   protected:
     std::string nodesMappingFileName;
-    std::vector<std::pair<double, double>> vertexCoordinates;
+    Coordinates coordinates;
 
     virtual ReturnCode preProcessImpl() override;
     virtual double heuristic(int vertex) override;
-    ReturnCode loadNodeMapping();
 };
 
 } // namespace SP
