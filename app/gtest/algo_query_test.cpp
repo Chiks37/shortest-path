@@ -239,23 +239,43 @@ INSTANTIATE_TEST_SUITE_P(AllAlgos, AlgoQueryTest,
                          [](const testing::TestParamInfo<AlgoId> &info)
                          { return CustomLauncher::algoNames.at(info.param); });
 
-// The reference of the tests above agrees with networkit
-TEST(ReferenceTest, DijkstraMatchesNetworkit)
+// The reference of the tests above agrees with networkit on distances and
+// paths, including unreachable destinations
+TEST(ReferenceTest, NetworkitAgreesWithDijkstra)
 {
-    for (size_t i = 0; i < 20; ++i)
+    // networkit reads the graph on every query, so only a part of the queries
+    std::vector<Query> checked(queries().begin(), queries().begin() + 20);
+    for (const auto &query : queries())
     {
-        const auto &query = queries()[i];
-        // networkit reports an unreachable destination as DBL_MAX
         if (std::isinf(query.distance))
         {
-            continue;
+            checked.push_back(query);
         }
-        SP::NetworkitLauncher networkit(
-            kGraphPath, SP::NetworkitLauncher::AlgoId::DIJKSTRA_SEQ);
-        networkit.execute(query.source, query.destination);
-        EXPECT_NEAR(networkit.getResult().shortestDistance, query.distance,
-                    1e-6)
-            << query.source << " -> " << query.destination;
+    }
+
+    for (auto algoId : SP::NetworkitLauncher::algoIds)
+    {
+        for (const auto &query : checked)
+        {
+            SP::NetworkitLauncher networkit(kGraphPath, algoId);
+            networkit.execute(query.source, query.destination);
+            SP::OutData result{networkit.getResult().shortestDistance,
+                               networkit.getResult().shortestPath};
+            EXPECT_TRUE(isShortestPath(testGraph(), result, query))
+                << SP::NetworkitLauncher::algoNames.at(algoId) << ": "
+                << query.source << " -> " << query.destination;
+        }
+    }
+}
+
+TEST(ReferenceTest, NetworkitRejectsInvalidVertices)
+{
+    for (auto algoId : SP::NetworkitLauncher::algoIds)
+    {
+        SP::NetworkitLauncher networkit(kGraphPath, algoId);
+        networkit.execute(0, testGraph().vertexCount());
+        EXPECT_TRUE(std::isnan(networkit.getResult().shortestDistance));
+        EXPECT_TRUE(networkit.getResult().shortestPath.empty());
     }
 }
 

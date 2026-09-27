@@ -5,6 +5,7 @@
  */
 #include "networkit_launcher.hpp"
 #include <chrono>
+#include <limits>
 
 namespace SP
 {
@@ -36,6 +37,15 @@ void NetworkitLauncher::execute(int source, int destination)
     auto preStart = std::chrono::high_resolution_clock::now();
     NetworKit::MTXGraphReader reader;
     auto graph = reader.read(graphFileName);
+
+    lastResult = LauncherResult{};
+    lastResult.shortestDistance = std::numeric_limits<double>::quiet_NaN();
+    if (source < 0 || destination < 0 || !graph.hasNode(source) ||
+        !graph.hasNode(destination))
+    {
+        return;
+    }
+
     auto algo = createAlgoObject(graph, source, destination);
     auto preEnd = std::chrono::high_resolution_clock::now();
     lastResult.preProccessTimeMs =
@@ -49,27 +59,43 @@ void NetworkitLauncher::execute(int source, int destination)
             .count();
 
     std::vector<int> path;
-    double distance;
+    double distance = std::numeric_limits<double>::quiet_NaN();
     switch (algoId)
     {
     case AlgoId::DIJKSTRA_SEQ:
+        distance = std::static_pointer_cast<NetworKit::Dijkstra>(algo)
+                       ->getDistances()[destination];
+        break;
+    case AlgoId::ASTARG:
+        distance =
+            std::static_pointer_cast<NetworKit::AStar>(algo)->getDistance();
+        break;
+    default:
+        break;
+    }
+
+    // networkit marks an unreachable destination with the largest double
+    if (distance == std::numeric_limits<double>::max())
+    {
+        distance = std::numeric_limits<double>::infinity();
+    }
+    else if (source == destination)
+    {
+        path = {source};
+    }
+    else if (AlgoId::DIJKSTRA_SEQ == algoId)
     {
         auto p = std::static_pointer_cast<NetworKit::Dijkstra>(algo)->getPath(
             destination);
         path.assign(p.begin(), p.end());
-        distance = static_cast<double>(
-            std::static_pointer_cast<NetworKit::Dijkstra>(algo)
-                ->getDistances()[destination]);
-        break;
     }
-    case AlgoId::ASTARG:
+    else if (AlgoId::ASTARG == algoId)
     {
+        // A* leaves the source and the destination out of the path
         auto p = std::static_pointer_cast<NetworKit::AStar>(algo)->getPath();
-        path.assign(p.begin(), p.end());
-        distance = static_cast<double>(
-            std::static_pointer_cast<NetworKit::AStar>(algo)->getDistance());
-        break;
-    }
+        path.push_back(source);
+        path.insert(path.end(), p.begin(), p.end());
+        path.push_back(destination);
     }
     lastResult.shortestPath = path;
     lastResult.shortestDistance = distance;
