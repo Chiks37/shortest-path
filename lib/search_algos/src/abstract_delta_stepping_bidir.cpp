@@ -39,6 +39,14 @@ void AbstractDeltaSteppingBiDirAlgo::initInternalData()
 
     meetingVertex = -1;
     shortestPathLength = std::numeric_limits<double>::infinity();
+
+    // The meeting is detected on relaxation only, so a trivial query would
+    // otherwise meet at a neighbor and report a non-zero distance.
+    if (this->source == this->destination)
+    {
+        meetingVertex = this->source;
+        shortestPathLength = 0.0;
+    }
 }
 
 void AbstractDeltaSteppingBiDirAlgo::resetInternalData()
@@ -153,28 +161,21 @@ ReturnCode AbstractDeltaSteppingBiDirAlgo::runSearch()
         return ReturnCode::BAD_ARGUMENTS;
     }
 
-    bool forwardDone = false;
-    bool backwardDone = false;
+    bool done = false;
     std::size_t forwardBucket = 0;
     std::size_t backwardBucket = 0;
 
-    while (!forwardDone || !backwardDone)
+    while (!done)
     {
-        if (!forwardDone)
-        {
-            forwardDone = processOneBucket(true, forwardBucket);
-        }
-        if (!backwardDone)
-        {
-            backwardDone = processOneBucket(false, backwardBucket);
-        }
+        done = processOneBucket(true, forwardBucket, backwardBucket) ||
+               processOneBucket(false, backwardBucket, forwardBucket);
     }
 
     return ReturnCode::OK;
 }
 
 bool AbstractDeltaSteppingBiDirAlgo::processOneBucket(
-    bool forward, std::size_t &currentBucket)
+    bool forward, std::size_t &currentBucket, std::size_t otherBucket)
 {
     auto &myDistances = forward ? distances : distancesBackward;
     auto &myParents = forward ? parents : parentsBackward;
@@ -204,7 +205,10 @@ bool AbstractDeltaSteppingBiDirAlgo::processOneBucket(
     {
         mySnapshot = shortestPathLength;
     }
-    if (static_cast<double>(currentBucket) * delta >= mySnapshot)
+    // Every vertex closer than currentBucket * delta (otherBucket * delta for
+    // the other direction) is already settled, so no path shorter than this sum
+    // can be found anymore.
+    if (static_cast<double>(currentBucket + otherBucket) * delta >= mySnapshot)
     {
         return true;
     }

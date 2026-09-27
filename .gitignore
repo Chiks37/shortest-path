@@ -10,3 +10,4 @@ graphs/
 CLAUDE.md
 doxygen_out/
 /algorithms.conf
+/.claude/

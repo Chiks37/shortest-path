@@ -6,6 +6,7 @@
 #pragma once
 
 #include "abstract_dijkstra_seq.hpp"
+#include <atomic>
 #include <limits>
 
 namespace SP
@@ -25,7 +26,12 @@ class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
     std::vector<int> shortestPathBackward;
     std::priority_queue<edge, std::vector<edge>, compareEdges> pqBackward;
     int meetingVertex;
-    double shortestPathLength;
+    std::atomic<double> shortestPathLength;
+    // The half-searches run concurrently, each publishing the smallest key it
+    // may still scan. Once the two bounds sum up to shortestPathLength no
+    // shorter path exists (Pohl stopping criterion).
+    std::atomic<double> forwardBound;
+    std::atomic<double> backwardBound;
 
     // Transpose of graph: the backward search must traverse reversed edges
     std::vector<int> reverseXadj;
@@ -43,7 +49,8 @@ class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
         const crsGraph &searchGraph,
         std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
         std::vector<double> &myDistances, std::vector<int> &myParents,
-        const std::vector<double> &otherDistances, CostEstimator costEstimator);
+        std::vector<double> &otherDistances, std::atomic<double> &myBound,
+        const std::atomic<double> &otherBound, CostEstimator costEstimator);
     std::vector<int> reconstructPath(int source, int destination,
                                      const std::vector<int> &myParents);
     virtual double getDistanceBackward(int vertex)

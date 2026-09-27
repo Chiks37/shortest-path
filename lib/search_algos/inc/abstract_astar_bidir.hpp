@@ -22,12 +22,14 @@ class AbstractAStarBiDirAlgo : public AbstractDijkstraBiDirAlgo
     virtual void resetInternalData() override;
     virtual double estimateCost(int vertex) override;
     virtual double estimateCostBackward(int vertex) override;
+    // Lower bound on the distance from vertex to target (order matters for
+    // directed graphs)
     virtual double heuristic(int vertex, int target) = 0;
 
-    // h(v, source) and h(v, destination) cached per query (filled in
+    // h(source, v) and h(v, destination) cached per query (filled in
     // resetInternalData once source/destination are known). The forward search
-    // uses the symmetric potential (h_to_dest - h_to_src) / 2; the backward one
-    // uses its negation. With h_f + h_b = 0 the two searches share a single
+    // uses the symmetric potential (h_to_dest - h_from_src) / 2; the backward
+    // one uses its negation. With h_f + h_b = 0 the two searches share a single
     // consistent meeting cost, which is what makes bidirectional A* sound.
     std::vector<double> cachedHsrc;
     std::vector<double> cachedHdst;

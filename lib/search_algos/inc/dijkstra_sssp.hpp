@@ -18,10 +18,7 @@ class DijkstraSsspAlgo final : public AbstractDijkstraSeqAlgo
     }
 
     std::vector<double> getDistances() const { return std::move(distances); }
-    ReturnCode setSource(int source)
-    {
-        return BaseAlgo::setSrcDest(source, source);
-    }
+    ReturnCode setSource(int source) { return setSrcDest(source, source); }
 
   protected:
     virtual ReturnCode buildResult() override { return ReturnCode::OK; }

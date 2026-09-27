@@ -19,7 +19,7 @@ void AbstractAStarDeltaBiDirAlgo::resetInternalData()
     cachedHdst.assign(graph.V, 0.0);
     for (int v = 0; v < graph.V; ++v)
     {
-        cachedHsrc[v] = heuristic(v, this->source);
+        cachedHsrc[v] = heuristic(this->source, v);
         cachedHdst[v] = heuristic(v, this->destination);
     }
 

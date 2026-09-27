@@ -22,6 +22,14 @@ void AbstractDijkstraBiDirAlgo::initInternalData()
 
     meetingVertex = -1;
     shortestPathLength = std::numeric_limits<double>::infinity();
+
+    // The meeting is detected on relaxation only, so a trivial query would
+    // otherwise meet at a neighbor and report a non-zero distance.
+    if (this->source == this->destination)
+    {
+        meetingVertex = this->source;
+        shortestPathLength = 0.0;
+    }
 }
 
 void AbstractDijkstraBiDirAlgo::resetInternalData()
@@ -30,6 +38,9 @@ void AbstractDijkstraBiDirAlgo::resetInternalData()
 
     double destEstimatedCost = estimateCostBackward(this->destination);
     pqBackward.push({this->destination, destEstimatedCost});
+
+    forwardBound = estimateCost(this->source);
+    backwardBound = destEstimatedCost;
 }
 ReturnCode AbstractDijkstraBiDirAlgo::preProcessImpl()
 {
@@ -90,17 +101,20 @@ ReturnCode AbstractDijkstraBiDirAlgo::computeImpl()
     {
 #pragma omp single
         {
-#pragma omp task shared(pq, distances, parents, distancesBackward)
+#pragma omp task shared(pq, distances, parents, distancesBackward,             \
+                        forwardBound, backwardBound)
             {
                 runHalfSearch(graph, pq, distances, parents, distancesBackward,
+                              forwardBound, backwardBound,
                               &AbstractDijkstraBiDirAlgo::estimateCost);
             }
 
 #pragma omp task shared(pqBackward, distancesBackward, parentsBackward,        \
-                        distances)
+                        distances, forwardBound, backwardBound)
             {
                 runHalfSearch(reverseGraph, pqBackward, distancesBackward,
-                              parentsBackward, distances,
+                              parentsBackward, distances, backwardBound,
+                              forwardBound,
                               &AbstractDijkstraBiDirAlgo::estimateCostBackward);
             }
 
@@ -149,7 +163,8 @@ ReturnCode AbstractDijkstraBiDirAlgo::runHalfSearch(
     const crsGraph &searchGraph,
     std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
     std::vector<double> &myDistances, std::vector<int> &myParents,
-    const std::vector<double> &otherDistances,
+    std::vector<double> &otherDistances, std::atomic<double> &myBound,
+    const std::atomic<double> &otherBound,
     AbstractDijkstraBiDirAlgo::CostEstimator costEstimator)
 {
     while (!myPq.empty())
@@ -160,24 +175,20 @@ ReturnCode AbstractDijkstraBiDirAlgo::runHalfSearch(
         double curVerPoppedEstCost = myPq.top().val;
         myPq.pop();
 
+        // Stop condition: every vertex this half has not scanned yet costs at
+        // least the popped key, every vertex the other half has not scanned
+        // yet costs at least its bound, so no shorter path is left.
+        myBound = curVerPoppedEstCost;
+        if (curVerPoppedEstCost + otherBound >= shortestPathLength)
+        {
+            break;
+        }
+
         // Skip if there is already shorter path to current vertex than we
         // trying to calculate
         double curVerStoredEstCost = (this->*costEstimator)(currentVertex);
         if (curVerPoppedEstCost > curVerStoredEstCost)
             continue;
-
-        // Early exit condition: we already reached destination vertex.
-        // shortestPathLength is shared with the other half-search, so it
-        // must be snapshotted under the same lock that guards its updates.
-        double bestSoFar;
-#pragma omp critical(bidirMeeting)
-        {
-            bestSoFar = shortestPathLength;
-        }
-        if (curVerPoppedEstCost >= bestSoFar)
-        {
-            break;
-        }
 
         // Researching neighbors
         for (int i = searchGraph.Xadj[currentVertex];
@@ -191,32 +202,42 @@ ReturnCode AbstractDijkstraBiDirAlgo::runHalfSearch(
                 myDistances[currentVertex] + neighborVertexWeight;
             if (myDistances[neighborVertex] > neighbVerNewDistance)
             {
-                myDistances[neighborVertex] = neighbVerNewDistance;
+                // The other half reads this label concurrently. Both halves
+                // store their own label before loading the other one with
+                // sequentially consistent atomics, so at least one of them
+                // sees the meeting at this vertex.
+                std::atomic_ref<double>(myDistances[neighborVertex])
+                    .store(neighbVerNewDistance);
                 myParents[neighborVertex] = currentVertex;
                 double neigbourEstimatedCost =
                     (this->*costEstimator)(neighborVertex);
                 myPq.push({neighborVertex, neigbourEstimatedCost});
 
-                // Cross-check: check if the other search has reached this
-                // vertex. Snapshot the value written by the other half-search
-                // once so the guard and the sum stay consistent.
-                double otherDistance = otherDistances[neighborVertex];
+                double otherDistance =
+                    std::atomic_ref<double>(otherDistances[neighborVertex])
+                        .load();
                 if (otherDistance != std::numeric_limits<double>::infinity())
                 {
-                    double potentialPath =
-                        myDistances[neighborVertex] + otherDistance;
-#pragma omp critical(bidirMeeting)
+                    double potentialPath = neighbVerNewDistance + otherDistance;
+                    if (potentialPath < shortestPathLength)
                     {
-                        if (potentialPath < shortestPathLength)
+#pragma omp critical(bidirMeeting)
                         {
-                            shortestPathLength = potentialPath;
-                            meetingVertex = neighborVertex;
+                            if (potentialPath < shortestPathLength)
+                            {
+                                shortestPathLength = potentialPath;
+                                meetingVertex = neighborVertex;
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    // This half can not improve the path anymore, so the other half must not
+    // wait for its bound to grow
+    myBound = std::numeric_limits<double>::infinity();
 
     return ReturnCode::OK;
 }

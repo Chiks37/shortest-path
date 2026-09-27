@@ -30,9 +30,11 @@ class AbstractDeltaSteppingBiDirAlgo : public AbstractDeltaSteppingAlgo
 
     // Process one bucket of the selected direction (forward = true uses the
     // inherited delta-stepping state on the original graph; forward = false
-    // mirrors it on the reverse graph). Returns true when the direction is
-    // done (either all buckets exhausted or Pohl prune kicks in).
-    bool processOneBucket(bool forward, std::size_t &currentBucket);
+    // mirrors it on the reverse graph). Returns true when the whole search is
+    // done: either this direction ran out of buckets or the lower bounds of
+    // both directions sum up to the best path found (Pohl stopping criterion).
+    bool processOneBucket(bool forward, std::size_t &currentBucket,
+                          std::size_t otherBucket);
 
     // Backward direction mirror of all per-vertex state inherited from
     // AbstractDeltaSteppingAlgo. The reverse graph drives the backward bucket

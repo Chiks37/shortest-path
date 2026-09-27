@@ -58,6 +58,12 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
                     distances[neighborVertex] = neighbVerNewDistance;
                     parents[neighborVertex] = currentVertex;
                     updated = true;
+
+                    if (neighborVertex == destination)
+                    {
+                        bestDestDistance.store(neighbVerNewDistance,
+                                               std::memory_order_relaxed);
+                    }
                 }
 
                 vertexLocks[neighborVertex].clear(std::memory_order_release);
