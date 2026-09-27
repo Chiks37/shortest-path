@@ -4,6 +4,7 @@
  * @brief Dijkstra (bidirectional version) algorithm class source file
  */
 #include "abstract_dijkstra_bidir.hpp"
+#include "graph_transpose.hpp"
 #include <omp.h>
 
 namespace SP
@@ -60,39 +61,8 @@ ReturnCode AbstractDijkstraBiDirAlgo::preProcessImpl()
 
 void AbstractDijkstraBiDirAlgo::buildReverseGraph()
 {
-    int V = graph.V;
-    int nz = graph.Xadj[V];
-
-    reverseXadj.assign(V + 1, 0);
-    reverseAdjncy.resize(nz);
-    reverseEweights.resize(nz);
-
-    for (int i = 0; i < nz; i++)
-    {
-        reverseXadj[graph.Adjncy[i] + 1]++;
-    }
-    for (int v = 0; v < V; v++)
-    {
-        reverseXadj[v + 1] += reverseXadj[v];
-    }
-
-    std::vector<int> cursor(reverseXadj.begin(), reverseXadj.end() - 1);
-    for (int u = 0; u < V; u++)
-    {
-        for (int i = graph.Xadj[u]; i < graph.Xadj[u + 1]; i++)
-        {
-            int v = graph.Adjncy[i];
-            int pos = cursor[v]++;
-            reverseAdjncy[pos] = u;
-            reverseEweights[pos] = graph.Eweights[i];
-        }
-    }
-
-    reverseGraph.Xadj = reverseXadj.data();
-    reverseGraph.Adjncy = reverseAdjncy.data();
-    reverseGraph.Eweights = reverseEweights.data();
-    reverseGraph.V = V;
-    reverseGraph.nz = nz;
+    transposeGraph(graph, reverseXadj, reverseAdjncy, reverseEweights,
+                   reverseGraph);
 }
 
 ReturnCode AbstractDijkstraBiDirAlgo::computeImpl()

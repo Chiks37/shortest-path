@@ -6,6 +6,7 @@
 
 #include "landmarks.hpp"
 #include "general.hpp"
+#include "graph_transpose.hpp"
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -63,37 +64,12 @@ ReturnCode Landmarks::build(const crsGraph &graph, int landmarksCount)
 
     // In a directed graph the distance to a landmark is the distance from it
     // in the transposed graph
-    int nz = graph.Xadj[V];
-    std::vector<int> reverseXadj(V + 1, 0);
-    std::vector<int> reverseAdjncy(nz);
-    std::vector<double> reverseEweights(nz);
-
-    for (int i = 0; i < nz; ++i)
-    {
-        reverseXadj[graph.Adjncy[i] + 1]++;
-    }
-    for (int vertex = 0; vertex < V; ++vertex)
-    {
-        reverseXadj[vertex + 1] += reverseXadj[vertex];
-    }
-
-    std::vector<int> cursor(reverseXadj.begin(), reverseXadj.end() - 1);
-    for (int u = 0; u < V; ++u)
-    {
-        for (int i = graph.Xadj[u]; i < graph.Xadj[u + 1]; ++i)
-        {
-            int pos = cursor[graph.Adjncy[i]]++;
-            reverseAdjncy[pos] = u;
-            reverseEweights[pos] = graph.Eweights[i];
-        }
-    }
-
+    std::vector<int> reverseXadj;
+    std::vector<int> reverseAdjncy;
+    std::vector<double> reverseEweights;
     crsGraph reverseGraph{};
-    reverseGraph.Xadj = reverseXadj.data();
-    reverseGraph.Adjncy = reverseAdjncy.data();
-    reverseGraph.Eweights = reverseEweights.data();
-    reverseGraph.V = V;
-    reverseGraph.nz = nz;
+    transposeGraph(graph, reverseXadj, reverseAdjncy, reverseEweights,
+                   reverseGraph);
 
     distToLandmarks.assign(static_cast<std::size_t>(V) * stride, inf);
     for (std::size_t i = 0; i < landmarks.size(); ++i)
