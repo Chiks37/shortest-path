@@ -3,6 +3,8 @@
  * @author tarakanov.2004@mail.ru
  * @brief Astar with geometical heuristic algorithm class header file
  */
+#pragma once
+
 #include "abstract_astar.hpp"
 #include "coordinates.hpp"
 

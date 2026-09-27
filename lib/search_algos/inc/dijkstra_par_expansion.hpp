@@ -3,6 +3,7 @@
  * @author tarakanov.2004@mail.ru
  * @brief Dijkstra algorithm class with parallel expansion header file
  */
+#pragma once
 
 #include "abstract_dijkstra.hpp"
 #include "tracked_pq.hpp"

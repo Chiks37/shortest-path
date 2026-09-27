@@ -4,6 +4,8 @@
  * @brief Astar with geometical heuristic delta-stepping algorithm class header
  * file
  */
+#pragma once
+
 #include "abstract_astar_delta.hpp"
 #include "coordinates.hpp"
 

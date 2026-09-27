@@ -5,7 +5,10 @@
  */
 #pragma once
 
+extern "C"
+{
 #include "graphio.h"
+}
 
 namespace SP
 {

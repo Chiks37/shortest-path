@@ -1,7 +1,7 @@
 /**
- * @file tracked_pq.hpp
+ * @file tracked_pq.cpp
  * @author tarakanov.2004@mail.ru
- * @brief TBB concurrent priority queue class-wrapper header file
+ * @brief TBB concurrent priority queue class-wrapper source file
  */
 
 #include "tracked_pq.hpp"

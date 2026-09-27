@@ -1,7 +1,7 @@
 /**
- * @file dijkstra_par_relaxation.hpp
+ * @file dijkstra_par_relaxation.cpp
  * @author tarakanov.2004@mail.ru
- * @brief Dijkstra algorithm class with parallel relaxation header file
+ * @brief Dijkstra algorithm class with parallel relaxation source file
  */
 
 #include "dijkstra_par_relaxation.hpp"
