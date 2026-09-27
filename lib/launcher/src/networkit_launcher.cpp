@@ -1,7 +1,7 @@
 /**
- * @file networkit_launcher.hpp
+ * @file networkit_launcher.cpp
  * @author tarakanov.2004@mail.ru
- * @brief Networkit algorithms launcher class header file
+ * @brief Networkit algorithms launcher class source file
  */
 #include "networkit_launcher.hpp"
 #include <chrono>
@@ -34,7 +34,7 @@ NetworkitLauncher::createAlgoObject(const NetworKit::Graph &graph, int source,
 
 void NetworkitLauncher::execute(int source, int destination)
 {
-    auto preStart = std::chrono::high_resolution_clock::now();
+    auto preStart = std::chrono::steady_clock::now();
     NetworKit::MTXGraphReader reader;
     auto graph = reader.read(graphFileName);
 
@@ -47,13 +47,13 @@ void NetworkitLauncher::execute(int source, int destination)
     }
 
     auto algo = createAlgoObject(graph, source, destination);
-    auto preEnd = std::chrono::high_resolution_clock::now();
+    auto preEnd = std::chrono::steady_clock::now();
     lastResult.preProccessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();
 
-    auto computeStart = std::chrono::high_resolution_clock::now();
+    auto computeStart = std::chrono::steady_clock::now();
     algo->run();
-    auto computeEnd = std::chrono::high_resolution_clock::now();
+    auto computeEnd = std::chrono::steady_clock::now();
     lastResult.executionTimeMs =
         std::chrono::duration<double, std::milli>(computeEnd - computeStart)
             .count();

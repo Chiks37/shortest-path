@@ -96,12 +96,12 @@ static std::vector<GWeightT> dijkstra(const GAdjList &adj, GNodeID source,
 
 void GapbsLauncher::execute(int source, int destination)
 {
-    auto preStart = std::chrono::high_resolution_clock::now();
+    auto preStart = std::chrono::steady_clock::now();
     Reader<GNodeID, GWNode, GWeightT, false> reader(graphFileName);
     bool needsWeights = true;
     GEdgeList el = reader.ReadFile(needsWeights);
     GAdjList adj = buildAdjList(el, readVertexCount(graphFileName));
-    auto preEnd = std::chrono::high_resolution_clock::now();
+    auto preEnd = std::chrono::steady_clock::now();
 
     lastResult.shortestPath = {};
     lastResult.shortestDistance = std::numeric_limits<double>::quiet_NaN();
@@ -115,9 +115,9 @@ void GapbsLauncher::execute(int source, int destination)
         return;
     }
 
-    auto computeStart = std::chrono::high_resolution_clock::now();
+    auto computeStart = std::chrono::steady_clock::now();
     std::vector<GWeightT> dist = dijkstra(adj, source, destination);
-    auto computeEnd = std::chrono::high_resolution_clock::now();
+    auto computeEnd = std::chrono::steady_clock::now();
 
     lastResult.shortestDistance = dist[destination];
     lastResult.executionTimeMs =

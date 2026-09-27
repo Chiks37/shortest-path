@@ -1,7 +1,7 @@
 /**
- * @file launcher.hpp
+ * @file launcher.cpp
  * @author tarakanov.2004@mail.ru
- * @brief Base launcher class header file
+ * @brief Base launcher class source file
  */
 #include "launcher.hpp"
 
@@ -12,7 +12,7 @@ void Launcher::printReport() const
 {
     std::cout << "=== Report for " << getAlgoName() << " ===" << std::endl
               << "Distance: " << lastResult.shortestDistance << std::endl
-              << "Prepoccess time: " << lastResult.preProccessTimeMs << " ms\n"
+              << "Preprocess time: " << lastResult.preProccessTimeMs << " ms\n"
               << "Execution time: " << lastResult.executionTimeMs << " ms\n"
               << std::endl
               << "Path vertices count: " << lastResult.shortestPath.size()

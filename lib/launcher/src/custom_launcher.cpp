@@ -64,16 +64,16 @@ void CustomLauncher::execute(int source, int destination)
 {
     auto algo = createAlgoObject(algoId, graphFileName, nodesMappingFileName);
 
-    auto preStart = std::chrono::high_resolution_clock::now();
+    auto preStart = std::chrono::steady_clock::now();
     algo->preProcess();
     algo->setSrcDest(source, destination);
-    auto preEnd = std::chrono::high_resolution_clock::now();
+    auto preEnd = std::chrono::steady_clock::now();
     lastResult.preProccessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();
 
-    auto computeStart = std::chrono::high_resolution_clock::now();
+    auto computeStart = std::chrono::steady_clock::now();
     algo->compute();
-    auto computeEnd = std::chrono::high_resolution_clock::now();
+    auto computeEnd = std::chrono::steady_clock::now();
     lastResult.executionTimeMs =
         std::chrono::duration<double, std::milli>(computeEnd - computeStart)
             .count();
