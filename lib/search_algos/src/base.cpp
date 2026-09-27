@@ -12,6 +12,14 @@
 
 namespace SP
 {
+BaseAlgo::~BaseAlgo()
+{
+    if (graph.Xadj != nullptr)
+    {
+        free_graph_pointers(&graph);
+    }
+}
+
 bool BaseAlgo::sourceDestValidation()
 {
     bool rc = true;
@@ -26,11 +34,6 @@ bool BaseAlgo::sourceDestValidation()
 
 ReturnCode BaseAlgo::loadGraph()
 {
-    if (0 != init_graph(&graph))
-    {
-        return ReturnCode::ERROR;
-    }
-
     std::ifstream file(graphFileName);
     if (!file.is_open())
     {

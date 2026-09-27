@@ -35,7 +35,9 @@ class BaseAlgo
   public:
     BaseAlgo(std::string graphFileName)
         : source(-1), destination(-1), graphFileName(graphFileName){};
-    virtual ~BaseAlgo() = default;
+    BaseAlgo(const BaseAlgo &) = delete;
+    BaseAlgo &operator=(const BaseAlgo &) = delete;
+    virtual ~BaseAlgo();
 
     ReturnCode preProcess();
     virtual ReturnCode preProcessImpl();
