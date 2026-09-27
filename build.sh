@@ -10,10 +10,17 @@ function do_build() {
     local gtest="$4"
     local benchmark="$5"
     local gdb="$6"
+    # Passed explicitly: otherwise a build type cached in build/ (e.g. Debug set
+    # by an IDE) silently survives every later build
+    local build_type="Release"
+    if [[ -n "$gdb" ]]; then
+        build_type="Debug"
+    fi
 
     mkdir -p build
     cd build \
     && cmake \
+        -DCMAKE_BUILD_TYPE="$build_type" \
         -DGDB_BUILD="$gdb" \
         -DBUILD_CUSTOM_TEST_NETWORKIT="$custom_test_networkit" \
         -DBUILD_CUSTOM_TEST_GAPBS="$custom_test_gapbs" \
