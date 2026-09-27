@@ -10,7 +10,10 @@
 namespace SP
 {
 
-std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
+std::shared_ptr<SP::BaseAlgo>
+CustomLauncher::createAlgoObject(AlgoId algoId,
+                                 const std::string &graphFileName,
+                                 const std::string &nodesMappingFileName)
 {
     switch (algoId)
     {
@@ -59,7 +62,7 @@ std::shared_ptr<SP::BaseAlgo> CustomLauncher::createAlgoObject()
 
 void CustomLauncher::execute(int source, int destination)
 {
-    auto algo = createAlgoObject();
+    auto algo = createAlgoObject(algoId, graphFileName, nodesMappingFileName);
 
     auto preStart = std::chrono::high_resolution_clock::now();
     algo->preProcess();

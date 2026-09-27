@@ -98,9 +98,11 @@ class CustomLauncher : public Launcher
   private:
     AlgoId algoId;
     std::string nodesMappingFileName;
-    std::shared_ptr<SP::BaseAlgo> createAlgoObject();
 
   public:
+    static std::shared_ptr<SP::BaseAlgo>
+    createAlgoObject(AlgoId algoId, const std::string &graphFileName,
+                     const std::string &nodesMappingFileName = "");
     std::string getAlgoName() const override { return algoNames.at(algoId); }
     void execute(int source, int destination) override;
 

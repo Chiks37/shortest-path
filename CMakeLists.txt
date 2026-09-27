@@ -183,7 +183,7 @@ if(BUILD_GTEST)
     set_target_properties(gtest_main PROPERTIES IMPORTED_LOCATION "${GTEST_LIB_DIR}/libgtest_main.a"
                                                 INTERFACE_LINK_LIBRARIES gtest)
 
-    add_executable(sp_tests app/gtest/algo_correctness_test.cpp)
+    add_executable(sp_tests app/gtest/algo_correctness_test.cpp app/gtest/algo_query_test.cpp)
     target_link_libraries(sp_tests PRIVATE sp_lib gtest_main)
     target_compile_definitions(
         sp_tests
