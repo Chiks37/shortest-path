@@ -10,9 +10,12 @@ namespace SP
 
 void Launcher::printReport() const
 {
+    // The default six significant digits print 24839.065 as 24839.1
+    auto defaultPrecision = std::cout.precision(12);
     std::cout << "=== Report for " << getAlgoName() << " ===" << std::endl
-              << "Distance: " << lastResult.shortestDistance << std::endl
-              << "Preprocess time: " << lastResult.preProccessTimeMs << " ms\n"
+              << "Distance: " << lastResult.shortestDistance << std::endl;
+    std::cout.precision(defaultPrecision);
+    std::cout << "Preprocess time: " << lastResult.preProccessTimeMs << " ms\n"
               << "Execution time: " << lastResult.executionTimeMs << " ms\n"
               << std::endl
               << "Path vertices count: " << lastResult.shortestPath.size()
