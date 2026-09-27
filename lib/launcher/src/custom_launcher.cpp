@@ -55,9 +55,10 @@ CustomLauncher::createAlgoObject(AlgoId algoId,
                                                           nodesMappingFileName);
     case AlgoId::ALT_DELTA_BIDIR:
         return std::make_shared<SP::ALTDeltaBiDirAlgo>(graphFileName);
-    default:
-        return std::make_shared<SP::DijkstraSeqAlgo>(graphFileName);
+    case AlgoId::COUNT:
+        break;
     }
+    return nullptr;
 }
 
 void CustomLauncher::execute(int source, int destination)

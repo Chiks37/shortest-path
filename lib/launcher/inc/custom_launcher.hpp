@@ -26,7 +26,6 @@
 
 #include <array>
 #include <memory>
-#include <stdexcept>
 #include <unordered_map>
 
 namespace SP
