@@ -257,7 +257,8 @@ TEST(ReferenceTest, NetworkitAgreesWithDijkstra)
     {
         for (const auto &query : checked)
         {
-            SP::NetworkitLauncher networkit(kGraphPath, algoId);
+            SP::NetworkitLauncher networkit(kGraphPath, algoId,
+                                            kNodesMappingPath);
             networkit.execute(query.source, query.destination);
             SP::OutData result{networkit.getResult().shortestDistance,
                                networkit.getResult().shortestPath};
@@ -272,7 +273,7 @@ TEST(ReferenceTest, NetworkitRejectsInvalidVertices)
 {
     for (auto algoId : SP::NetworkitLauncher::algoIds)
     {
-        SP::NetworkitLauncher networkit(kGraphPath, algoId);
+        SP::NetworkitLauncher networkit(kGraphPath, algoId, kNodesMappingPath);
         networkit.execute(0, testGraph().vertexCount());
         EXPECT_TRUE(std::isnan(networkit.getResult().shortestDistance));
         EXPECT_TRUE(networkit.getResult().shortestPath.empty());
@@ -351,6 +352,21 @@ TEST(GeometricHeuristicTest, WeightsInOtherUnits)
                 << " -> " << query.destination;
         }
     }
+
+    // networkit reads the graph on every query, so only a part of the queries
+    for (int i = 0; i < 20; ++i)
+    {
+        const auto &query = kmQueries[i];
+        SP::NetworkitLauncher networkit(file.path,
+                                        SP::NetworkitLauncher::AlgoId::ASTARG,
+                                        kNodesMappingPath);
+        networkit.execute(query.source, query.destination);
+        SP::OutData result{networkit.getResult().shortestDistance,
+                           networkit.getResult().shortestPath};
+        EXPECT_TRUE(isShortestPath(kmGraph, result, query))
+            << "networkit_astar: " << query.source << " -> "
+            << query.destination;
+    }
 }
 
 TEST(GeometricHeuristicTest, MissingOrShortCoordinatesAreRejected)
@@ -375,6 +391,12 @@ TEST(GeometricHeuristicTest, MissingOrShortCoordinatesAreRejected)
             EXPECT_EQ(algo->compute(), SP::ReturnCode::BAD_ARGUMENTS);
             EXPECT_TRUE(std::isnan(algo->getResult().shortestDistance));
         }
+
+        SP::NetworkitLauncher networkit(
+            kGraphPath, SP::NetworkitLauncher::AlgoId::ASTARG, mappingPath);
+        networkit.execute(0, 10);
+        EXPECT_TRUE(std::isnan(networkit.getResult().shortestDistance));
+        EXPECT_TRUE(networkit.getResult().shortestPath.empty());
     }
 }
 } // namespace

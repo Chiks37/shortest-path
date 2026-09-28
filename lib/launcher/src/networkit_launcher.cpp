@@ -4,6 +4,7 @@
  * @brief Networkit algorithms launcher class source file
  */
 #include "networkit_launcher.hpp"
+#include "coordinates.hpp"
 #include <chrono>
 #include <limits>
 
@@ -22,14 +23,30 @@ NetworkitLauncher::createAlgoObject(const NetworKit::Graph &graph, int source,
                                                      destination);
     case AlgoId::ASTARG:
     {
-        astarHeuristics.assign(graph.upperNodeIdBound(), 0.0);
+        // The same heuristic as our A*G algorithms
+        int vertexCount = static_cast<int>(graph.upperNodeIdBound());
+        Coordinates coordinates;
+        if (coordinates.load(nodesMappingFileName, vertexCount) !=
+            ReturnCode::OK)
+        {
+            return nullptr;
+        }
+        graph.forEdges(
+            [&](NetworKit::node u, NetworKit::node v, NetworKit::edgeweight w)
+            { coordinates.fitEdge(u, v, w); });
+
+        astarHeuristics.resize(vertexCount);
+        for (int v = 0; v < vertexCount; ++v)
+        {
+            astarHeuristics[v] = coordinates.lowerBound(v, destination);
+        }
         return std::make_shared<NetworKit::AStar>(graph, astarHeuristics,
                                                   source, destination, true);
     }
-    default:
-        return std::make_shared<NetworKit::Dijkstra>(graph, source, true, false,
-                                                     destination);
+    case AlgoId::COUNT:
+        break;
     }
+    return nullptr;
 }
 
 void NetworkitLauncher::execute(int source, int destination)
@@ -47,6 +64,10 @@ void NetworkitLauncher::execute(int source, int destination)
     }
 
     auto algo = createAlgoObject(graph, source, destination);
+    if (algo == nullptr)
+    {
+        return;
+    }
     auto preEnd = std::chrono::steady_clock::now();
     lastResult.preProcessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();

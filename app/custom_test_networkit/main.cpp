@@ -45,7 +45,8 @@ void testAllMethods(std::string graphFilename, std::string nodesMappingFilename)
         if (!SP::AlgoConfig::isEnabled(
                 SP::NetworkitLauncher::algoNames.at(algoId)))
             continue;
-        SP::NetworkitLauncher networkitLauncher(graphFilename, algoId);
+        SP::NetworkitLauncher networkitLauncher(graphFilename, algoId,
+                                                nodesMappingFilename);
         networkitLauncher.execute(source, destination);
         networkitLauncher.printReport();
     }

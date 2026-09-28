@@ -35,6 +35,7 @@ class NetworkitLauncher : public Launcher
 
   private:
     AlgoId algoId;
+    std::string nodesMappingFileName;
     std::vector<double> astarHeuristics;
     std::shared_ptr<NetworKit::Algorithm>
     createAlgoObject(const NetworKit::Graph &graph, int source,
@@ -44,8 +45,10 @@ class NetworkitLauncher : public Launcher
     std::string getAlgoName() const override { return algoNames.at(algoId); }
     void execute(int source, int destination) override;
 
-    explicit NetworkitLauncher(const std::string &graphFileName, AlgoId algoId)
-        : Launcher(graphFileName), algoId(algoId)
+    explicit NetworkitLauncher(const std::string &graphFileName, AlgoId algoId,
+                               const std::string &nodesMappingFileName = "")
+        : Launcher(graphFileName), algoId(algoId),
+          nodesMappingFileName(nodesMappingFileName)
     {
     }
 };

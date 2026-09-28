@@ -16,6 +16,26 @@ namespace SP
 ReturnCode Coordinates::load(const std::string &nodesMappingFileName,
                              const crsGraph &graph)
 {
+    ReturnCode rc = load(nodesMappingFileName, graph.V);
+    if (rc != ReturnCode::OK)
+    {
+        return rc;
+    }
+
+    for (int u = 0; u < graph.V; ++u)
+    {
+        for (int i = graph.Xadj[u]; i < graph.Xadj[u + 1]; ++i)
+        {
+            fitEdge(u, graph.Adjncy[i], graph.Eweights[i]);
+        }
+    }
+
+    return ReturnCode::OK;
+}
+
+ReturnCode Coordinates::load(const std::string &nodesMappingFileName,
+                             int vertexCount)
+{
     std::ifstream file(nodesMappingFileName);
     if (!file.is_open())
     {
@@ -38,31 +58,29 @@ ReturnCode Coordinates::load(const std::string &nodesMappingFileName,
     file.close();
 
     // Coordinates are matched to vertices by line order
-    if (static_cast<int>(coordinates.size()) != graph.V)
+    if (static_cast<int>(coordinates.size()) != vertexCount)
     {
         return ReturnCode::BAD_ARGUMENTS;
     }
 
-    // Weights and coordinates may be in different units. Dividing the straight
-    // line by the largest line-to-weight ratio over all edges makes every edge
-    // at least as long as its scaled line, so the heuristic never
-    // overestimates. A zero-weight edge between distinct points makes the ratio
-    // infinite and turns the heuristic off.
-    double maxRatio = 0.0;
-    for (int u = 0; u < graph.V; ++u)
-    {
-        for (int i = graph.Xadj[u]; i < graph.Xadj[u + 1]; ++i)
-        {
-            double length = straightLine(u, graph.Adjncy[i]);
-            if (length > 0.0)
-            {
-                maxRatio = std::max(maxRatio, length / graph.Eweights[i]);
-            }
-        }
-    }
-    scale = maxRatio > 0.0 ? 1.0 / maxRatio : 0.0;
-
+    maxRatio = 0.0;
+    scale = 0.0;
     return ReturnCode::OK;
+}
+
+// Weights and coordinates may be in different units. Dividing the straight
+// line by the largest line-to-weight ratio over all edges makes every edge at
+// least as long as its scaled line, so the heuristic never overestimates. A
+// zero-weight edge between distinct points makes the ratio infinite and turns
+// the heuristic off.
+void Coordinates::fitEdge(int from, int to, double weight)
+{
+    double length = straightLine(from, to);
+    if (length > 0.0)
+    {
+        maxRatio = std::max(maxRatio, length / weight);
+        scale = 1.0 / maxRatio;
+    }
 }
 
 double Coordinates::lowerBound(int from, int to) const
