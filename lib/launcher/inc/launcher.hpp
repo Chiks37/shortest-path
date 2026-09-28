@@ -18,7 +18,7 @@ struct LauncherResult
     std::vector<int> shortestPath;
     double shortestDistance;
     double executionTimeMs;
-    double preProccessTimeMs;
+    double preProcessTimeMs;
 };
 
 class Launcher

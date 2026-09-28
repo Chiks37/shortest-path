@@ -48,7 +48,7 @@ void NetworkitLauncher::execute(int source, int destination)
 
     auto algo = createAlgoObject(graph, source, destination);
     auto preEnd = std::chrono::steady_clock::now();
-    lastResult.preProccessTimeMs =
+    lastResult.preProcessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();
 
     auto computeStart = std::chrono::steady_clock::now();

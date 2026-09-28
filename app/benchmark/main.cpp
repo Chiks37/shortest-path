@@ -39,7 +39,7 @@ BenchmarkStat measure(const std::string &name, int source, int destination,
             auto launcher = factory();
             launcher.execute(source, destination);
             const auto &res = launcher.getResult();
-            preSum += res.preProccessTimeMs;
+            preSum += res.preProcessTimeMs;
             execSum += res.executionTimeMs;
             lastDistance = res.shortestDistance;
         }

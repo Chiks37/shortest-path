@@ -105,7 +105,7 @@ void GapbsLauncher::execute(int source, int destination)
 
     lastResult.shortestPath = {};
     lastResult.shortestDistance = std::numeric_limits<double>::quiet_NaN();
-    lastResult.preProccessTimeMs =
+    lastResult.preProcessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();
     lastResult.executionTimeMs = 0.0;
     GNodeID vertexCount = static_cast<GNodeID>(adj.size());

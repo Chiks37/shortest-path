@@ -83,7 +83,7 @@ void CustomLauncher::execute(int source, int destination)
     algo->preProcess();
     algo->setSrcDest(source, destination);
     auto preEnd = std::chrono::steady_clock::now();
-    lastResult.preProccessTimeMs =
+    lastResult.preProcessTimeMs =
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();
 
     auto computeStart = std::chrono::steady_clock::now();

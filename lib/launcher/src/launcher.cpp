@@ -15,7 +15,7 @@ void Launcher::printReport() const
     std::cout << "=== Report for " << getAlgoName() << " ===" << std::endl
               << "Distance: " << lastResult.shortestDistance << std::endl;
     std::cout.precision(defaultPrecision);
-    std::cout << "Preprocess time: " << lastResult.preProccessTimeMs << " ms\n"
+    std::cout << "Preprocess time: " << lastResult.preProcessTimeMs << " ms\n"
               << "Execution time: " << lastResult.executionTimeMs << " ms\n"
               << std::endl
               << "Path vertices count: " << lastResult.shortestPath.size()
