@@ -137,9 +137,7 @@ if(BUILD_CUSTOM_TEST_NETWORKIT)
 endif()
 
 if(BUILD_CUSTOM_TEST_GAPBS OR BUILD_BENCHMARK)
-    # Mirrors how networkit/TBB are handled: compiled into cache/deps/gapbs/ so the artifact
-    # survives ./build.sh -c.
-    add_subdirectory(cmake/gapbs ${DEPS_CACHE_DIR}/gapbs EXCLUDE_FROM_ALL)
+    add_subdirectory(cmake/gapbs EXCLUDE_FROM_ALL)
 endif()
 
 if(BUILD_CUSTOM_TEST_GAPBS)

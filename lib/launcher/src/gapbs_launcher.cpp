@@ -4,7 +4,7 @@
  * @brief GAPBS algorithms launcher class implementation
  *
  * NOTE: This file is intentionally excluded from sp_lib (see CMakeLists.txt
- * FILTER). It is compiled via cmake/gapbs/ into cache/deps/gapbs/ so that
+ * FILTER). It is compiled as a separate library in cmake/gapbs/ so that
  * GAPBS headers are not pulled in as a global dependency.
  *
  * We use GAPBS's Reader for .mtx parsing (NodeWeight / EdgePair types) and

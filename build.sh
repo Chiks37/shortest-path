@@ -46,7 +46,7 @@ function clean() {
     rm -rf bin
 }
 
-# Removes the 3rdparty build cache (networkit, TBB, googletest, GAPBS) for both
+# Removes the 3rdparty build cache (networkit, TBB, googletest) for both
 # debug and release. Use when you need a truly fresh build of everything; the
 # active configuration is rebuilt on the next build.
 function clean_cache() {

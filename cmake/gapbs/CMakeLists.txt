@@ -1,5 +1,5 @@
 # GAPBS integration: header-only INTERFACE target + our launcher compiled as a
-# cached static library. Built into cache/deps/gapbs/ so it survives -c cleans.
+# separate static library, so that GAPBS headers stay out of sp_lib.
 
 # All GAPBS logic lives in headers (graph.h, builder.h, pvector.h, ...).
 add_library(gapbs INTERFACE)
