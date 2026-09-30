@@ -9,24 +9,25 @@
 
 namespace SP
 {
+// Delta-stepping on the reduced weights w(u, v) + h(v) - h(u), computed on
+// the fly. With a consistent heuristic they are non-negative and preserve
+// shortest paths, which makes the search goal-directed like A*.
 class AbstractAStarDeltaAlgo : public AbstractDeltaSteppingAlgo
 {
   public:
     AbstractAStarDeltaAlgo(std::string graphFileName)
         : AbstractDeltaSteppingAlgo(graphFileName)
     {
+        usePotential = true;
     }
     virtual ~AbstractAStarDeltaAlgo() {}
 
   protected:
-    virtual void initQuery() override;
-    virtual double estimateCost(int vertex) override;
     virtual ReturnCode buildResult() override;
+    virtual double computePotential(int vertex) override
+    {
+        return heuristic(vertex);
+    }
     virtual double heuristic(int vertex) = 0;
-
-    // h(v) cached per query. Materialized in initQuery (after the
-    // destination is set), used to compute reduced edge weights and to
-    // restore the original distance in buildResult.
-    std::vector<double> cachedH;
 };
 } // namespace SP

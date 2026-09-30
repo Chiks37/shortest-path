@@ -5,16 +5,27 @@
  */
 
 #include "abstract_delta_stepping.hpp"
+#include <algorithm>
 #include <cmath>
-#include <limits>
-#include <utility>
-
-#ifdef _OPENMP
 #include <omp.h>
-#endif
+#include <utility>
 
 namespace SP
 {
+namespace
+{
+constexpr std::size_t kNoBucket = std::numeric_limits<std::size_t>::max();
+// A thread settles the vertices it put back into the current bucket itself
+// while there are fewer of them than this, instead of sharing them in the next
+// phase (bin fusion, as in the GAP benchmark suite)
+constexpr std::size_t kFusionThreshold = 1000;
+
+double loadLabel(std::vector<double> &labels, int vertex)
+{
+    return std::atomic_ref<double>(labels[vertex])
+        .load(std::memory_order_relaxed);
+}
+} // namespace
 
 void AbstractDeltaSteppingAlgo::initInternalData()
 {
@@ -25,31 +36,43 @@ void AbstractDeltaSteppingAlgo::initInternalData()
     {
         vertexLock.clear(std::memory_order_release);
     }
+    heavyStamps.assign(graph.V, 0);
+    heavyStamp = 1;
+    potentials.resize(graph.V);
 
-    buckets.clear();
-    buckets.resize(1);
-    bucketInsertStamp.assign(graph.V, -1);
-    bucketInsertBucket.assign(graph.V, 0);
-    insertStamp = 0;
+    forwardDirection.graph = &graph;
+    forwardDirection.lightEnd = &lightEnd;
+    forwardDirection.labels = &distances;
+    forwardDirection.parents = &parents;
+    forwardDirection.potentialSign = 1.0;
 }
 
 void AbstractDeltaSteppingAlgo::initQuery()
 {
     AbstractDijkstraAlgo::initQuery();
 
-    buckets[0].push_back(this->source);
-    bucketInsertStamp[this->source] = insertStamp;
-    bucketInsertBucket[this->source] = 0;
+    potentials.nextQuery();
+    destinationSettled.store(false);
+    shortestPathLength.store(std::numeric_limits<double>::infinity());
+    meetingVertex = -1;
+    startDirection(forwardDirection, this->source);
 }
 
 void AbstractDeltaSteppingAlgo::resetInternalData()
 {
-    // Relaxations do not record the vertices they label
-    initInternalData();
+    resetDirection(forwardDirection);
+
+    AbstractDijkstraAlgo::resetInternalData();
 }
 
 void AbstractDeltaSteppingAlgo::computeDelta()
 {
+    if (requestedDelta > 0.0)
+    {
+        delta = requestedDelta;
+        return;
+    }
+
     if (graph.nz <= 0)
     {
         delta = 1.0;
@@ -69,27 +92,23 @@ void AbstractDeltaSteppingAlgo::computeDelta()
     }
 }
 
-void AbstractDeltaSteppingAlgo::classifyEdges()
+void AbstractDeltaSteppingAlgo::orderEdges(crsGraph &searchGraph,
+                                           std::vector<int> &lightEnds)
 {
-    lightEdges.assign(graph.V, {});
-    heavyEdges.assign(graph.V, {});
-
-    for (int vertex = 0; vertex < graph.V; ++vertex)
+    lightEnds.resize(searchGraph.V);
+    for (int vertex = 0; vertex < searchGraph.V; ++vertex)
     {
-        for (int i = graph.Xadj[vertex]; i < graph.Xadj[vertex + 1]; ++i)
+        int split = searchGraph.Xadj[vertex];
+        for (int i = split; i < searchGraph.Xadj[vertex + 1]; ++i)
         {
-            int neighborVertex = graph.Adjncy[i];
-            double edgeWeight = graph.Eweights[i];
-
-            if (edgeWeight < delta)
+            if (searchGraph.Eweights[i] < delta)
             {
-                lightEdges[vertex].push_back({neighborVertex, edgeWeight});
-            }
-            else
-            {
-                heavyEdges[vertex].push_back({neighborVertex, edgeWeight});
+                std::swap(searchGraph.Adjncy[i], searchGraph.Adjncy[split]);
+                std::swap(searchGraph.Eweights[i], searchGraph.Eweights[split]);
+                ++split;
             }
         }
+        lightEnds[vertex] = split;
     }
 }
 
@@ -102,192 +121,321 @@ ReturnCode AbstractDeltaSteppingAlgo::preProcessImpl()
     }
 
     computeDelta();
-    classifyEdges();
+    orderEdges(graph, lightEnd);
 
     return rc;
 }
 
-ReturnCode AbstractDeltaSteppingAlgo::runSearch()
+void AbstractDeltaSteppingAlgo::startDirection(Direction &direction, int root)
 {
-    if (graph.V <= 0)
+    std::size_t threads = static_cast<std::size_t>(omp_get_max_threads());
+    if (direction.threads.size() < threads)
     {
-        return ReturnCode::BAD_ARGUMENTS;
+        direction.threads.resize(threads);
+        for (auto &state : direction.threads)
+        {
+            state.offsets.resize(threads + 1);
+        }
     }
 
-    const double inf = std::numeric_limits<double>::infinity();
+    direction.threads[0].frontier[0].push_back(root);
+    direction.threads[0].frontierSizes[0] = 1;
+    direction.currentBucket = 0;
+    direction.parity = 0;
+}
 
-    auto relaxVertices = [&](const std::vector<int> &vertices,
-                             const std::vector<std::vector<edge>> &adj)
+void AbstractDeltaSteppingAlgo::resetDirection(Direction &direction)
+{
+    for (auto &state : direction.threads)
     {
-        if (vertices.empty())
+        for (int vertex : state.touched)
         {
-            return;
+            (*direction.labels)[vertex] =
+                std::numeric_limits<double>::infinity();
+            (*direction.parents)[vertex] = -1;
         }
+        state.touched.clear();
 
-        int maxThreads = 1;
-#ifdef _OPENMP
-        maxThreads = omp_get_max_threads();
-#endif
+        for (auto &bin : state.bins)
+        {
+            bin.clear();
+        }
+        state.frontier[0].clear();
+        state.frontier[1].clear();
+        state.frontierSizes[0] = 0;
+        state.frontierSizes[1] = 0;
+        state.settled.clear();
+    }
+}
 
-        std::vector<std::vector<std::pair<int, std::size_t>>> localBuffers(
-            static_cast<std::size_t>(maxThreads));
-
+ReturnCode AbstractDeltaSteppingAlgo::runSearch()
+{
 #pragma omp parallel
-        {
-            int tid = 0;
-#ifdef _OPENMP
-            tid = omp_get_thread_num();
-#endif
-            auto &buffer = localBuffers[static_cast<std::size_t>(tid)];
-            buffer.clear();
-
-#pragma omp for schedule(static)
-            for (std::size_t idx = 0; idx < vertices.size(); ++idx)
-            {
-                int currentVertex = vertices[idx];
-
-                double baseDist = 0.0;
-                while (vertexLocks[currentVertex].test_and_set(
-                    std::memory_order_acquire))
-                {
-                }
-                baseDist = getDistance(currentVertex);
-                vertexLocks[currentVertex].clear(std::memory_order_release);
-
-                if (baseDist == inf)
-                {
-                    continue;
-                }
-
-                const auto &edges = adj[currentVertex];
-                for (const auto &e : edges)
-                {
-                    int neighborVertex = e.vertex;
-                    double newDist = baseDist + e.val;
-                    bool updated = false;
-                    double neigbourEstimatedCost = 0.0;
-
-                    while (vertexLocks[neighborVertex].test_and_set(
-                        std::memory_order_acquire))
-                    {
-                    }
-
-                    if (newDist < getDistance(neighborVertex))
-                    {
-                        distances[neighborVertex] = newDist;
-                        parents[neighborVertex] = currentVertex;
-                        neigbourEstimatedCost = estimateCost(neighborVertex);
-                        updated = true;
-                    }
-
-                    vertexLocks[neighborVertex].clear(
-                        std::memory_order_release);
-
-                    if (updated)
-                    {
-                        std::size_t bucketIndex = static_cast<std::size_t>(
-                            neigbourEstimatedCost / delta);
-                        buffer.push_back({neighborVertex, bucketIndex});
-                    }
-                }
-            }
-        }
-
-        ++insertStamp;
-        std::size_t requiredSize = buckets.size();
-        for (const auto &buffer : localBuffers)
-        {
-            for (const auto &item : buffer)
-            {
-                std::size_t bucketIndex = item.second;
-                if (bucketIndex + 1 > requiredSize)
-                {
-                    requiredSize = bucketIndex + 1;
-                }
-            }
-        }
-
-        if (requiredSize > buckets.size())
-        {
-            buckets.resize(requiredSize);
-        }
-
-        for (const auto &buffer : localBuffers)
-        {
-            for (const auto &item : buffer)
-            {
-                int vertex = item.first;
-                std::size_t bucketIndex = item.second;
-
-                if (bucketInsertStamp[vertex] == insertStamp &&
-                    bucketInsertBucket[vertex] == bucketIndex)
-                {
-                    continue;
-                }
-
-                bucketInsertStamp[vertex] = insertStamp;
-                bucketInsertBucket[vertex] = bucketIndex;
-                buckets[bucketIndex].push_back(vertex);
-            }
-        }
-    };
-
-    std::size_t currentBucket = 0;
-    while (currentBucket < buckets.size())
     {
-        while (currentBucket < buckets.size() && buckets[currentBucket].empty())
+        while (processBucket(forwardDirection, nullptr, true))
         {
-            ++currentBucket;
         }
-
-        if (currentBucket >= buckets.size())
-        {
-            break;
-        }
-
-        std::vector<int> settled;
-        settled.reserve(buckets[currentBucket].size());
-        bool destSettled = false;
-
-        while (!buckets[currentBucket].empty())
-        {
-            std::vector<int> request;
-            request.swap(buckets[currentBucket]);
-            if (request.empty())
-            {
-                break;
-            }
-
-            if (!destSettled)
-            {
-                for (int vertex : request)
-                {
-                    if (vertex == destination)
-                    {
-                        destSettled = true;
-                        break;
-                    }
-                }
-            }
-
-            settled.insert(settled.end(), request.begin(), request.end());
-            relaxVertices(request, lightEdges);
-        }
-
-        if (!settled.empty())
-        {
-            relaxVertices(settled, heavyEdges);
-        }
-
-        if (destSettled)
-        {
-            break;
-        }
-
-        ++currentBucket;
     }
 
     return ReturnCode::OK;
+}
+
+bool AbstractDeltaSteppingAlgo::processBucket(Direction &direction,
+                                              const Direction *other,
+                                              bool stopAtDestination)
+{
+    int thread = omp_get_thread_num();
+    int threads = omp_get_num_threads();
+    std::size_t bucket = direction.currentBucket;
+    int parity = direction.parity;
+    ThreadState &state = direction.threads[thread];
+    auto &offsets = state.offsets;
+
+    // Light phases: a vertex whose label drops into this bucket comes back
+    // into the frontier until the bucket stays empty
+    while (true)
+    {
+        state.frontier[1 - parity].clear();
+        offsets[0] = 0;
+        for (int t = 0; t < threads; ++t)
+        {
+            offsets[t + 1] =
+                offsets[t] + direction.threads[t].frontierSizes[parity];
+        }
+        std::size_t total = offsets[threads];
+        if (total == 0)
+        {
+            break;
+        }
+
+        auto settle = [&](int vertex)
+        {
+            double label = loadLabel(*direction.labels, vertex);
+            // The label dropped into an earlier bucket, which settled it
+            if (bucketOf(label) != bucket)
+            {
+                return;
+            }
+
+            state.settled.push_back(vertex);
+            if (stopAtDestination && vertex == this->destination)
+            {
+                destinationSettled.store(true, std::memory_order_relaxed);
+            }
+            relaxEdges<false>(direction, other, state, vertex, label,
+                              1 - parity);
+        };
+
+        int owner = 0;
+#pragma omp for schedule(dynamic, 64) nowait
+        for (std::size_t i = 0; i < total; ++i)
+        {
+            while (i >= offsets[owner + 1])
+            {
+                ++owner;
+            }
+            settle(
+                direction.threads[owner].frontier[parity][i - offsets[owner]]);
+        }
+
+        while (!state.frontier[1 - parity].empty() &&
+               state.frontier[1 - parity].size() < kFusionThreshold)
+        {
+            state.fused.swap(state.frontier[1 - parity]);
+            for (int vertex : state.fused)
+            {
+                settle(vertex);
+            }
+            state.fused.clear();
+        }
+
+        state.frontierSizes[1 - parity] = state.frontier[1 - parity].size();
+#pragma omp barrier
+        parity = 1 - parity;
+    }
+
+    // Every vertex of the bucket is settled here, the destination too
+    if (stopAtDestination && destinationSettled.load(std::memory_order_relaxed))
+    {
+        return false;
+    }
+
+    for (int vertex : state.settled)
+    {
+        std::atomic_ref<unsigned> vertexStamp(heavyStamps[vertex]);
+        if (vertexStamp.load(std::memory_order_relaxed) == heavyStamp)
+        {
+            continue;
+        }
+        vertexStamp.store(heavyStamp, std::memory_order_relaxed);
+        relaxEdges<true>(direction, other, state, vertex,
+                         loadLabel(*direction.labels, vertex), parity);
+    }
+    state.settled.clear();
+
+    // A heavy edge leads out of the bucket, unless rounding brings its end
+    // back into it; then the bucket is processed once more
+    std::size_t next = kNoBucket;
+    auto &bins = state.bins;
+    if (!state.frontier[parity].empty())
+    {
+        next = bucket;
+    }
+    else
+    {
+        for (std::size_t b = bucket + 1; b < bins.size(); ++b)
+        {
+            if (!bins[b].empty())
+            {
+                next = b;
+                break;
+            }
+        }
+    }
+    state.nextBucket = next;
+#pragma omp barrier
+
+    for (int t = 0; t < threads; ++t)
+    {
+        next = std::min(next, direction.threads[t].nextBucket);
+    }
+    if (next != kNoBucket && next != bucket && next < bins.size())
+    {
+        std::swap(bins[next], state.frontier[parity]);
+    }
+    state.frontierSizes[parity] = state.frontier[parity].size();
+
+    // Every vertex closer than currentBucket * delta is settled in its
+    // direction, so no path shorter than the sum of the two is left
+    bool proceed = next != kNoBucket;
+    if (proceed && other != nullptr)
+    {
+        proceed = static_cast<double>(next + other->currentBucket) * delta <
+                  shortestPathLength.load();
+    }
+
+    if (thread == 0)
+    {
+        if (next != kNoBucket)
+        {
+            direction.currentBucket = next;
+        }
+        direction.parity = parity;
+        if (++heavyStamp == 0)
+        {
+            std::fill(heavyStamps.begin(), heavyStamps.end(), 0);
+            heavyStamp = 1;
+        }
+    }
+#pragma omp barrier
+
+    return proceed;
+}
+
+template <bool Heavy>
+void AbstractDeltaSteppingAlgo::relaxEdges(Direction &direction,
+                                           const Direction *other,
+                                           ThreadState &state, int vertex,
+                                           double label, int insertParity)
+{
+    const crsGraph &searchGraph = *direction.graph;
+    int begin = searchGraph.Xadj[vertex];
+    int end = searchGraph.Xadj[vertex + 1];
+    double vertexPotential = 0.0;
+    if (usePotential)
+    {
+        vertexPotential = direction.potentialSign * potential(vertex);
+    }
+    else if (Heavy)
+    {
+        begin = (*direction.lightEnd)[vertex];
+    }
+    else
+    {
+        end = (*direction.lightEnd)[vertex];
+    }
+
+    for (int i = begin; i < end; ++i)
+    {
+        int neighborVertex = searchGraph.Adjncy[i];
+        double edgeWeight = searchGraph.Eweights[i];
+        if (usePotential)
+        {
+            // A consistent heuristic keeps reduced weights non-negative up to
+            // rounding
+            edgeWeight = std::max(0.0, edgeWeight +
+                                           direction.potentialSign *
+                                               potential(neighborVertex) -
+                                           vertexPotential);
+            if ((edgeWeight >= delta) != Heavy)
+            {
+                continue;
+            }
+        }
+
+        double newLabel = label + edgeWeight;
+        std::atomic_ref<double> neighborLabel(
+            (*direction.labels)[neighborVertex]);
+        if (newLabel >= neighborLabel.load(std::memory_order_relaxed))
+        {
+            continue;
+        }
+
+        while (
+            vertexLocks[neighborVertex].test_and_set(std::memory_order_acquire))
+        {
+        }
+        double oldLabel = neighborLabel.load(std::memory_order_relaxed);
+        bool updated = newLabel < oldLabel;
+        if (updated)
+        {
+            neighborLabel.store(newLabel, std::memory_order_relaxed);
+            (*direction.parents)[neighborVertex] = vertex;
+        }
+        vertexLocks[neighborVertex].clear(std::memory_order_release);
+
+        if (!updated)
+        {
+            continue;
+        }
+
+        if (std::isinf(oldLabel))
+        {
+            state.touched.push_back(neighborVertex);
+        }
+
+        std::size_t neighborBucket = bucketOf(newLabel);
+        if (neighborBucket == direction.currentBucket)
+        {
+            state.frontier[insertParity].push_back(neighborVertex);
+        }
+        else
+        {
+            auto &bins = state.bins;
+            if (neighborBucket >= bins.size())
+            {
+                bins.resize(neighborBucket + 1);
+            }
+            bins[neighborBucket].push_back(neighborVertex);
+        }
+
+        if (other != nullptr)
+        {
+            double potentialPath =
+                newLabel + loadLabel(*other->labels, neighborVertex);
+            if (potentialPath < shortestPathLength.load())
+            {
+#pragma omp critical(deltaMeeting)
+                {
+                    if (potentialPath < shortestPathLength.load())
+                    {
+                        shortestPathLength.store(potentialPath);
+                        meetingVertex = neighborVertex;
+                    }
+                }
+            }
+        }
+    }
 }
 
 } // namespace SP

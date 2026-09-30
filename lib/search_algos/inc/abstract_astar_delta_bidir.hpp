@@ -9,28 +9,28 @@
 
 namespace SP
 {
+// Bidirectional delta-stepping on reduced weights. The forward direction uses
+// the potential p(v) = (h(v, destination) - h(source, v)) / 2 and the backward
+// one its negation, so both work on the same reduced weights.
 class AbstractAStarDeltaBiDirAlgo : public AbstractDeltaSteppingBiDirAlgo
 {
   public:
     AbstractAStarDeltaBiDirAlgo(std::string graphFileName)
         : AbstractDeltaSteppingBiDirAlgo(graphFileName)
     {
+        usePotential = true;
     }
     virtual ~AbstractAStarDeltaBiDirAlgo() {}
 
   protected:
-    virtual void initQuery() override;
     virtual ReturnCode buildResult() override;
+    virtual double computePotential(int vertex) override
+    {
+        return 0.5 * (heuristic(vertex, this->destination) -
+                      heuristic(this->source, vertex));
+    }
     // Lower bound on the distance from vertex to target (order matters for
     // directed graphs)
     virtual double heuristic(int vertex, int target) = 0;
-
-    // h(source, v) and h(v, destination) cached per query. The symmetric
-    // potential pi_f(v) = (cachedHdst[v] - cachedHsrc[v]) / 2 drives the
-    // Johnson reweighting used to feed both directions into a single
-    // delta-stepping back-end (with pi_b = -pi_f). The cache also lets us
-    // restore the real distance from the reduced one in buildResult.
-    std::vector<double> cachedHsrc;
-    std::vector<double> cachedHdst;
 };
 } // namespace SP

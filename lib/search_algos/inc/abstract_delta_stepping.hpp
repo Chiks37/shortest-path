@@ -6,18 +6,62 @@
 #pragma once
 
 #include "abstract_dijkstra.hpp"
+#include "vertex_cache.hpp"
 #include <atomic>
 #include <cstddef>
+#include <limits>
+#include <vector>
 
 namespace SP
 {
 class AbstractDeltaSteppingAlgo : public AbstractDijkstraAlgo
 {
+  public:
+    // Bucket width, the mean edge weight when not set. Takes effect at the
+    // next preProcess.
+    void setDelta(double delta) { requestedDelta = delta; }
+
   protected:
     AbstractDeltaSteppingAlgo(std::string graphFileName)
         : AbstractDijkstraAlgo(graphFileName)
     {
     }
+
+    // Part of a direction owned by one thread, alone in its cache lines
+    struct alignas(64) ThreadState
+    {
+        // Buckets after the current one
+        std::vector<std::vector<int>> bins;
+        // Vertices of the current bucket, by phase parity
+        std::vector<int> frontier[2];
+        std::vector<int> fused;
+        std::size_t frontierSizes[2]{0, 0};
+        // Vertices settled in the current bucket
+        std::vector<int> settled;
+        // Vertices labeled by the query
+        std::vector<int> touched;
+        std::vector<std::size_t> offsets;
+        std::size_t nextBucket{0};
+    };
+
+    // State of one search direction. Every thread keeps its own buckets, its
+    // part of the frontier and the vertices it labeled, so threads meet only
+    // at the barriers between phases.
+    struct Direction
+    {
+        const crsGraph *graph{nullptr};
+        // Edges of every vertex go light first, lightEnd[v] is the index of
+        // its first heavy edge
+        const std::vector<int> *lightEnd{nullptr};
+        std::vector<double> *labels{nullptr};
+        std::vector<int> *parents{nullptr};
+        // The reduced weight of an edge (u, v) is w + sign * (p(v) - p(u))
+        double potentialSign{1.0};
+
+        std::vector<ThreadState> threads;
+        std::size_t currentBucket{0};
+        int parity{0};
+    };
 
     virtual void initInternalData() override;
     virtual void initQuery() override;
@@ -26,33 +70,47 @@ class AbstractDeltaSteppingAlgo : public AbstractDijkstraAlgo
     virtual ReturnCode runSearch() override;
 
     void computeDelta();
-    void classifyEdges();
+    void orderEdges(crsGraph &searchGraph, std::vector<int> &lightEnds);
+    void startDirection(Direction &direction, int root);
+    void resetDirection(Direction &direction);
+    // Settles the current bucket of the direction and moves to the next one.
+    // Every thread of the team calls it and gets the same answer: whether the
+    // search goes on.
+    bool processBucket(Direction &direction, const Direction *other,
+                       bool stopAtDestination);
+    template <bool Heavy>
+    void relaxEdges(Direction &direction, const Direction *other,
+                    ThreadState &state, int vertex, double label,
+                    int insertParity);
+    std::size_t bucketOf(double label) const
+    {
+        return static_cast<std::size_t>(label / delta);
+    }
 
-    // Bucket width / edge-weight threshold. Bucket i collects vertices whose
-    // ordering cost lies in [i*delta, (i+1)*delta). Edges with weight < delta
-    // are "light", the rest are "heavy".
+    // Goal-directed variants run on reduced weights w(u, v) + p(v) - p(u)
+    virtual double computePotential(int) { return 0.0; }
+    double potential(int vertex)
+    {
+        return potentials.get(vertex, [&] { return computePotential(vertex); });
+    }
+
     double delta{1.0};
-    // Per-vertex adjacency list holding only light edges (weight < delta).
-    // Relaxed repeatedly while the current bucket keeps refilling.
-    std::vector<std::vector<edge>> lightEdges;
-    // Per-vertex adjacency list holding only heavy edges (weight >= delta).
-    // Relaxed once, after the current bucket is fully settled.
-    std::vector<std::vector<edge>> heavyEdges;
-    // Bucket array: buckets[i] is the list of vertices currently assigned to
-    // bucket i. The algorithm processes buckets in ascending index order.
-    std::vector<std::vector<int>> buckets;
-    // Per-vertex stamp of the relaxation phase in which the vertex was last
-    // queued. Compared against insertStamp to detect duplicates within a phase.
-    std::vector<int> bucketInsertStamp;
-    // Per-vertex index of the bucket the vertex was last queued into. Together
-    // with bucketInsertStamp it prevents inserting the same vertex into the
-    // same bucket twice during one relaxation phase.
-    std::vector<std::size_t> bucketInsertBucket;
-    // Monotonic counter bumped once per relaxation phase; written into
-    // bucketInsertStamp to tag insertions as belonging to the current phase.
-    int insertStamp{0};
-    // Per-vertex spinlocks guarding concurrent writes to distances[]/parents[]
-    // (and the cost read) during parallel edge relaxation.
+    double requestedDelta{0.0};
+    bool usePotential{false};
+    VertexCache potentials;
+    std::vector<int> lightEnd;
     std::vector<std::atomic_flag> vertexLocks;
+    // A vertex relaxes its heavy edges once per bucket: the stamp of the last
+    // heavy phase it took part in
+    std::vector<unsigned> heavyStamps;
+    unsigned heavyStamp{1};
+    std::atomic<bool> destinationSettled{false};
+    Direction forwardDirection;
+
+    // Best path through a vertex labeled by both directions, used by the
+    // bidirectional variants
+    std::atomic<double> shortestPathLength{
+        std::numeric_limits<double>::infinity()};
+    int meetingVertex{-1};
 };
 } // namespace SP
