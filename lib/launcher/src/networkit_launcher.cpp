@@ -23,23 +23,19 @@ NetworkitLauncher::createAlgoObject(const NetworKit::Graph &graph, int source,
                                                      destination);
     case AlgoId::ASTARG:
     {
-        // The same heuristic as our A*G algorithms
+        // The same heuristic as our A*G algorithms. It depends on the
+        // destination, so execute fills it in the timed part of the query.
         int vertexCount = static_cast<int>(graph.upperNodeIdBound());
-        Coordinates coordinates;
-        if (coordinates.load(nodesMappingFileName, vertexCount) !=
+        if (astarCoordinates.load(nodesMappingFileName, vertexCount) !=
             ReturnCode::OK)
         {
             return nullptr;
         }
         graph.forEdges(
             [&](NetworKit::node u, NetworKit::node v, NetworKit::edgeweight w)
-            { coordinates.fitEdge(u, v, w); });
+            { astarCoordinates.fitEdge(u, v, w); });
 
-        astarHeuristics.resize(vertexCount);
-        for (int v = 0; v < vertexCount; ++v)
-        {
-            astarHeuristics[v] = coordinates.lowerBound(v, destination);
-        }
+        astarHeuristics.assign(vertexCount, 0.0);
         return std::make_shared<NetworKit::AStar>(graph, astarHeuristics,
                                                   source, destination, true);
     }
@@ -73,6 +69,13 @@ void NetworkitLauncher::execute(int source, int destination)
         std::chrono::duration<double, std::milli>(preEnd - preStart).count();
 
     auto computeStart = std::chrono::steady_clock::now();
+    if (AlgoId::ASTARG == algoId)
+    {
+        for (int v = 0; v < static_cast<int>(astarHeuristics.size()); ++v)
+        {
+            astarHeuristics[v] = astarCoordinates.lowerBound(v, destination);
+        }
+    }
     algo->run();
     auto computeEnd = std::chrono::steady_clock::now();
     lastResult.executionTimeMs =

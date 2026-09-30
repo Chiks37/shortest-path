@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include "coordinates.hpp"
 #include "launcher.hpp"
 #include <networkit/distance/AStar.hpp>
 #include <networkit/distance/Dijkstra.hpp>
@@ -36,6 +37,7 @@ class NetworkitLauncher : public Launcher
   private:
     AlgoId algoId;
     std::string nodesMappingFileName;
+    Coordinates astarCoordinates;
     std::vector<double> astarHeuristics;
     std::shared_ptr<NetworKit::Algorithm>
     createAlgoObject(const NetworKit::Graph &graph, int source,
