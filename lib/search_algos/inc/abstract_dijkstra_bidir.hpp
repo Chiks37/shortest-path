@@ -6,11 +6,14 @@
 #pragma once
 
 #include "abstract_dijkstra_seq.hpp"
-#include <atomic>
 #include <limits>
 
 namespace SP
 {
+// The forward search from the source and the backward search from the
+// destination on the transposed graph take turns scanning one vertex each.
+// shortestPathLength is the best path found through a vertex labeled by both,
+// the search stops once the smallest keys of the two queues sum up to it.
 class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
 {
   protected:
@@ -20,18 +23,12 @@ class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
     {
     }
 
-    using CostEstimator = double (AbstractDijkstraBiDirAlgo::*)(int vertex);
     std::vector<double> distancesBackward;
     std::vector<int> parentsBackward;
-    std::vector<int> shortestPathBackward;
-    std::priority_queue<edge, std::vector<edge>, compareEdges> pqBackward;
+    std::vector<int> touchedBackward;
+    EdgeQueue pqBackward;
     int meetingVertex;
-    std::atomic<double> shortestPathLength;
-    // The half-searches run concurrently, each publishing the smallest key it
-    // may still scan. Once the two bounds sum up to shortestPathLength no
-    // shorter path exists (Pohl stopping criterion).
-    std::atomic<double> forwardBound;
-    std::atomic<double> backwardBound;
+    double shortestPathLength;
 
     // Transpose of graph: the backward search must traverse reversed edges
     std::vector<int> reverseXadj;
@@ -43,15 +40,10 @@ class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
     virtual void initQuery() override;
     virtual void resetInternalData() override;
     virtual ReturnCode preProcessImpl() override;
-    virtual ReturnCode computeImpl() override;
+    virtual ReturnCode runSearch() override;
     virtual ReturnCode buildResult() override;
     void buildReverseGraph();
-    ReturnCode runHalfSearch(
-        const crsGraph &searchGraph,
-        std::priority_queue<edge, std::vector<edge>, compareEdges> &myPq,
-        std::vector<double> &myDistances, std::vector<int> &myParents,
-        std::vector<double> &otherDistances, std::atomic<double> &myBound,
-        const std::atomic<double> &otherBound, CostEstimator costEstimator);
+    void scanNextVertex(bool forward);
     std::vector<int> reconstructPath(int source, int destination,
                                      const std::vector<int> &myParents);
     virtual double getDistanceBackward(int vertex)

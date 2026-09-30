@@ -9,28 +9,18 @@
 namespace SP
 {
 
+void AbstractAStarBiDirAlgo::initInternalData()
+{
+    AbstractDijkstraBiDirAlgo::initInternalData();
+
+    potentials.resize(graph.V);
+}
+
 void AbstractAStarBiDirAlgo::initQuery()
 {
-    cachedHsrc.assign(graph.V, 0.0);
-    cachedHdst.assign(graph.V, 0.0);
-    for (int v = 0; v < graph.V; ++v)
-    {
-        cachedHsrc[v] = heuristic(this->source, v);
-        cachedHdst[v] = heuristic(v, this->destination);
-    }
+    potentials.nextQuery();
 
     AbstractDijkstraBiDirAlgo::initQuery();
-}
-
-double AbstractAStarBiDirAlgo::estimateCost(int vertex)
-{
-    return distances[vertex] + 0.5 * (cachedHdst[vertex] - cachedHsrc[vertex]);
-}
-
-double AbstractAStarBiDirAlgo::estimateCostBackward(int vertex)
-{
-    return distancesBackward[vertex] +
-           0.5 * (cachedHsrc[vertex] - cachedHdst[vertex]);
 }
 
 } // namespace SP

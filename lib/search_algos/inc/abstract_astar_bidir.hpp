@@ -6,6 +6,7 @@
 #pragma once
 
 #include "abstract_dijkstra_bidir.hpp"
+#include "vertex_cache.hpp"
 
 namespace SP
 {
@@ -19,19 +20,35 @@ class AbstractAStarBiDirAlgo : public AbstractDijkstraBiDirAlgo
     virtual ~AbstractAStarBiDirAlgo() {}
 
   protected:
+    virtual void initInternalData() override;
     virtual void initQuery() override;
-    virtual double estimateCost(int vertex) override;
-    virtual double estimateCostBackward(int vertex) override;
+    virtual double estimateCost(int vertex) override
+    {
+        return distances[vertex] + potential(vertex);
+    }
+    virtual double estimateCostBackward(int vertex) override
+    {
+        return distancesBackward[vertex] - potential(vertex);
+    }
     // Lower bound on the distance from vertex to target (order matters for
     // directed graphs)
     virtual double heuristic(int vertex, int target) = 0;
 
-    // h(source, v) and h(v, destination) cached per query (filled in
-    // initQuery once source/destination are known). The forward search
-    // uses the symmetric potential (h_to_dest - h_from_src) / 2; the backward
-    // one uses its negation. With h_f + h_b = 0 the two searches share a single
-    // consistent meeting cost, which is what makes bidirectional A* sound.
-    std::vector<double> cachedHsrc;
-    std::vector<double> cachedHdst;
+    // The forward search uses the potential (h(v, destination) -
+    // h(source, v)) / 2, the backward one its negation. The two sum up to zero,
+    // so both searches work on the same reduced weights and the stopping
+    // criterion of bidirectional Dijkstra stays valid.
+    double potential(int vertex)
+    {
+        return potentials.get(vertex,
+                              [&]
+                              {
+                                  return 0.5 *
+                                         (heuristic(vertex, this->destination) -
+                                          heuristic(this->source, vertex));
+                              });
+    }
+
+    VertexCache potentials;
 };
 } // namespace SP
