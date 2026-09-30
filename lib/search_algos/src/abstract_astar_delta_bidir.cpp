@@ -11,9 +11,9 @@
 namespace SP
 {
 
-void AbstractAStarDeltaBiDirAlgo::resetInternalData()
+void AbstractAStarDeltaBiDirAlgo::initQuery()
 {
-    AbstractDeltaSteppingBiDirAlgo::resetInternalData();
+    AbstractDeltaSteppingBiDirAlgo::initQuery();
 
     cachedHsrc.assign(graph.V, 0.0);
     cachedHdst.assign(graph.V, 0.0);

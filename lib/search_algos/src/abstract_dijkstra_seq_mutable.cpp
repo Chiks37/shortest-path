@@ -37,8 +37,8 @@ ReturnCode AbstractDijkstraSeqMutableAlgo<PQ>::runSearch()
                 distances[currentVertex] + neighborVertexWeight;
             if (distances[neighborVertex] > neighbVerNewDistance)
             {
-                distances[neighborVertex] = neighbVerNewDistance;
-                parents[neighborVertex] = currentVertex;
+                updateLabel(neighborVertex, neighbVerNewDistance,
+                            currentVertex);
                 double neighbourEstimatedCost = estimateCost(neighborVertex);
                 edge newEdge = {neighborVertex, neighbourEstimatedCost};
                 if (handleValid[neighborVertex])
@@ -67,14 +67,25 @@ void AbstractDijkstraSeqMutableAlgo<PQ>::initInternalData()
     handleValid.assign(graph.V, false);
 }
 
-template <typename PQ>
-void AbstractDijkstraSeqMutableAlgo<PQ>::resetInternalData()
+template <typename PQ> void AbstractDijkstraSeqMutableAlgo<PQ>::initQuery()
 {
-    AbstractDijkstraAlgo::resetInternalData();
+    AbstractDijkstraAlgo::initQuery();
 
     double sourceEstimatedCost = estimateCost(this->source);
     handles[this->source] = pq.push({this->source, sourceEstimatedCost});
     handleValid[this->source] = true;
+}
+
+template <typename PQ>
+void AbstractDijkstraSeqMutableAlgo<PQ>::resetInternalData()
+{
+    for (int vertex : touched)
+    {
+        handleValid[vertex] = false;
+    }
+    pq.clear();
+
+    AbstractDijkstraAlgo::resetInternalData();
 }
 
 template class AbstractDijkstraSeqMutableAlgo<

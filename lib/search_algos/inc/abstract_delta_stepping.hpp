@@ -20,6 +20,7 @@ class AbstractDeltaSteppingAlgo : public AbstractDijkstraAlgo
     }
 
     virtual void initInternalData() override;
+    virtual void initQuery() override;
     virtual void resetInternalData() override;
     virtual ReturnCode preProcessImpl() override;
     virtual ReturnCode runSearch() override;

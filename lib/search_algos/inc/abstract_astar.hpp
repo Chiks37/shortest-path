@@ -6,6 +6,7 @@
 #pragma once
 
 #include "abstract_dijkstra_seq.hpp"
+#include "vertex_cache.hpp"
 
 namespace SP
 {
@@ -19,10 +20,15 @@ class AbstractAStarAlgo : public AbstractDijkstraSeqAlgo
     virtual ~AbstractAStarAlgo() {}
 
   protected:
+    virtual void initInternalData() override;
+    virtual void initQuery() override;
     virtual double estimateCost(int vertex) override
     {
-        return distances[vertex] + heuristic(vertex);
+        return distances[vertex] +
+               heuristics.get(vertex, [&] { return heuristic(vertex); });
     }
     virtual double heuristic(int vertex) = 0;
+
+    VertexCache heuristics;
 };
 } // namespace SP

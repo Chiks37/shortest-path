@@ -20,7 +20,7 @@ class AbstractDeltaSteppingBiDirAlgo : public AbstractDeltaSteppingAlgo
     }
 
     virtual void initInternalData() override;
-    virtual void resetInternalData() override;
+    virtual void initQuery() override;
     virtual ReturnCode preProcessImpl() override;
     virtual ReturnCode runSearch() override;
     virtual ReturnCode buildResult() override;

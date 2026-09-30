@@ -41,8 +41,8 @@ ReturnCode AbstractDijkstraSeqAlgo::runSearch()
                 distances[currentVertex] + neighborVertexWeight;
             if (distances[neighborVertex] > neighbVerNewDistance)
             {
-                distances[neighborVertex] = neighbVerNewDistance;
-                parents[neighborVertex] = currentVertex;
+                updateLabel(neighborVertex, neighbVerNewDistance,
+                            currentVertex);
                 double neigbourEstimatedCost = estimateCost(neighborVertex);
                 pq.push({neighborVertex, neigbourEstimatedCost});
             }
@@ -52,20 +52,19 @@ ReturnCode AbstractDijkstraSeqAlgo::runSearch()
     return ReturnCode::OK;
 }
 
-void AbstractDijkstraSeqAlgo::initInternalData()
+void AbstractDijkstraSeqAlgo::initQuery()
 {
-    AbstractDijkstraAlgo::initInternalData();
+    AbstractDijkstraAlgo::initQuery();
 
-    // Clear the pq
-    pq = std::priority_queue<edge, std::vector<edge>, compareEdges>();
+    double sourceEstimatedCost = estimateCost(this->source);
+    pq.push({this->source, sourceEstimatedCost});
 }
 
 void AbstractDijkstraSeqAlgo::resetInternalData()
 {
     AbstractDijkstraAlgo::resetInternalData();
 
-    double sourceEstimatedCost = estimateCost(this->source);
-    pq.push({this->source, sourceEstimatedCost});
+    pq.clear();
 }
 
 } // namespace SP

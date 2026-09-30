@@ -10,19 +10,6 @@
 
 namespace SP
 {
-ReturnCode AbstractDijkstraAlgo::setSrcDest(int source, int destination)
-{
-    ReturnCode rc = BaseAlgo::setSrcDest(source, destination);
-    if (rc != ReturnCode::OK)
-    {
-        return rc;
-    }
-
-    resetInternalData();
-
-    return rc;
-}
-
 ReturnCode AbstractDijkstraAlgo::preProcessImpl()
 {
     ReturnCode rc = BaseAlgo::preProcessImpl();
@@ -31,28 +18,38 @@ ReturnCode AbstractDijkstraAlgo::preProcessImpl()
         return rc;
     }
 
-    distances.resize(graph.V);
-    parents.resize(graph.V);
+    initInternalData();
 
     return rc;
 }
 
 ReturnCode AbstractDijkstraAlgo::computeImpl()
 {
+    initQuery();
     ReturnCode rc = runSearch();
     rc = rc != ReturnCode::OK ? rc : buildResult();
+    resetInternalData();
     return rc;
 }
 
 void AbstractDijkstraAlgo::initInternalData()
 {
     distances.assign(graph.V, std::numeric_limits<double>::infinity());
-    distances[this->source] = 0.0;
-
     parents.assign(graph.V, -1);
+    touched.clear();
 }
 
-void AbstractDijkstraAlgo::resetInternalData() { initInternalData(); }
+void AbstractDijkstraAlgo::initQuery() { updateLabel(this->source, 0.0, -1); }
+
+void AbstractDijkstraAlgo::resetInternalData()
+{
+    for (int vertex : touched)
+    {
+        distances[vertex] = std::numeric_limits<double>::infinity();
+        parents[vertex] = -1;
+    }
+    touched.clear();
+}
 
 ReturnCode AbstractDijkstraAlgo::buildResult()
 {

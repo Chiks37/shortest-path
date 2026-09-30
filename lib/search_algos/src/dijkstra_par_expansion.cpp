@@ -5,6 +5,7 @@
  */
 
 #include "dijkstra_par_expansion.hpp"
+#include <cmath>
 
 namespace SP
 {
@@ -12,6 +13,7 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
 {
 #pragma omp parallel
     {
+        std::vector<int> localTouched;
         while (!trackedPQ.is_drained())
         {
             edge currentEdge;
@@ -55,6 +57,10 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
 
                 if (distances[neighborVertex] > neighbVerNewDistance)
                 {
+                    if (std::isinf(distances[neighborVertex]))
+                    {
+                        localTouched.push_back(neighborVertex);
+                    }
                     distances[neighborVertex] = neighbVerNewDistance;
                     parents[neighborVertex] = currentVertex;
                     updated = true;
@@ -77,6 +83,9 @@ ReturnCode DijkstraParExpansionAlgo::runSearch()
 
             trackedPQ.mark_as_done();
         }
+
+#pragma omp critical
+        touched.insert(touched.end(), localTouched.begin(), localTouched.end());
     }
 
     return ReturnCode::OK;
@@ -86,24 +95,29 @@ void DijkstraParExpansionAlgo::initInternalData()
 {
     AbstractDijkstraAlgo::initInternalData();
 
-    // Clear the pq
     trackedPQ.clear();
-
-    bestDestDistance.store(std::numeric_limits<double>::infinity());
     vertexLocks = std::vector<std::atomic_flag>(graph.V);
-}
-
-void DijkstraParExpansionAlgo::resetInternalData()
-{
-    AbstractDijkstraAlgo::resetInternalData();
-
-    double sourceEstimatedCost = estimateCost(this->source);
-    trackedPQ.push({this->source, sourceEstimatedCost});
-
     for (auto &vertexLock : vertexLocks)
     {
         vertexLock.clear(std::memory_order_release);
     }
+}
+
+void DijkstraParExpansionAlgo::initQuery()
+{
+    AbstractDijkstraAlgo::initQuery();
+
+    bestDestDistance.store(distances[this->destination]);
+
+    double sourceEstimatedCost = estimateCost(this->source);
+    trackedPQ.push({this->source, sourceEstimatedCost});
+}
+
+void DijkstraParExpansionAlgo::resetInternalData()
+{
+    trackedPQ.clear();
+
+    AbstractDijkstraAlgo::resetInternalData();
 }
 
 } // namespace SP

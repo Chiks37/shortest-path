@@ -23,7 +23,6 @@ void AbstractDeltaSteppingBiDirAlgo::initInternalData()
     AbstractDeltaSteppingAlgo::initInternalData();
 
     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
-    distancesBackward[this->destination] = 0.0;
     parentsBackward.assign(graph.V, -1);
 
     vertexLocksBackward = std::vector<std::atomic_flag>(graph.V);
@@ -37,6 +36,16 @@ void AbstractDeltaSteppingBiDirAlgo::initInternalData()
     bucketInsertStampBackward.assign(graph.V, -1);
     bucketInsertBucketBackward.assign(graph.V, 0);
     insertStampBackward = 0;
+}
+
+void AbstractDeltaSteppingBiDirAlgo::initQuery()
+{
+    AbstractDeltaSteppingAlgo::initQuery();
+
+    distancesBackward[this->destination] = 0.0;
+    bucketsBackward[0].push_back(this->destination);
+    bucketInsertStampBackward[this->destination] = insertStampBackward;
+    bucketInsertBucketBackward[this->destination] = 0;
 
     meetingVertex = -1;
     shortestPathLength = std::numeric_limits<double>::infinity();
@@ -47,30 +56,6 @@ void AbstractDeltaSteppingBiDirAlgo::initInternalData()
     {
         meetingVertex = this->source;
         shortestPathLength = 0.0;
-    }
-}
-
-void AbstractDeltaSteppingBiDirAlgo::resetInternalData()
-{
-    AbstractDeltaSteppingAlgo::resetInternalData();
-
-    for (auto &vertexLock : vertexLocksBackward)
-    {
-        vertexLock.clear(std::memory_order_release);
-    }
-
-    if (bucketsBackward.empty())
-    {
-        bucketsBackward.resize(1);
-    }
-    bucketsBackward[0].clear();
-    bucketsBackward[0].push_back(this->destination);
-
-    if (!bucketInsertStampBackward.empty() && this->destination >= 0 &&
-        this->destination < graph.V)
-    {
-        bucketInsertStampBackward[this->destination] = 0;
-        bucketInsertBucketBackward[this->destination] = 0;
     }
 }
 

@@ -11,9 +11,9 @@
 namespace SP
 {
 
-void AbstractAStarDeltaAlgo::resetInternalData()
+void AbstractAStarDeltaAlgo::initQuery()
 {
-    AbstractDeltaSteppingAlgo::resetInternalData();
+    AbstractDeltaSteppingAlgo::initQuery();
 
     cachedH.assign(graph.V, 0.0);
     for (int v = 0; v < graph.V; ++v)

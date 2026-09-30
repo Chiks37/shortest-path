@@ -19,7 +19,7 @@ class AbstractAStarDeltaBiDirAlgo : public AbstractDeltaSteppingBiDirAlgo
     virtual ~AbstractAStarDeltaBiDirAlgo() {}
 
   protected:
-    virtual void resetInternalData() override;
+    virtual void initQuery() override;
     virtual ReturnCode buildResult() override;
     // Lower bound on the distance from vertex to target (order matters for
     // directed graphs)

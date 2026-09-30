@@ -40,6 +40,7 @@ class AbstractDijkstraBiDirAlgo : public AbstractDijkstraSeqAlgo
     crsGraph reverseGraph{};
 
     virtual void initInternalData() override;
+    virtual void initQuery() override;
     virtual void resetInternalData() override;
     virtual ReturnCode preProcessImpl() override;
     virtual ReturnCode computeImpl() override;

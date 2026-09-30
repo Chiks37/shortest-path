@@ -22,7 +22,7 @@ class DijkstraParRelaxationAlgo final : public AbstractDijkstraSeqAlgo
   protected:
     virtual ReturnCode runSearch() override;
     virtual void initInternalData() override;
-    virtual void resetInternalData() override;
+    virtual void initQuery() override;
     virtual bool completeCondition(int currentVertex);
 
     std::vector<std::atomic_flag> vertexLocks;

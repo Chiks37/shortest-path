@@ -22,6 +22,7 @@ class DijkstraParExpansionAlgo final : public AbstractDijkstraAlgo
     virtual ReturnCode runSearch() override;
 
     virtual void initInternalData() override;
+    virtual void initQuery() override;
     virtual void resetInternalData() override;
 
     TrackedPriorityQueue trackedPQ;

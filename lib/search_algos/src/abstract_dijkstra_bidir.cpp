@@ -14,12 +14,16 @@ void AbstractDijkstraBiDirAlgo::initInternalData()
     AbstractDijkstraSeqAlgo::initInternalData();
 
     distancesBackward.assign(graph.V, std::numeric_limits<double>::infinity());
-    distancesBackward[this->destination] = 0.0;
-
     parentsBackward.assign(graph.V, -1);
+}
 
-    // Clear the pq
-    pqBackward = std::priority_queue<edge, std::vector<edge>, compareEdges>();
+void AbstractDijkstraBiDirAlgo::initQuery()
+{
+    AbstractDijkstraSeqAlgo::initQuery();
+
+    distancesBackward[this->destination] = 0.0;
+    double destEstimatedCost = estimateCostBackward(this->destination);
+    pqBackward.push({this->destination, destEstimatedCost});
 
     meetingVertex = -1;
     shortestPathLength = std::numeric_limits<double>::infinity();
@@ -31,18 +35,19 @@ void AbstractDijkstraBiDirAlgo::initInternalData()
         meetingVertex = this->source;
         shortestPathLength = 0.0;
     }
-}
-
-void AbstractDijkstraBiDirAlgo::resetInternalData()
-{
-    AbstractDijkstraSeqAlgo::resetInternalData();
-
-    double destEstimatedCost = estimateCostBackward(this->destination);
-    pqBackward.push({this->destination, destEstimatedCost});
 
     forwardBound = estimateCost(this->source);
     backwardBound = destEstimatedCost;
 }
+
+void AbstractDijkstraBiDirAlgo::resetInternalData()
+{
+    // The half-searches do not record the vertices they label
+    AbstractDijkstraSeqAlgo::resetInternalData();
+    initInternalData();
+    pqBackward = std::priority_queue<edge, std::vector<edge>, compareEdges>();
+}
+
 ReturnCode AbstractDijkstraBiDirAlgo::preProcessImpl()
 {
     ReturnCode rc = AbstractDijkstraSeqAlgo::preProcessImpl();
@@ -67,6 +72,8 @@ void AbstractDijkstraBiDirAlgo::buildReverseGraph()
 
 ReturnCode AbstractDijkstraBiDirAlgo::computeImpl()
 {
+    initQuery();
+
 #pragma omp parallel
     {
 #pragma omp single
@@ -107,6 +114,7 @@ ReturnCode AbstractDijkstraBiDirAlgo::computeImpl()
     }
 
     buildResult();
+    resetInternalData();
 
     return ReturnCode::OK;
 }

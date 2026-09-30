@@ -9,7 +9,7 @@
 namespace SP
 {
 
-void AbstractAStarBiDirAlgo::resetInternalData()
+void AbstractAStarBiDirAlgo::initQuery()
 {
     cachedHsrc.assign(graph.V, 0.0);
     cachedHdst.assign(graph.V, 0.0);
@@ -19,7 +19,7 @@ void AbstractAStarBiDirAlgo::resetInternalData()
         cachedHdst[v] = heuristic(v, this->destination);
     }
 
-    AbstractDijkstraBiDirAlgo::resetInternalData();
+    AbstractDijkstraBiDirAlgo::initQuery();
 }
 
 double AbstractAStarBiDirAlgo::estimateCost(int vertex)

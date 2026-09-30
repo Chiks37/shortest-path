@@ -19,12 +19,12 @@ class AbstractAStarDeltaAlgo : public AbstractDeltaSteppingAlgo
     virtual ~AbstractAStarDeltaAlgo() {}
 
   protected:
-    virtual void resetInternalData() override;
+    virtual void initQuery() override;
     virtual double estimateCost(int vertex) override;
     virtual ReturnCode buildResult() override;
     virtual double heuristic(int vertex) = 0;
 
-    // h(v) cached per query. Materialized in resetInternalData (after the
+    // h(v) cached per query. Materialized in initQuery (after the
     // destination is set), used to compute reduced edge weights and to
     // restore the original distance in buildResult.
     std::vector<double> cachedH;

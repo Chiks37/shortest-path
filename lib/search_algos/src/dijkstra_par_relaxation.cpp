@@ -5,6 +5,7 @@
  */
 
 #include "dijkstra_par_relaxation.hpp"
+#include <cmath>
 
 namespace SP
 {
@@ -14,6 +15,7 @@ ReturnCode DijkstraParRelaxationAlgo::runSearch()
 #pragma omp parallel
     {
         std::vector<edge> localVertexBuffer;
+        std::vector<int> localTouched;
         while (true)
         {
 #pragma omp barrier
@@ -38,6 +40,7 @@ ReturnCode DijkstraParRelaxationAlgo::runSearch()
                 continue;
 
             localVertexBuffer.clear();
+            localTouched.clear();
 
 #pragma omp for nowait
             for (int i = graph.Xadj[currentVertex];
@@ -56,6 +59,10 @@ ReturnCode DijkstraParRelaxationAlgo::runSearch()
 
                     if (distances[neighborVertex] > neighbVerNewDistance)
                     {
+                        if (std::isinf(distances[neighborVertex]))
+                        {
+                            localTouched.push_back(neighborVertex);
+                        }
                         distances[neighborVertex] = neighbVerNewDistance;
                         parents[neighborVertex] = currentVertex;
 
@@ -76,6 +83,8 @@ ReturnCode DijkstraParRelaxationAlgo::runSearch()
                 {
                     pq.push(e);
                 }
+                touched.insert(touched.end(), localTouched.begin(),
+                               localTouched.end());
             }
         }
     }
@@ -93,14 +102,9 @@ void DijkstraParRelaxationAlgo::initInternalData()
     }
 }
 
-void DijkstraParRelaxationAlgo::resetInternalData()
+void DijkstraParRelaxationAlgo::initQuery()
 {
-    AbstractDijkstraSeqAlgo::resetInternalData();
-
-    for (auto &vertexLock : vertexLocks)
-    {
-        vertexLock.clear(std::memory_order_release);
-    }
+    AbstractDijkstraSeqAlgo::initQuery();
 
     isQueueEmpty = false;
 }

@@ -8,4 +8,17 @@
 
 namespace SP
 {
+void AbstractAStarAlgo::initInternalData()
+{
+    AbstractDijkstraSeqAlgo::initInternalData();
+
+    heuristics.resize(graph.V);
+}
+
+void AbstractAStarAlgo::initQuery()
+{
+    heuristics.nextQuery();
+
+    AbstractDijkstraSeqAlgo::initQuery();
+}
 } // namespace SP

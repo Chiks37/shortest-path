@@ -22,6 +22,7 @@ class AbstractDijkstraSeqMutableAlgo : public AbstractDijkstraAlgo
     virtual ReturnCode runSearch();
 
     virtual void initInternalData() override;
+    virtual void initQuery() override;
     virtual void resetInternalData() override;
 
     PQ pq;

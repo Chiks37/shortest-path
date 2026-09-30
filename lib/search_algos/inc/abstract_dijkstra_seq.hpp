@@ -19,10 +19,10 @@ class AbstractDijkstraSeqAlgo : public AbstractDijkstraAlgo
 
     virtual ReturnCode runSearch();
 
-    virtual void initInternalData() override;
+    virtual void initQuery() override;
     virtual void resetInternalData() override;
 
     // Priority queue for storing of next vertexes to be considered
-    std::priority_queue<edge, std::vector<edge>, compareEdges> pq;
+    EdgeQueue pq;
 };
 } // namespace SP

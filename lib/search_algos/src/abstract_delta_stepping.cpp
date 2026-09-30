@@ -33,28 +33,19 @@ void AbstractDeltaSteppingAlgo::initInternalData()
     insertStamp = 0;
 }
 
+void AbstractDeltaSteppingAlgo::initQuery()
+{
+    AbstractDijkstraAlgo::initQuery();
+
+    buckets[0].push_back(this->source);
+    bucketInsertStamp[this->source] = insertStamp;
+    bucketInsertBucket[this->source] = 0;
+}
+
 void AbstractDeltaSteppingAlgo::resetInternalData()
 {
-    AbstractDijkstraAlgo::resetInternalData();
-
-    for (auto &vertexLock : vertexLocks)
-    {
-        vertexLock.clear(std::memory_order_release);
-    }
-
-    if (buckets.empty())
-    {
-        buckets.resize(1);
-    }
-    buckets[0].clear();
-    buckets[0].push_back(this->source);
-
-    if (!bucketInsertStamp.empty() && this->source >= 0 &&
-        this->source < graph.V)
-    {
-        bucketInsertStamp[this->source] = 0;
-        bucketInsertBucket[this->source] = 0;
-    }
+    // Relaxations do not record the vertices they label
+    initInternalData();
 }
 
 void AbstractDeltaSteppingAlgo::computeDelta()

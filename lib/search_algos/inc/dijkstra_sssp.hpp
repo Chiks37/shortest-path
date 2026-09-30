@@ -21,6 +21,14 @@ class DijkstraSsspAlgo final : public AbstractDijkstraSeqAlgo
     ReturnCode setSource(int source) { return setSrcDest(source, source); }
 
   protected:
+    // The distances stay readable after compute, so the previous query is
+    // cleaned up when the next one starts
+    virtual void initQuery() override
+    {
+        AbstractDijkstraSeqAlgo::resetInternalData();
+        AbstractDijkstraSeqAlgo::initQuery();
+    }
+    virtual void resetInternalData() override {}
     virtual ReturnCode buildResult() override { return ReturnCode::OK; }
     virtual bool completeCondition(int) override { return false; }
 };

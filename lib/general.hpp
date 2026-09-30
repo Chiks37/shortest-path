@@ -9,6 +9,8 @@ extern "C"
 {
 #include "graphio.h"
 }
+#include <queue>
+#include <vector>
 
 namespace SP
 {
@@ -19,5 +21,14 @@ struct compareEdges
     {
         return e1.val > e2.val;
     }
+};
+
+// Binary heap of edges that keeps its storage when cleared, so a query does not
+// grow it again after the previous one
+class EdgeQueue
+    : public std::priority_queue<edge, std::vector<edge>, compareEdges>
+{
+  public:
+    void clear() { c.clear(); }
 };
 } // namespace SP
